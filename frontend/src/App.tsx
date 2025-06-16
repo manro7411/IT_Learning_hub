@@ -6,6 +6,7 @@ import KnowledgeForumLayout from "./pages/Forum/KnowledgeForumLayout";
 import PointDashboard from "./pages/Point/PointDashboard";
 import Gamedashboard from "./pages/Game/Gamedashboard";
 import Lessondashboard from "./pages/Lesson/Lessondashboard";
+import TaskManagement from "./pages/Taskmanagement/taskmanagement";
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
         <Route path="/" element={<LoginPage />} />
         <Route path="/dashboard" element={<UserDashboard />} />
         <Route path="/lesson" element={<Lessondashboard />} />
-        <Route path="/task" element={<Lessondashboard />} />
+        <Route path="/task" element={<TaskManagement/>} />
         <Route path="/forum" element={<KnowledgeForumLayout />} />
         <Route path="/point" element={<PointDashboard />} />
         <Route path="/game" element={<Gamedashboard />} />
