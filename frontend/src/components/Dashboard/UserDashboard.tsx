@@ -1,48 +1,12 @@
-import Logo1 from '../../assets/logo.png';
-import CalendarWidget from './CalendarWidget';
+import CalendarWidget from '../../widgets/CalendarWidget';
+import SidebarWidget from '../../widgets/SidebarWidget';
 
 const UserDashboard = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* Sidebar */}
-      <aside className="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
-        <div>
-          <img src={Logo1} alt="Bangkok Bank Logo" className="h-8 mb-8" />
-          <nav className="space-y-4 text-sm">
-            <div className="text-blue-600 font-semibold">Dashboard</div>
-            <div>Inbox</div>
-            <div>Lesson</div>
-            <div>Task</div>
-            <div>Group</div>
-            <div>Point</div>
-            <div>Game</div>
-          </nav>
-
-          <div className="mt-10">
-            <h3 className="text-sm font-semibold text-gray-400 mb-2">FRIENDS</h3>
-            <div className="space-y-3">
-              {Array(3).fill(0).map((_, i) => (
-                <div key={i} className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full"></div>
-                  <div>
-                    <div className="text-sm font-medium">Firstname Lastname</div>
-                    <div className="text-xs text-gray-500">Software Developer</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        <div className="text-sm space-y-2">
-          <div className="flex items-center space-x-2 text-gray-700">
-            <span>⚙️</span> <span>Settings</span>
-          </div>
-          <div className="flex items-center space-x-2 text-red-500">
-            <span>🚪</span> <span>Logout</span>
-          </div>
-        </div>
-      </aside>
+      
+      <SidebarWidget />
 
       {/* Main Content */}
       <main className="flex-1 p-6">
@@ -101,3 +65,43 @@ const UserDashboard = () => {
 };
 
 export default UserDashboard;
+
+
+// <aside className="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
+//         <div>
+//           <img src={Logo1} alt="Bangkok Bank Logo" className="h-8 mb-8" />
+//           <nav className="space-y-4 text-sm">
+//             <div className="text-blue-600 font-semibold">Dashboard</div>
+//             <div>Inbox</div>
+//             <div>Lesson</div>
+//             <div>Task</div>
+//             <div>Group</div>
+//             <div>Point</div>
+//             <div>Game</div>
+//           </nav>
+
+//           <div className="mt-10">
+//             <h3 className="text-sm font-semibold text-gray-400 mb-2">FRIENDS</h3>
+//             <div className="space-y-3">
+//               {Array(3).fill(0).map((_, i) => (
+//                 <div key={i} className="flex items-center space-x-2">
+//                   <div className="w-8 h-8 bg-blue-500 rounded-full"></div>
+//                   <div>
+//                     <div className="text-sm font-medium">Firstname Lastname</div>
+//                     <div className="text-xs text-gray-500">Software Developer</div>
+//                   </div>
+//                 </div>
+//               ))}
+//             </div>
+//           </div>
+//         </div>
+
+//         <div className="text-sm space-y-2">
+//           <div className="flex items-center space-x-2 text-gray-700">
+//             <span>⚙️</span> <span>Settings</span>
+//           </div>
+//           <div className="flex items-center space-x-2 text-red-500">
+//             <span>🚪</span> <span>Logout</span>
+//           </div>
+//         </div>
+//       </aside>
