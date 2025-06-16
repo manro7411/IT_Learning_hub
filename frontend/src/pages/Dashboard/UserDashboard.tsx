@@ -1,8 +1,8 @@
 import CalendarWidget from '../../widgets/CalendarWidget';
 import SidebarWidget from '../../widgets/SidebarWidget';
-import bgImage from '../../assets/backgroundcourse.png';
 import ScoreboardChart from '../../components/ScoreboardChart';
 import StatisticsChart from '../../components/StatisticsChart';
+import OnlineCourseBanner from '../../components/OnlineCourseBanner';
 
 const UserDashboard = () => {
   return (
@@ -16,27 +16,14 @@ const UserDashboard = () => {
           {/* Central content (3/4 width) */}
           <div className="xl:col-span-3 space-y-6">
             {/* Online Course Banner */}
-            <div
-              className="rounded-xl p-6 text-white bg-cover bg-center"
-              style={{ backgroundImage: `url(${bgImage})` }}
-            >
-              <div className="mb-4">
-                <div className="text-sm font-light">ONLINE COURSE</div>
-                <div className="text-2xl font-semibold mt-1">
-                  Your journey to smarter learning starts here.
-                </div>
-              </div>
-              <button className="bg-orange-400 hover:bg-orange-500 text-white font-medium px-4 py-2 rounded-full">
-                Join Now ▶
-              </button>
-            </div>
+            <OnlineCourseBanner/>
 
             {/* Statistics Chart */}
             <StatisticsChart />
 
             {/* Lessons */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {['Agile', 'Scrum', 'Waterfall'].map((title, i) => (
+              {['Agile', 'Scrum', 'Waterfall','Waterfall'].map((title, i) => (
                 <div key={i} className="bg-white p-4 rounded-xl shadow-md">
                   <div className="text-sm text-purple-600 font-medium mb-2">
                     {title}
