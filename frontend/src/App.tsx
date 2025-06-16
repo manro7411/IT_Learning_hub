@@ -1,11 +1,7 @@
 import './App.css'
+import LoginPage from './components/Login/LoginPage'
 
 function App() {
-  return (
-   <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <h1 className="text-4xl font-bold text-red-600">Tailwind OK!</h1>
-    </div>
-  )
-}
+  return <LoginPage/>}
 
 export default App
