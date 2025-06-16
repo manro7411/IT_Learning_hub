@@ -23,7 +23,7 @@ const UserDashboard = () => {
 
             {/* Lessons */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {['Agile', 'Scrum', 'Waterfall','Waterfall'].map((title, i) => (
+              {['Agile', 'Scrum', 'Waterfall'].map((title, i) => (
                 <div key={i} className="bg-white p-4 rounded-xl shadow-md">
                   <div className="text-sm text-purple-600 font-medium mb-2">
                     {title}
