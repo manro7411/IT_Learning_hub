@@ -1,5 +1,5 @@
-import Sidebar from '../components/Sidebar';
-import CalendarWidget from '../widgets/CalendarWidget';
+import CalendarWidget from "../../widgets/CalendarWidget";
+import Sidebar from "../../widgets/SidebarWidget";
 
 const KnowledgeForumLayout = () => {
   return (
