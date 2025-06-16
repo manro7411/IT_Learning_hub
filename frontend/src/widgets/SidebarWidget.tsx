@@ -3,9 +3,9 @@ import Logo from '../assets/logo.png'; // Adjust the path as necessary
 
 const Sidebar = () => {
   return (
-    <aside className="w-64 bg-white shadow-md p-6 flex flex-col justify-between">
+    <aside className="w-64 bg-white shadow-md p-6 m-4 rounded-xl flex flex-col justify-between">
       <div>
-        <img src={Logo} alt="Bangkok Bank Logo" className="h-8 mb-8" />
+        <img src={Logo} alt="Bangkok Bank Logo" className="h-12 mb-8" />
         <nav className="space-y-4 text-sm">
           {['Dashboard', 'Inbox', 'Lesson', 'Task', 'Group', 'Point', 'Game'].map((item, i) => (
             <div
