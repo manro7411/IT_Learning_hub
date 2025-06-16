@@ -1,6 +1,8 @@
 import CalendarWidget from '../../widgets/CalendarWidget';
 import SidebarWidget from '../../widgets/SidebarWidget';
 import bgImage from '../../assets/backgroundcourse.png';
+import ScoreboardChart from '../../components/ScoreboardChart';
+import StatisticsChart from '../../components/StatisticsChart';
 
 const UserDashboard = () => {
   return (
@@ -30,20 +32,7 @@ const UserDashboard = () => {
             </div>
 
             {/* Statistics Chart */}
-            <div className="bg-white rounded-xl p-4 shadow-md">
-              <div className="flex justify-between mb-4">
-                <h2 className="font-semibold text-gray-700">Statistics</h2>
-                <div className="space-x-2 text-sm text-gray-500">
-                  <button className="text-blue-600 font-medium">Month</button>
-                  <button>Day</button>
-                  <button>Week</button>
-                  <button>Year</button>
-                </div>
-              </div>
-              <div className="h-40 flex items-center justify-center text-gray-400">
-                [ Chart Placeholder ]
-              </div>
-            </div>
+            <StatisticsChart />
 
             {/* Lessons */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -68,8 +57,11 @@ const UserDashboard = () => {
           </div>
 
           {/* Calendar (1/4 width) */}
-          <div>
-            <CalendarWidget />
+          <div className="order-1 xl:order-2">
+            <div className="space-y-6 mt-4 xl:mt-0">
+              <CalendarWidget />
+              <ScoreboardChart />
+            </div>
           </div>
         </div>
       </main>
