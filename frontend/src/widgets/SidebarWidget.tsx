@@ -1,7 +1,7 @@
 // src/components/Sidebar.tsx
 import {
   Home,
-  Inbox,
+  // Inbox,
   BookOpen,
   ClipboardList,
   Users,
@@ -16,7 +16,7 @@ import { Link, useLocation } from 'react-router-dom';
 
 const menuItems = [
   { name: 'Dashboard', icon: <Home size={20} />, path: '/dashboard' },
-  { name: 'Inbox', icon: <Inbox size={20} />, path: '/inbox' },
+  // { name: 'Inbox', icon: <Inbox size={20} />, path: '/inbox' },
   { name: 'Lesson', icon: <BookOpen size={20} />, path: '/lesson' }, 
   { name: 'Task', icon: <ClipboardList size={20} />, path: '/task' },
   { name: 'Group', icon: <Users size={20} />, path: '/forum' },
