@@ -12,18 +12,21 @@ import {
   UserCircle,
 } from 'lucide-react';
 import Logo from '../assets/logo.png';
+import { Link, useLocation } from 'react-router-dom';
 
 const menuItems = [
-  { name: 'Dashboard', icon: <Home size={20} />, active: true },
-  { name: 'Inbox', icon: <Inbox size={20} /> },
-  { name: 'Lesson', icon: <BookOpen size={20} /> },
-  { name: 'Task', icon: <ClipboardList size={20} /> },
-  { name: 'Group', icon: <Users size={20} /> },
-  { name: 'Point', icon: <Star size={20} /> },
-  { name: 'Game', icon: <Gamepad2 size={20} /> },
+  { name: 'Dashboard', icon: <Home size={20} />, path: '/dashboard' },
+  { name: 'Inbox', icon: <Inbox size={20} />, path: '/inbox' },
+  { name: 'Lesson', icon: <BookOpen size={20} />, path: '/lesson' }, 
+  { name: 'Task', icon: <ClipboardList size={20} />, path: '/task' },
+  { name: 'Group', icon: <Users size={20} />, path: '/forum' },
+  { name: 'Point', icon: <Star size={20} />, path: '/point' },
+  { name: 'Game', icon: <Gamepad2 size={20} />, path: '/game' },
 ];
 
 const Sidebar = () => {
+  const location = useLocation();
+
   return (
     <aside className="w-64 bg-white shadow-md p-6 m-4 rounded-xl flex flex-col justify-between">
       <div>
@@ -32,15 +35,16 @@ const Sidebar = () => {
         {/* Menu */}
         <nav className="space-y-4 text-sm">
           {menuItems.map((item, i) => (
-            <div
+            <Link
+              to={item.path}
               key={i}
-              className={`flex items-center space-x-3 ${
-                item.active ? 'text-blue-600 font-semibold' : 'text-black'
+              className={`flex items-center space-x-3 hover:text-blue-600 transition ${
+                location.pathname === item.path ? 'text-blue-600 font-semibold' : 'text-black'
               }`}
             >
               {item.icon}
               <span>{item.name}</span>
-            </div>
+            </Link>
           ))}
         </nav>
 
