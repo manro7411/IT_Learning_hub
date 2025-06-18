@@ -2,35 +2,32 @@ package util;
 
 import io.smallrye.jwt.build.Jwt;
 
-import java.time.Duration;
-import java.util.HashSet;
-import java.util.Set;
 import java.io.InputStream;
+import java.time.Duration;
+import java.util.Map;
+import java.util.Set;
 
 public class JwtUtil {
 
     public static String generateToken(String email, String role) {
-        Set<String> roles = new HashSet<>();
-        roles.add(role);
 
-        InputStream in = Thread.currentThread()
-                .getContextClassLoader()
-                .getResourceAsStream("privateKey-pkcs8.pem");
-        System.out.println(in == null ? " NOT FOUND privateKey-pkcs8.pem" : " FOUND privateKey-pkcs8.pem");
+        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("privateKey-pkcs8.pem");
+        System.out.println("✅ Found privateKey-pkcs8.pem: " + (in != null));
+        System.out.println("🧪 Path: " + JwtUtil.class.getClassLoader().getResource("privateKey-pkcs8.pem"));
 
         String keyLocation = System.getProperty("smallrye.jwt.sign.key-location");
-        System.out.println("🔍 key location: " + keyLocation);
-
-        System.out.println("✅ FOUND: " + Jwt.class.getResource("/privateKey-pkcs8.pem"));
-        System.out.println(">>> Key Location: " + Jwt.class.getResource("/privatePem.key"));
-        System.out.println(Jwt.class.getResource("/privateKey-pkcs8.pem"));
+        System.out.println("🔍 system property 'key-location': " + keyLocation);
+        System.out.println("Path found: " + JwtUtil.class.getClassLoader().getResource("privateKey-pkcs8.pem"));
 
 
-
-
-        return Jwt.issuer("https://example.com/issuer")
+        return Jwt.claims(Map.of(
+                        "email", email,
+                        "role", role,
+                        "custom", "value"
+                ))
+                .issuer("https://example.com/issuer")
                 .subject(email)
-                .groups(roles)
+                .groups(Set.of(role))
                 .expiresIn(Duration.ofHours(2))
                 .sign();
     }
