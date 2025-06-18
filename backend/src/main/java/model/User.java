@@ -3,7 +3,7 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users", schema = "authentication")
+@Table(name = "users", schema = "userlogin")
 public class User{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
