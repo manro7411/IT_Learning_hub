@@ -1,5 +1,7 @@
 package org.acme.security.jwt;
+
 import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.InternalServerErrorException;
@@ -26,12 +28,11 @@ public class TokenSecuredResource {
     }
 
     @GET
-    @Path("roles_allowed")
-    @PermitAll
+    @Path("roles-allowed")
+    @RolesAllowed({ "User", "Admin" })
     @Produces(MediaType.TEXT_PLAIN)
-
     public String helloRolesAllowed(@Context SecurityContext ctx) {
-        return getResponseString(ctx)+", birthdate: "+jwt.getClaim("birthdate").toString();
+        return getResponseString(ctx) + ", birthdate: " + jwt.getClaim("birthdate").toString();
     }
 
     private String getResponseString(SecurityContext ctx) {
