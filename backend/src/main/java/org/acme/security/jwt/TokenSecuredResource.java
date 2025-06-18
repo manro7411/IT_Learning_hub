@@ -25,6 +25,15 @@ public class TokenSecuredResource {
         return getResponseString(ctx);
     }
 
+    @GET
+    @Path("roles_allowed")
+    @PermitAll
+    @Produces(MediaType.TEXT_PLAIN)
+
+    public String helloRolesAllowed(@Context SecurityContext ctx) {
+        return getResponseString(ctx)+", birthdate: "+jwt.getClaim("birthdate").toString();
+    }
+
     private String getResponseString(SecurityContext ctx) {
         String name;
         if (ctx.getUserPrincipal() == null) {
