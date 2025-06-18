@@ -20,6 +20,12 @@ public class TokenSecuredResource {
     JsonWebToken jwt;
 
     @GET
+    @Path("test")
+    public String hello() {
+        return "Hello!";
+    }
+
+    @GET
     @Path("permit-all")
     @PermitAll
     @Produces(MediaType.TEXT_PLAIN)
