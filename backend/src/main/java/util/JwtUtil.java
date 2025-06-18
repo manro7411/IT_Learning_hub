@@ -22,6 +22,10 @@ public class JwtUtil {
         System.out.println("🔍 key location: " + keyLocation);
 
         System.out.println("✅ FOUND: " + Jwt.class.getResource("/privateKey-pkcs8.pem"));
+        System.out.println(">>> Key Location: " + Jwt.class.getResource("/privatePem.key"));
+        System.out.println(Jwt.class.getResource("/privateKey-pkcs8.pem"));
+
+
 
 
         return Jwt.issuer("https://example.com/issuer")
