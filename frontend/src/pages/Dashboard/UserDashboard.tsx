@@ -11,7 +11,8 @@ const UserDashboard = () => {
   const { user } = useContext(AuthContext);
   console.log("Decoded user =>", user);
 
-  const displayName = user?.name || user?.upn || "User";
+  const displayName = user?.name || user?.upn ;
+// || "User"
 
   return (
       <div className="min-h-screen bg-gray-50 flex">

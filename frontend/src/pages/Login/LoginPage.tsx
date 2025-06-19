@@ -20,6 +20,7 @@ const LoginPage = () => {
       const token = res.data.token;
       localStorage.setItem("token",token);
       navigate("/dashboard");
+      window.location.reload();
     }catch (err){
       alert("Login failed");
       console.log(err)
