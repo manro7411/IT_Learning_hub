@@ -10,6 +10,7 @@ import TaskManagement from "./pages/Taskmanagement/Taskmanagement.tsx";
 import { AuthProvider } from "./Authentication/AuthContext";
 import AccountSettingsPage from "./pages/setting/AccountSettingsPage.tsx";
 import AdminDashboard from "./pages/Admin/Dashboard/AdminDashboard.tsx";
+import LessonDetailPage from "./pages/Lesson/LessonDetailPage.tsx";
 
 function App() {
   return (
@@ -26,6 +27,8 @@ function App() {
             <Route path="/game" element={<Gamedashboard />} />
             <Route path="/game" element={<Gamedashboard />} />
               <Route path="/admin" element={<AdminDashboard />} />
+              <Route path="/lesson/:id" element={<LessonDetailPage />} />
+
 
           </Routes>
         </Router>

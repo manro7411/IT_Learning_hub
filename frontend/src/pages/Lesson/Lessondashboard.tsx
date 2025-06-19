@@ -1,81 +1,123 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
+import { Link } from 'react-router-dom';
 
 import CalendarWidget from '../../widgets/CalendarWidget';
 import ScoreboardChart from '../../components/ScoreboardChart';
 import Sidebar from '../../widgets/SidebarWidget';
+import defaultUserAvatar from '../../assets/user.png';
 
 interface Lesson {
-  id: number;
-  title: string;
-  category: string;
-  description?: string;
-  thumbnailUrl?: string;
-  author?: string;
+    id: number;
+    title: string;
+    category: string;
+    description?: string;
+    thumbnailUrl?: string;
+    authorName?: string;
+    authorAvatarUrl?: string; // ✅ ต้องมีใน DTO backend
 }
 
 const LessonPage = () => {
-  const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [loading, setLoading] = useState(true);
+    const [lessons, setLessons] = useState<Lesson[]>([]);
+    const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    axios
-        .get('http://localhost:8080/learning')
-        .then((res) => setLessons(res.data))
-        .catch((err) => {
-          console.error("❌ Failed to fetch lessons:", err);
-          alert("Failed to fetch lessons");
-        })
-        .finally(() => setLoading(false));
-  }, []);
+    useEffect(() => {
+        axios
+            .get('http://localhost:8080/learning')
+            .then((res) => setLessons(res.data))
+            .catch((err) => {
+                console.error('❌ Failed to fetch lessons:', err);
+                alert('Failed to fetch lessons');
+            })
+            .finally(() => setLoading(false));
+    }, []);
 
-  return (
-      <div className="min-h-screen bg-gray-50 flex">
-        <Sidebar />
+    return (
+        <div className="min-h-screen bg-gray-50 flex">
+            <Sidebar />
 
-        <main className="flex-1 p-6">
-          <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-            {/* Lessons Grid */}
-            <div className="xl:col-span-3 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 order-2 xl:order-1">
-              {loading ? (
-                  <div className="text-gray-500">Loading lessons...</div>
-              ) : lessons.length === 0 ? (
-                  <div className="text-gray-500">No lessons available</div>
-              ) : (
-                  lessons.map((lesson) => (
-                      <div key={lesson.id} className="bg-white rounded-xl shadow-md overflow-hidden">
-                        <img
-                            src={lesson.thumbnailUrl || '/placeholder.png'}
-                            alt={lesson.title}
-                            className="w-full h-36 object-cover"
-                        />
-                        <div className="p-4">
-                    <span className="text-xs text-purple-600 font-semibold uppercase">
-                      {lesson.category}
-                    </span>
-                          <h3 className="text-sm font-semibold mt-1">{lesson.title}</h3>
-                          <div className="mt-2 flex items-center space-x-2">
-                            <div className="w-8 h-8 bg-blue-500 rounded-full" />
-                            <div>
-                              <div className="text-sm font-medium">{lesson.author || "Unknown Author"}</div>
-                              <div className="text-xs text-gray-500">Learning Content</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                  ))
-              )}
-            </div>
+            <main className="flex-1 p-6">
+                <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                    {/* ─── Lessons Grid ─── */}
+                    <div className="xl:col-span-3 grid gap-6 grid-cols-[repeat(auto-fill,minmax(256px,1fr))]">
+                        {loading ? (
+                            <div className="text-gray-500">Loading lessons...</div>
+                        ) : lessons.length === 0 ? (
+                            <div className="text-gray-500">No lessons available</div>
+                        ) : (
+                            lessons.map((lesson) => (
+                                <Link
+                                    key={lesson.id}
+                                    to={`/lesson/${lesson.id}`}
+                                    className="
+                    block
+                    focus:outline-none
+                    focus-visible:ring-0
+                  "
+                                >
+                                    <div className="w-64 h-[300px] bg-white rounded-xl shadow-md flex flex-col overflow-hidden">
+                                        {/* Thumbnail */}
+                                        <div className="w-full h-32 bg-gray-100">
+                                            <img
+                                                src={lesson.thumbnailUrl || '/placeholder.png'}
+                                                alt={lesson.title}
+                                                onError={(e) => {
+                                                    e.currentTarget.src = '/placeholder.png';
+                                                }}
+                                                className="w-full h-full object-cover"
+                                            />
+                                        </div>
 
-            {/* Calendar and Scoreboard */}
-            <div className="order-1 xl:order-2 space-y-6">
-              <CalendarWidget />
-              <ScoreboardChart />
-            </div>
-          </div>
-        </main>
-      </div>
-  );
+                                        {/* Content */}
+                                        <div className="p-4 flex flex-col flex-1">
+                      <span className="text-[10px] font-semibold text-purple-600 uppercase">
+                        {lesson.category}
+                      </span>
+
+                                            <h3 className="text-sm font-semibold mt-1 line-clamp-2">
+                                                {lesson.title}
+                                            </h3>
+
+                                            {/* Progress bar */}
+                                            <div className="h-1 bg-gray-200 rounded-full mt-3 mb-2">
+                                                <div className="h-full bg-blue-500 rounded-full w-[60%]" />
+                                            </div>
+
+                                            {/* Author */}
+                                            <div className="mt-auto flex items-center space-x-2">
+                                                <img
+                                                    src={lesson.authorAvatarUrl || defaultUserAvatar}
+                                                    alt="Author avatar"
+                                                    onError={(e) => {
+                                                        e.currentTarget.src = defaultUserAvatar;
+                                                    }}
+                                                    className="w-7 h-7 rounded-full object-cover"
+                                                />
+                                                <div>
+                                                    <div className="text-xs font-medium">
+                                                        {lesson.authorName || 'Unknown Author'}
+                                                    </div>
+                                                    <div className="text-[10px] text-gray-500">
+                                                        Learning Content
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Link>
+                            ))
+                        )}
+                    </div>
+
+                    {/* ─── Sidebar widgets ─── */}
+                    <div className="order-1 xl:order-2 space-y-6">
+                        <CalendarWidget />
+                        <ScoreboardChart />
+                    </div>
+                </div>
+            </main>
+        </div>
+    );
 };
 
 export default LessonPage;

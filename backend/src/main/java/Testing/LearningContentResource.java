@@ -34,7 +34,6 @@ public class LearningContentResource {
     public Response create(LearningContentDto dto) {
 
         LearningContent lc = dto.toEntity();
-        // ดึงชื่อ admin จาก token
         lc.setAuthorName(jwt.getClaim("name"));
         lc.setAuthorRole("Admin");
 
@@ -69,4 +68,12 @@ public class LearningContentResource {
         LearningContent lc = em.find(LearningContent.class, id);
         if (lc != null) em.remove(lc);
     }
+    @GET
+    @Path("/{id}")
+    public LearningContentDto getOne(@PathParam("id") Long id) {
+        var content = em.find(LearningContent.class, id);
+        if (content == null) throw new NotFoundException();
+        return LearningContentDto.fromEntity(content);
+    }
+
 }
