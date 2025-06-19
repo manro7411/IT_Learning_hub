@@ -1,5 +1,4 @@
 package Testing;
-
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -10,7 +9,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
 import model.User;
 import util.JwtUtil;
 
@@ -38,6 +36,7 @@ public class LoginResource {
             }
 
             String token = JwtUtil.generateToken(user.getEmail(), user.getRole());
+
 
             return Response.ok().entity("{\"token\": \"" + token + "\"}").build();
 
