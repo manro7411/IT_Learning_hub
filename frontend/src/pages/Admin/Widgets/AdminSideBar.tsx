@@ -1,8 +1,8 @@
 // src/widgets/AdminSidebarWidget.tsx
 import {
-  Home, Users, BookOpen, FileText, Settings, LogOut, UserCircle
+  Home, Users, BookOpen, FileText, Settings, LogOut,
 } from "lucide-react";
-import Logo from "../assets/logo.png";
+import Logo from "../../../assets/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import {AuthContext} from "../../../Authentication/AuthContext.tsx";
@@ -49,22 +49,6 @@ export default function AdminSidebarWidget() {
             </Link>
           ))}
         </nav>
-
-        {/* Admin Info */}
-        <div className="mt-10">
-          <h3 className="text-sm font-semibold text-gray-400 mb-2">ADMIN TEAM</h3>
-          <div className="space-y-3">
-            {Array.from({ length: 2 }).map((_, i) => (
-              <div key={i} className="flex items-center space-x-2">
-                <UserCircle className="w-8 h-8 text-blue-500" />
-                <div>
-                  <div className="text-sm font-medium">Admin {i + 1}</div>
-                  <div className="text-xs text-gray-500">System Admin</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       {/* Bottom Section */}

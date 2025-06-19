@@ -3,6 +3,7 @@ import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import SidebarWidget from "../../widgets/SidebarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
+import {useNavigate} from "react-router-dom";
 
 interface FormState {
   fullName: string;
@@ -13,6 +14,8 @@ interface FormState {
 
 const AccountSettingsPage = () => {
   const { token } = useContext(AuthContext);
+  const navigate = useNavigate();
+
 
   const [form, setForm] = useState<FormState>({
     fullName: "",
@@ -41,7 +44,6 @@ const AccountSettingsPage = () => {
         .finally(() => setLoading(false));
   }, [token]);
 
-  /* ─── HANDLERS ─── */
   const handleChange = (
       e: React.ChangeEvent<HTMLInputElement>
   ) => setForm({ ...form, [e.target.name]: e.target.value });
@@ -63,6 +65,8 @@ const AccountSettingsPage = () => {
           { headers: { Authorization: `Bearer ${token}` } }
       );
       alert("✅ Profile updated!");
+      navigate("/dashboard");
+
     } catch {
       alert("Update failed");
     }
@@ -70,7 +74,6 @@ const AccountSettingsPage = () => {
 
   if (loading) return <div className="p-6">Loading…</div>;
 
-  /* ─── UI ─── */
   return (
       <div className="min-h-screen bg-gray-100 flex">
         <SidebarWidget />

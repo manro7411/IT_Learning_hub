@@ -1,6 +1,6 @@
 import { useContext } from "react";
-import SidebarWidget from "../../../widgets/SidebarWidget.tsx";
 import {AuthContext} from "../../../Authentication/AuthContext.tsx";
+import AdminSidebarWidget from "../Widgets/AdminSideBar.tsx";
 
 const AdminDashboard = () => {
     const { user } = useContext(AuthContext);
@@ -10,7 +10,7 @@ const AdminDashboard = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex">
             {/* Sidebar */}
-            <SidebarWidget />
+            <AdminSidebarWidget />
 
             {/* Main Content */}
             <main className="flex-1 p-8">

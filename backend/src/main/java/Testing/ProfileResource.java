@@ -20,7 +20,7 @@ public class ProfileResource {
 
     /* ---------- GET: current user ---------- */
     @GET
-    @RolesAllowed({ "employee", "admin" })
+    @RolesAllowed({ "user","employee", "admin" })
     public ProfileDto getMe() {
         String email = jwt.getClaim("email");
 
@@ -40,7 +40,7 @@ public class ProfileResource {
 
     @PUT
     @Transactional
-    @RolesAllowed({ "employee", "admin" })
+    @RolesAllowed({ "user","employee", "admin" })
     public ProfileDto updateMe(UpdateDto dto) {
         String email = jwt.getClaim("email");
 
