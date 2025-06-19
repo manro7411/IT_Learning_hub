@@ -11,30 +11,41 @@ public class UserLessonProgress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId;
+    @Column(name = "user_email", nullable = false)
+    private String userEmail; // ✅ เพิ่ม field นี้
 
     @Column(name = "lesson_id", nullable = false)
     private Long lessonId;
 
-    @Column(nullable = false)
+    @Column(name = "percent", nullable = false)
     private Integer percent = 0;
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
-    // ✅ Constructors
     public UserLessonProgress() {}
 
-    // ✅ Getters
+    @PrePersist
+    public void prePersist() {
+        if (updatedAt == null) {
+            updatedAt = LocalDateTime.now();
+        }
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
+
+    // --- Getters ---
     public Long getId() { return id; }
-    public Long getUserId() { return userId; }
+    public String getUserEmail() { return userEmail; } // ✅
     public Long getLessonId() { return lessonId; }
     public Integer getPercent() { return percent; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 
-    // ✅ Setters
-    public void setUserId(Long userId) { this.userId = userId; }
+    // --- Setters ---
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; } // ✅
     public void setLessonId(Long lessonId) { this.lessonId = lessonId; }
     public void setPercent(Integer percent) { this.percent = percent; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
