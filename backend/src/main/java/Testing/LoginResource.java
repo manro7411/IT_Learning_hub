@@ -23,6 +23,8 @@ public class LoginResource {
     @POST
     @Transactional
     public Response login(User request) {
+        System.out.println("EMAIL: " + request.getEmail());
+        System.out.println("PASSWORD: " + request.getPassword());
         try {
             User user = em.createQuery(
                             "SELECT u FROM User u WHERE u.email = :email", User.class)
@@ -45,5 +47,7 @@ public class LoginResource {
                     .entity("User not found")
                     .build();
         }
+
     }
+
 }

@@ -9,6 +9,7 @@ import OnlineCourseBanner from "../../components/OnlineCourseBanner";
 
 const UserDashboard = () => {
   const { user } = useContext(AuthContext);
+  console.log("Decoded user =>", user);
 
   const displayName = user?.name || user?.upn || "User";
 
