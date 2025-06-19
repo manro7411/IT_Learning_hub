@@ -37,10 +37,10 @@ const LoginPage = () => {
       if (role === "user") {
         navigate("/dashboard");
       } else if (role === "admin") {
-        navigate("/dashboard/admin");
+        navigate("/admin");
 
       }else{
-
+        console.log("Something went wrong")
         navigate("/");
       }
 
