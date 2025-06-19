@@ -5,7 +5,8 @@ import {
 import Logo from "../assets/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
-import { AuthContext } from "../Authentication/AuthContext";
+import {AuthContext} from "../../../Authentication/AuthContext.tsx";
+
 
 const adminMenuItems = [
   { name: "Dashboard", icon: <Home size={20} />, path: "/admin" },
