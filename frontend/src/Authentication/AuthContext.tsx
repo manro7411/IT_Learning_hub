@@ -4,7 +4,9 @@ import { jwtDecode } from "jwt-decode";
 interface User {
     upn?: string;
     name?: string;
+    email?: string;
     groups?: string[];
+    role?: string;
     exp?: number;
     [key: string]: unknown;
 }
@@ -27,23 +29,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(
         localStorage.getItem("token")
     );
-    const [user, setUser] = useState<User | null>(() => {
-        if (token) {
-            try {
-                return jwtDecode<User>(token);
-            } catch (e) {
-                console.error("JWT decode failed:", e);
-            }
-        }
-        return null;
-    });
 
+    const [user, setUser] = useState<User | null>(null);
+
+    // Decode token and set user state
+    const decodeAndSetUser = (jwt: string) => {
+        try {
+            const decoded = jwtDecode<User>(jwt);
+            setUser(decoded);
+        } catch (e) {
+            console.error("❌ Failed to decode token:", e);
+            logout(); // Clear invalid token
+        }
+    };
+
+    // Set token on load if valid
     useEffect(() => {
         if (token) {
             try {
                 const decoded = jwtDecode<User>(token);
                 const now = Date.now() / 1000;
-                if (decoded.exp && decoded.exp < now) {
+                if (decoded.exp && decoded.exp > now) {
+                    setUser(decoded);
+                } else {
                     logout();
                 }
             } catch {
@@ -55,7 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const login = (jwt: string) => {
         localStorage.setItem("token", jwt);
         setToken(jwt);
-        setUser(jwtDecode<User>(jwt));
+        decodeAndSetUser(jwt);
     };
 
     const logout = () => {

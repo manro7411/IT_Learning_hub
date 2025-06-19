@@ -47,8 +47,7 @@ public class UserResource {
                         .build();
             }
 
-
-            String token = JwtUtil.generateToken(user.getEmail(), user.getRole());
+            String token = JwtUtil.generateToken(user.getEmail(), user.getRole(), user.getName());
 
             return Response.ok().entity("{\"token\": \"" + token + "\"}").build();
         } catch (NoResultException e) {

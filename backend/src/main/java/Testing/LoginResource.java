@@ -1,4 +1,5 @@
 package Testing;
+
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -25,6 +26,7 @@ public class LoginResource {
     public Response login(User request) {
         System.out.println("EMAIL: " + request.getEmail());
         System.out.println("PASSWORD: " + request.getPassword());
+
         try {
             User user = em.createQuery(
                             "SELECT u FROM User u WHERE u.email = :email", User.class)
@@ -37,8 +39,8 @@ public class LoginResource {
                         .build();
             }
 
-            String token = JwtUtil.generateToken(user.getEmail(), user.getRole());
 
+            String token = JwtUtil.generateToken(user.getEmail(), user.getRole(), user.getName());
 
             return Response.ok().entity("{\"token\": \"" + token + "\"}").build();
 
@@ -47,7 +49,5 @@ public class LoginResource {
                     .entity("User not found")
                     .build();
         }
-
     }
-
 }
