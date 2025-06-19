@@ -7,6 +7,7 @@ import Lessondashboard from "../pages/Lesson/Lessondashboard";
 import TaskManagement from "../pages/Taskmanagement/Taskmanagement";
 import AccountSettingsPage from "../pages/setting/AccountSettingsPage";
 import LessonDetailPage from "../pages/Lesson/LessonDetailPage";
+import LessonVideoPage from "../pages/Lesson/LessonVideoPage.tsx";
 
 export const UserRoutes = () => (
     <Routes>
@@ -18,5 +19,7 @@ export const UserRoutes = () => (
         <Route path="/point" element={<PointDashboard />} />
         <Route path="/game" element={<Gamedashboard />} />
         <Route path="/settings" element={<AccountSettingsPage />} />
+            <Route path="/lesson/:id/video" element={<LessonVideoPage />} />
+
     </Routes>
 );
