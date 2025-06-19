@@ -1,14 +1,29 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InstructionModal from "./../../components/InstructionModal";
+import axios from "axios";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/dashboard");
+
+    try {
+      const res = await axios.post("http://localhost:8080/login",{
+        email,password
+      });
+
+      const token = res.data.token;
+      localStorage.setItem("token",token);
+      navigate("/dashboard");
+    }catch (err){
+      alert("Login failed");
+      console.log(err)
+    }
   };
 
   return (
@@ -35,12 +50,16 @@ const LoginPage = () => {
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
                 type="text"
+                value={email}
+                onChange={(e)=> setEmail(e.target.value)}
                 placeholder="users"
                 className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
               />
               <input
                 type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
                 placeholder="********"
                 className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
                 required
