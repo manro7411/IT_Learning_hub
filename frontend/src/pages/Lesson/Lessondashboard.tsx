@@ -14,12 +14,13 @@ interface Lesson {
     description?: string;
     thumbnailUrl?: string;
     authorName?: string;
-    authorAvatarUrl?: string; // ✅ ต้องมีใน DTO backend
+    authorAvatarUrl?: string;
 }
 
 const LessonPage = () => {
     const [lessons, setLessons] = useState<Lesson[]>([]);
     const [loading, setLoading] = useState(true);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         axios
@@ -32,28 +33,41 @@ const LessonPage = () => {
             .finally(() => setLoading(false));
     }, []);
 
+    const filteredLessons = lessons.filter(
+        (lesson) =>
+            lesson.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            lesson.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (lesson.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
+    );
+
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <Sidebar />
 
             <main className="flex-1 p-6">
+                <div className="mb-6">
+                    <input
+                        type="text"
+                        placeholder="Search lessons..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="w-full xl:w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                </div>
+
                 <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-                    {/* ─── Lessons Grid ─── */}
+
                     <div className="xl:col-span-3 grid gap-6 grid-cols-[repeat(auto-fill,minmax(256px,1fr))]">
                         {loading ? (
                             <div className="text-gray-500">Loading lessons...</div>
-                        ) : lessons.length === 0 ? (
-                            <div className="text-gray-500">No lessons available</div>
+                        ) : filteredLessons.length === 0 ? (
+                            <div className="text-gray-500">No lessons found</div>
                         ) : (
-                            lessons.map((lesson) => (
+                            filteredLessons.map((lesson) => (
                                 <Link
                                     key={lesson.id}
                                     to={`/lesson/${lesson.id}`}
-                                    className="
-                    block
-                    focus:outline-none
-                    focus-visible:ring-0
-                  "
+                                    className="block focus:outline-none focus-visible:ring-0"
                                 >
                                     <div className="w-64 h-[300px] bg-white rounded-xl shadow-md flex flex-col overflow-hidden">
                                         {/* Thumbnail */}
@@ -70,9 +84,9 @@ const LessonPage = () => {
 
                                         {/* Content */}
                                         <div className="p-4 flex flex-col flex-1">
-                      <span className="text-[10px] font-semibold text-purple-600 uppercase">
-                        {lesson.category}
-                      </span>
+                                            <span className="text-[10px] font-semibold text-purple-600 uppercase">
+                                                {lesson.category}
+                                            </span>
 
                                             <h3 className="text-sm font-semibold mt-1 line-clamp-2">
                                                 {lesson.title}

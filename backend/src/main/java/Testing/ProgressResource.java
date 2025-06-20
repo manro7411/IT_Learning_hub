@@ -11,6 +11,7 @@ import model.UserLessonProgress;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @RequestScoped
@@ -21,6 +22,11 @@ public class ProgressResource {
 
     @Inject EntityManager em;
     @Inject JsonWebToken jwt;
+
+    /* ─────────────────────────────────────────
+     * PUT /progress/{lessonId}
+     * อัปเดต progress ของผู้ใช้สำหรับ lesson
+     * ───────────────────────────────────────── */
     @PUT
     @Path("/{lessonId}")
     @Transactional
@@ -28,20 +34,14 @@ public class ProgressResource {
         String userEmail = jwt.getSubject();
 
         if (userEmail == null || userEmail.isBlank()) {
-            System.out.println("❌ No user email in JWT");
             throw new NotAuthorizedException("No user email in JWT");
         }
 
         int clamped = Math.max(0, Math.min(dto.getPercent(), 100));
 
-        System.out.printf("📥 [PUT] /progress/%s\n", lessonId);
-        System.out.printf("📧 userEmail = %s\n", userEmail);
-        System.out.printf("📊 Incoming percent = %d\n", dto.getPercent());
-
         Optional<UserLessonProgress> existing = em.createQuery(
                         "SELECT p FROM UserLessonProgress p WHERE p.userEmail = :e AND p.lessonId = :l",
-                        UserLessonProgress.class
-                )
+                        UserLessonProgress.class)
                 .setParameter("e", userEmail)
                 .setParameter("l", lessonId)
                 .getResultStream()
@@ -53,23 +53,32 @@ public class ProgressResource {
         progress.setPercent(clamped);
         progress.setUpdatedAt(LocalDateTime.now());
 
-        em.persist(progress);
-
-        System.out.println("✅ Progress saved");
+        em.merge(progress);  // ✅ ใช้ merge แทน persist
 
         return Response.ok().build();
     }
 
-    // DTO class
+    @GET
+    @Path("/my")
+    public List<UserLessonProgress> getMyProgress() {
+        String userEmail = jwt.getSubject();
+
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new NotAuthorizedException("No user email in JWT");
+        }
+
+        return em.createQuery("""
+                SELECT p FROM UserLessonProgress p
+                WHERE p.userEmail = :email
+                """, UserLessonProgress.class)
+                .setParameter("email", userEmail)
+                .getResultList();
+    }
+
+
     public static class ProgressDto {
         private int percent;
-
-        public int getPercent() {
-            return percent;
-        }
-
-        public void setPercent(int percent) {
-            this.percent = percent;
-        }
+        public int getPercent() { return percent; }
+        public void setPercent(int percent) { this.percent = percent; }
     }
 }

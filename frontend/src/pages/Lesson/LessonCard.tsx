@@ -6,7 +6,7 @@ interface Props {
     thumbnailUrl: string;
     author: string;
     role: string;
-    progress?: number; // 0-100
+    progress?: number; // 0–100, default = 0
 }
 
 export default function LessonCard({
@@ -20,11 +20,11 @@ export default function LessonCard({
     return (
         <div
             className="
-        w-64           /* ⬅️ FIXED WIDTH (256 px) */
-        h-[300px]      /* ⬅️ FIXED HEIGHT */
-        bg-white rounded-xl shadow-md
-        flex flex-col overflow-hidden
-      "
+                w-64           /* FIXED WIDTH (256 px) */
+                h-[300px]      /* FIXED HEIGHT */
+                bg-white rounded-xl shadow-md
+                flex flex-col overflow-hidden
+            "
         >
             {/* ─── Thumbnail ─── */}
             <div className="relative h-32 w-full">
@@ -37,11 +37,11 @@ export default function LessonCard({
                 {/* Like / bookmark icon */}
                 <button
                     className="
-            absolute top-2 right-2
-            w-7 h-7 bg-white/70 backdrop-blur
-            rounded-full flex items-center justify-center
-            hover:bg-white
-          "
+                        absolute top-2 right-2
+                        w-7 h-7 bg-white/70 backdrop-blur
+                        rounded-full flex items-center justify-center
+                        hover:bg-white
+                    "
                 >
                     <Heart size={14} className="text-blue-600" />
                 </button>
@@ -51,8 +51,8 @@ export default function LessonCard({
             <div className="p-3 flex flex-col flex-1">
                 {/* Category tag */}
                 <span className="text-[10px] font-semibold text-purple-600 uppercase">
-          {category}
-        </span>
+                    {category}
+                </span>
 
                 {/* Title (2 lines clamp) */}
                 <h3 className="text-sm font-semibold leading-tight mt-[2px] line-clamp-2">
@@ -62,7 +62,7 @@ export default function LessonCard({
                 {/* Progress bar */}
                 <div className="h-1 bg-gray-200 rounded-full mt-3 mb-2">
                     <div
-                        className="h-full bg-blue-600 rounded-full"
+                        className="h-full bg-blue-600 rounded-full transition-[width] duration-300"
                         style={{ width: `${progress}%` }}
                     />
                 </div>
