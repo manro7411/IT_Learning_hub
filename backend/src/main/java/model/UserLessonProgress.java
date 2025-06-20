@@ -10,7 +10,6 @@ public class UserLessonProgress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    /* ⬇ เปลี่ยนจาก Long ➜ String  และกำหนด length */
     @Column(name = "lesson_id", nullable = false, length = 30)
     private String lessonId;
 
@@ -23,7 +22,7 @@ public class UserLessonProgress {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    /* --- getters / setters --- */
+
     public Long getId()                    { return id; }
     public String  getLessonId()           { return lessonId; }
     public String  getUserEmail()          { return userEmail; }

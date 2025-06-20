@@ -33,7 +33,7 @@ public class AdminProgressResource {
         for (LearningContent course : myCourses) {
             List<UserLessonProgress> progresses = em.createQuery(
                             "SELECT p FROM UserLessonProgress p WHERE p.lessonId = :lessonId", UserLessonProgress.class)
-                    .setParameter("lessonId", course.getId())  // ✅ now course.getId() is String
+                    .setParameter("lessonId", course.getId())
                     .getResultList();
             for (UserLessonProgress p : progresses) {
                 CourseProgressDto dto = new CourseProgressDto();

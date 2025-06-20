@@ -25,7 +25,6 @@ const AccountSettingsPage = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  /* ─── LOAD PROFILE ─── */
   useEffect(() => {
     if (!token) return;
     axios

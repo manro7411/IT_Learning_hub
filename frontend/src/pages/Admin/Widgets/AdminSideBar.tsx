@@ -13,7 +13,7 @@ const adminMenuItems = [
   { name: "Task management", icon: <Users size={20} />, path: "/admin/lesson/management" },
   { name: "Courses", icon: <BookOpen size={20} />, path: "/admin/lesson/create" },
   { name: "System Logs", icon: <FileText size={20} />, path: "/admin/logs" },
-  { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
+  { name: "Settings", icon: <Settings size={20} />, path: "/admin/setting" },
 ];
 
 export default function AdminSidebarWidget() {
@@ -54,7 +54,7 @@ export default function AdminSidebarWidget() {
       {/* Bottom Section */}
       <div className="text-sm space-y-2">
         <button
-          onClick={() => navigate("/settings")}
+          onClick={() => navigate("/admin/setting")}
           className="flex items-center space-x-2 text-gray-700 hover:text-blue-600"
         >
           <Settings size={18} />

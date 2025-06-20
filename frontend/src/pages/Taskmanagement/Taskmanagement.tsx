@@ -63,10 +63,8 @@ const TaskManagement = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
-      {/* Sidebar */}
       <Sidebar />
 
-      {/* Main Content */}
       <main className="flex-1 p-6 overflow-x-auto">
         <form onSubmit={handleAddTask} className="flex space-x-4 mb-6">
           <input
@@ -91,7 +89,6 @@ const TaskManagement = () => {
         </div>
       </main>
 
-      {/* Sidebar Right Widgets */}
       <div className="hidden xl:block w-80 space-y-6 p-4">
         <CalendarWidget />
         <ScoreboardChart />

@@ -5,11 +5,17 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminSetting/AdminSettingPage.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/AdminProgressResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/AdminProgressResource.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/ProgressResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/ProgressResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/dto/LearningContentDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dto/LearningContentDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/model/User.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/model/User.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/model/UserLessonProgress.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/model/UserLessonProgress.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Taskmanagement/AdminTaskManagementPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Taskmanagement/AdminTaskManagementPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/LessonCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/LessonCard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/LessonDetailPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/LessonDetailPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/setting/AccountSettingsPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/setting/AccountSettingsPage.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -150,7 +156,7 @@
       <updated>1750060732586</updated>
       <workItem from="1750060733714" duration="976000" />
       <workItem from="1750227025540" duration="49515000" />
-      <workItem from="1750384216426" duration="15468000" />
+      <workItem from="1750384216426" duration="18202000" />
     </task>
     <servers />
   </component>

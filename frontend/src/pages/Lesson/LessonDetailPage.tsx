@@ -56,10 +56,11 @@ const LessonDetailPage = () => {
                             "Content-Type": "application/json",
                         },
                     })
-                    .then(() => console.log("✅ Progress saved"))
+                    // .then(() => console.log("✅ Progress saved"))
                     .catch((err) => console.error("❌ PUT failed:", err));
             }
-        }, 10_000);
+        }, 0);
+        // 10_000
 
         if (progress >= 100 && !showQuiz) {
             setShowQuiz(true);

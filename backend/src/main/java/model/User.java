@@ -4,7 +4,7 @@ import org.mindrot.jbcrypt.BCrypt;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "users", schema = "userlogin")
+@Table(name = "users")
 public class User {
 
     @Id

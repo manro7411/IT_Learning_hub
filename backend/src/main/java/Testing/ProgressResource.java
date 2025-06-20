@@ -19,14 +19,8 @@ import java.util.Optional;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ProgressResource {
-
     @Inject EntityManager em;
     @Inject JsonWebToken jwt;
-
-    /* ─────────────────────────────────────────
-     * PUT /progress/{lessonId}
-     * อัปเดต progress ของผู้ใช้สำหรับ lesson
-     * ───────────────────────────────────────── */
     @PUT
     @Path("/{lessonId}")
     @Transactional
@@ -52,21 +46,17 @@ public class ProgressResource {
         progress.setLessonId(lessonId);
         progress.setPercent(clamped);
         progress.setUpdatedAt(LocalDateTime.now());
-
-        em.merge(progress);  // ✅ ใช้ merge แทน persist
+        em.merge(progress);
 
         return Response.ok().build();
     }
-
     @GET
     @Path("/my")
     public List<UserLessonProgress> getMyProgress() {
         String userEmail = jwt.getSubject();
-
         if (userEmail == null || userEmail.isBlank()) {
             throw new NotAuthorizedException("No user email in JWT");
         }
-
         return em.createQuery("""
                 SELECT p FROM UserLessonProgress p
                 WHERE p.userEmail = :email
@@ -74,7 +64,6 @@ public class ProgressResource {
                 .setParameter("email", userEmail)
                 .getResultList();
     }
-
 
     public static class ProgressDto {
         private int percent;

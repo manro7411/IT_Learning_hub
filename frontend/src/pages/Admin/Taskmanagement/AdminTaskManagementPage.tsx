@@ -1,10 +1,8 @@
-// src/pages/Admin/Lesson/AdminTaskManagementPage.tsx
 import { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { AuthContext } from "../../../Authentication/AuthContext";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
 
-/* ---------- Types ---------- */
 interface Lesson {
     id: number;
     title: string;
@@ -16,7 +14,6 @@ interface UserProgress {
     percent: number;
     lessonId: number;
 }
-
 const AdminTaskManagementPage = () => {
     const { token } = useContext(AuthContext);
 
@@ -25,7 +22,6 @@ const AdminTaskManagementPage = () => {
     const [progressList,  setProgressList]  = useState<UserProgress[]>([]);
     const [selectedUser,  setSelectedUser]  = useState<UserProgress | null>(null);
 
-    /* ───── โหลดเฉพาะคอร์สของ Admin ───── */
     useEffect(() => {
         if (!token) return;
         axios
@@ -36,7 +32,6 @@ const AdminTaskManagementPage = () => {
             .catch(console.error);
     }, [token]);
 
-    /* ───── เลือกคอร์ส – โหลด progress ───── */
     const handleSelectLesson = (lesson: Lesson) => {
         setSelectedLesson(lesson);
         setSelectedUser(null);
@@ -51,7 +46,6 @@ const AdminTaskManagementPage = () => {
             .catch(console.error);
     };
 
-    /* ───── ลบคอร์ส ───── */
     const handleDeleteLesson = async (id: number) => {
         const ok = window.confirm("Delete this lesson? This cannot be undone!");
         if (!ok) return;
@@ -60,7 +54,6 @@ const AdminTaskManagementPage = () => {
             await axios.delete(`http://localhost:8080/learning/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-            // เอาออกจาก state
             setLessons((prev) => prev.filter((l) => l.id !== id));
             if (selectedLesson?.id === id) {
                 setSelectedLesson(null);
@@ -73,8 +66,6 @@ const AdminTaskManagementPage = () => {
             alert("❌ Delete failed");
         }
     };
-
-    /* ---------- Render ---------- */
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <AdminSidebarWidget />
@@ -85,7 +76,7 @@ const AdminTaskManagementPage = () => {
                 </h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* ───── Lesson list ───── */}
+
                     <section className="col-span-1 space-y-4">
                         {lessons.map((lesson) => (
                             <div
@@ -95,7 +86,7 @@ const AdminTaskManagementPage = () => {
                                     ? "bg-blue-50 border-blue-500"
                                     : "bg-white hover:border-blue-500"}`}
                             >
-                                {/* เนื้อหา คลิกเพื่อเลือก */}
+
                                 <div onClick={() => handleSelectLesson(lesson)}>
                                     <h3 className="font-semibold text-lg text-gray-800">
                                         {lesson.title}
@@ -118,7 +109,7 @@ const AdminTaskManagementPage = () => {
                         ))}
                     </section>
 
-                    {/* ───── รายชื่อผู้เรียน ───── */}
+
                     <section className="col-span-1 space-y-4">
                         {progressList.length === 0 && selectedLesson && (
                             <p className="text-gray-400">No progress yet…</p>
