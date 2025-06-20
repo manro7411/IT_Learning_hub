@@ -6,14 +6,14 @@ import QuestionImage from '../../assets/question.png';
 const Scenario = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const selectedRole = location.state?.role || 'unknown';
+  const selectedRole = location.state?.role ;
 
   return (
     <div className="min-h-screen bg-white flex">
       <SidebarWidget />
 
       <main className="flex-1 p-10 flex font-sans relative">
-        {/* ปุ่มย้อนกลับ */}
+
         <button
           onClick={() => navigate(-1)}
           className="absolute top-10 left-10 bg-orange-400 w-12 h-10 rounded-xl shadow-md font-bold text-lg text-white"
@@ -21,10 +21,10 @@ const Scenario = () => {
           &lt;&lt;
         </button>
 
-        {/* ซ้าย: หัวข้อ + ปุ่ม */}
+        {/* left */}
         <div className="w-1/3 flex flex-col justify-center items-start pr-8">
           <h1
-            className="text-4xl font-bold leading-tight mb-10 text-blue-600"
+            className="text-4xl text-center font-bold leading-tight mb-10 text-blue-600"
             style={{
               fontFamily: '"Happy Monkey", cursive',
               textShadow: '2px 2px 6px rgba(0, 0, 255, 0.3)',
@@ -35,16 +35,16 @@ const Scenario = () => {
 
           <button
             onClick={() => navigate('/question')}
-            className="bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold px-10 py-2 rounded-full shadow-md"
+            className="bg-blue-500 hover:bg-blue-600 text-white text-xl font-bold px-10 py-2 rounded-full shadow-md ml-12 "
             style={{ fontFamily: '"Happy Monkey", cursive' }}
           >
             Next
           </button>
         </div>
 
-        {/* ขวา: กล่องเนื้อหา */}
+        {/* right */}
         <div className="w-2/3 flex flex-col gap-6">
-          {/* Row 1: รูป + Background */}
+
           <div className="flex gap-6 items-stretch">
             <div className="flex-1">
               <img
@@ -58,7 +58,7 @@ const Scenario = () => {
                 className="text-xl font-bold mb-2"
                 style={{ fontFamily: '"Happy Monkey", cursive' }}
               >
-                Background:
+                💬Background:
               </h2>
               <p className="text-base text-gray-800 font-syne">
                 You're halfway through Sprint 3. The team is working on finalizing the online account registration module.
@@ -71,7 +71,6 @@ const Scenario = () => {
             </div>
           </div>
 
-          {/* Row 2: รูป + Challenge */}
           <div className="flex gap-6 items-stretch">
             <div className="flex-1">
               <img

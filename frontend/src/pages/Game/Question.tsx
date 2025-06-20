@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SidebarWidget from '../../widgets/SidebarWidget';
 import { useNavigate } from 'react-router-dom';
 
@@ -9,12 +9,52 @@ const choices = [
   'พูดคุยกับ Stakeholder เพื่ออธิบายกระบวนการ Scrum และเสนอเป็น Backlog Item ถัดไป',
 ];
 
-const correctAnswerIndex = 2; // ข้อที่ 3 ตอบถูก
+const correctAnswerIndex = 2;
 
 const Question = () => {
   const navigate = useNavigate();
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number>(10);
+  const [hasTimedOut, setHasTimedOut] = useState(false);
+
+  useEffect(() => {
+    if (timeLeft <= 0 && selectedIndex === null) {
+      setHasTimedOut(true);
+      navigate('/answer_false', {
+        state: {
+          question: 'ในฐานะ Developer, คุณควรจัดการอย่างไร?',
+          correctAnswer: choices[correctAnswerIndex],
+          selected: null,
+          currentIndex: 1,
+          total: 5
+        }
+      });
+      return;
+    }
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => prev - 1);
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [timeLeft, selectedIndex, navigate]);
+
+  useEffect(() => {
+    if (selectedIndex !== null) {
+      const timeout = setTimeout(() => {
+        const isCorrect = selectedIndex === correctAnswerIndex;
+        navigate(isCorrect ? '/answer_true' : '/answer_false', {
+          state: {
+            question: 'ในฐานะ Developer, คุณควรจัดการอย่างไร?',
+            correctAnswer: choices[correctAnswerIndex],
+            selected: choices[selectedIndex],
+            currentIndex: 1,
+            total: 5
+          }
+        });
+      }, 1000);
+      return () => clearTimeout(timeout);
+    }
+  }, [selectedIndex, navigate]);
 
   const handleChoice = (index: number) => {
     setSelectedIndex(index);
@@ -25,28 +65,31 @@ const Question = () => {
     <div className="min-h-screen bg-white flex font-sans">
       <SidebarWidget />
 
-      <main className="flex-1 p-10">
-        {/* Back + Timer */}
-        <div className="flex justify-between items-center mb-4">
-          <button
-            onClick={() => navigate(-1)}
-            className="bg-orange-300 w-12 h-12 rounded-full shadow-md font-bold text-xl"
-          >
-            &lt;&lt;
-          </button>
-          <div className="w-12 h-12 rounded-full border-4 border-green-400 text-center text-lg font-bold flex items-center justify-center">
-            10
+      <main className="flex-1 p-10 relative">
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute top-10 left-10 bg-orange-400 w-12 h-10 rounded-xl shadow-md font-bold text-lg text-white"
+        >
+          &lt;&lt;
+        </button>
+
+        <div className="absolute top-10 right-10">
+          <div className="w-16 h-16 rounded-full border-4 border-green-400 text-center text-xl font-bold flex items-center justify-center">
+            {timeLeft}
           </div>
         </div>
 
-        {/* Question Content */}
-        <div className="bg-gray-50 rounded-xl p-8 shadow-md">
-          <div className="text-orange-500 text-xl font-bold mb-2 font-syne w-12 h-12 rounded-full ">1/5</div>
-          <h2 className="text-2xl font-semibold mb-6 text-center">
-            ในฐานะ Developer, คุณควรจัดการอย่างไร?
-          </h2>
+        <div className="mt-24 bg-gray-50 rounded-xl p-8 shadow-md">
+          <div className="flex flex-col items-center gap-3 mb-6">
+            <div className="absolute top-40 left-14 w-12 h-12 rounded-full bg-orange-400 text-white flex items-center justify-center text-xl font-syne">
+              1/5 
+            </div>
+            <h2 className="text-2xl font-syne">
+              ในฐานะ Developer, คุณควรจัดการอย่างไร?
+            </h2>
+          </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 font-syne ">
             {choices.map((choice, index) => {
               const isSelected = selectedIndex === index;
               const showResult = selectedIndex !== null;
@@ -66,17 +109,19 @@ const Question = () => {
                   onClick={() => handleChoice(index)}
                   className={`flex items-center text-white bg-blue-600 rounded-full px-6 py-3 text-left shadow-md border-4 ${borderColor}`}
                 >
-                  <div className="bg-orange-400 w-8 h-8 rounded-full flex items-center justify-center font-bold mr-4">
-                    {index + 1}
+                  <div className="bg-orange-400 w-10 h-10 text-2xl rounded-full flex items-center justify-center mr-4 text-bold">
+                    {index + 1} 
                   </div>
-                  <span className="flex-1">{choice}</span>
+                  <span className="flex-1 text-lg font-md leading-snug">
+                    {choice}
+                  </span>
                 </button>
               );
             })}
           </div>
         </div>
       </main>
-    </div>
+    </div> 
   );
 };
 

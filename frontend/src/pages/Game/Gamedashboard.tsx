@@ -1,11 +1,7 @@
 import SidebarWidget from '../../widgets/SidebarWidget';
 import { useNavigate } from 'react-router-dom'
 
-const topThree = [
-  { username: 'ghr678', medal: 'silver' },
-  { username: 'sneha1809', medal: 'gold' },
-  { username: 'br7609', medal: 'bronze' },
-];
+
 
 const leaderboardData = [
   { username: '@sr1809', rank: 4, score: 400 },
@@ -16,22 +12,15 @@ const leaderboardData = [
   { username: '@brinda670988', rank: 9, score: 310 },
 ];
 
-const medalEmoji = {
-  gold: '🥇',
-  silver: '🥈',
-  bronze: '🥉',
-};
-
-const getMedalColor = (medal) => {
+const getMedalColor = (medal: string) => {
   switch (medal) {
     case 'gold':
-      return 'bg-orange-400';
+      return 'bg-orange-300';
     case 'silver':
       return 'bg-orange-300';
     case 'bronze':
       return 'bg-orange-300';
-    default:
-      return 'bg-gray-100';
+    
   }
 };
 
@@ -39,7 +28,7 @@ const Gamedashboard = () => {
   const navigate = useNavigate();  
   return (
     <div className="min-h-screen bg-white flex font-sans">
-      {/* Sidebar */}
+
       <SidebarWidget />
 
       {/* Main */}
@@ -73,16 +62,16 @@ const Gamedashboard = () => {
         </div>
 
         {/* Filter Dropdown */}
-        <div className="mb-6 flex items-center gap-2 text-lg">
+        <div className="mb-6 flex items-center gap-2 text-lg font-syne">
           <span>Showing :</span>
-          <select className="border rounded px-2 py-1">
+          <select className="border rounded px-4 py-1">
             <option>Overall</option>
           </select>
         </div>
 
         {/* Top 3 Medals */}
-        <div className="grid grid-cols-3 items-end mb-10">
-            {/* Left (อันดับ 2) */}
+        <div className="grid grid-cols-3 items-end mb-10 font-syne">
+        
             <div className="flex justify-start">
                 <div className={`text-center rounded-xl px-[120px] py-1 shadow-md ${getMedalColor('silver')}`}>
                     <div className="text-3xl font-bold mb-2">🥈</div>
@@ -90,27 +79,23 @@ const Gamedashboard = () => {
                  </div>
             </div>
 
-            {/* Center (อันดับ 1) */}
-        <div className="flex justify-center">
-            <div className="scale-110 z-10 text-center rounded-xl px-[95px] py-2 shadow-md bg-orange-300">
-                <div className="text-3xl font-bold mb-2">🥇</div>
-                <div className="text-lg ">sneha1809</div>
+            <div className="flex justify-center">
+                <div className="scale-110 z-10 text-center rounded-xl px-[95px] py-2 shadow-md bg-orange-300">
+                    <div className="text-3xl font-bold mb-2">🥇</div>
+                    <div className="text-lg ">sneha1809</div>
+                </div>
             </div>
-        </div>
 
-            {/* Right (อันดับ 3) */}
-        <div className="flex justify-end">
-            <div className={`text-center rounded-xl px-[120px] py-1 shadow-md ${getMedalColor('bronze')}`}>
-                <div className="text-3xl font-bold mb-2">🥉</div>
-                <div className="text-lg ">br7609</div>
+            <div className="flex justify-end">
+                <div className={`text-center rounded-xl px-[120px] py-1 shadow-md ${getMedalColor('bronze')}`}>
+                    <div className="text-3xl font-bold mb-2">🥉</div>
+                    <div className="text-lg ">br7609</div>
+                </div>
             </div>
-        </div>
     </div>
-
-
-
+    
         {/* Table Header */}
-        <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-x-16 text-left font-bold text-xl border-b mb-2 pb-2">
+        <div className="grid grid-cols-[1.5fr_1fr_1fr] gap-x-16 text-left font-bold text-xl border-b mb-2 pb-2 font-syne">
             <div>Username</div>
             <div>Rank</div>
             <div>Score</div>
@@ -118,11 +103,11 @@ const Gamedashboard = () => {
 
 
         {/* Leaderboard Table */}
-        <div className="space-y-2">
+        <div className="space-y-2 font-syne">
           {leaderboardData.map((player, i) => (
             <div
               key={i}
-              className={`grid grid-cols-[1.5fr_1fr_1fr] gap-x-16 text-left  p-3 rounded-lg text-lg ${
+              className={`grid grid-cols-[1.5fr_1fr_1fr] gap-x-28 text-left  p-3 rounded-xl text-lg ${
                 i % 2 === 0 ? 'bg-blue-200' : 'bg-blue-100'
               }`}
             >

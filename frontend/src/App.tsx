@@ -9,7 +9,8 @@ import Rule from "./pages/Game/Rule";
 import Select_role from './pages/Game/Select_role';
 import Scenario from './pages/Game/Scenario';
 import Question from './pages/Game/Question';
-
+import AnswerTrue from './pages/Game/Answer_true';
+import AnswerFalse from './pages/Game/Answer_false';
 
 import Lessondashboard from "./pages/Lesson/Lessondashboard";
 import TaskManagement from "./pages/Taskmanagement/Taskmanagement";
@@ -31,7 +32,8 @@ function App() {
         <Route path="/select-role" element={<Select_role />} />
         <Route path="/scenario" element={<Scenario />} />
         <Route path="/question" element={<Question />} />
-
+        <Route path="/answer_true" element={<AnswerTrue />} />
+        <Route path="/answer_false" element={<AnswerFalse/>} />
       </Routes>
     </Router>
   );
