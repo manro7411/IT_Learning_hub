@@ -21,12 +21,11 @@ public class ProgressResource {
 
     @Inject EntityManager em;
     @Inject JsonWebToken jwt;
-
     @PUT
     @Path("/{lessonId}")
     @Transactional
-    public Response updateProgress(@PathParam("lessonId") Long lessonId, ProgressDto dto) {
-        String userEmail = jwt.getSubject();  // ✅ ใช้ email จาก JWT
+    public Response updateProgress(@PathParam("lessonId") String lessonId, ProgressDto dto) {
+        String userEmail = jwt.getSubject();
 
         if (userEmail == null || userEmail.isBlank()) {
             System.out.println("❌ No user email in JWT");
@@ -35,7 +34,7 @@ public class ProgressResource {
 
         int clamped = Math.max(0, Math.min(dto.getPercent(), 100));
 
-        System.out.printf("📥 [PUT] /progress/%d\n", lessonId);
+        System.out.printf("📥 [PUT] /progress/%s\n", lessonId);
         System.out.printf("📧 userEmail = %s\n", userEmail);
         System.out.printf("📊 Incoming percent = %d\n", dto.getPercent());
 

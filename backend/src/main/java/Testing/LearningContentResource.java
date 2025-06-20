@@ -20,52 +20,42 @@ import java.util.List;
 public class LearningContentResource {
 
     @Inject EntityManager em;
-    @Inject JsonWebToken jwt;                     // ▸ sub = email, name = display-name
+    @Inject JsonWebToken jwt;
 
-    /* ─────────────────────────────────────────────
-     *  1) LIST  (ทั้งหมด หรือเฉพาะของตัวเอง)
-     *    GET /learning            → all
-     *    GET /learning?mine=true  → เฉพาะของผู้เรียก
-     * ───────────────────────────────────────────── */
+    /* ─────────────── 1) LIST ─────────────── */
     @GET
     public List<LearningContentDto> list(
             @QueryParam("mine") @DefaultValue("false") boolean mine) {
 
-        if (mine) {                              // คืนเฉพาะ content ของตัวเอง
-            String email = jwt.getSubject();     // email จาก JWT
+        if (mine) {
+            String email = jwt.getSubject();
             return em.createQuery("""
-                    SELECT lc
-                      FROM LearningContent lc
-                     WHERE lc.authorEmail = :email
-                     ORDER BY lc.createdAt DESC
-                   """, LearningContent.class)
+                    SELECT lc FROM LearningContent lc
+                    WHERE lc.authorEmail = :email
+                    ORDER BY lc.createdAt DESC
+                    """, LearningContent.class)
                     .setParameter("email", email)
                     .getResultStream()
                     .map(LearningContentDto::fromEntity)
                     .toList();
         }
 
-        // default = ทุกคอร์ส
         return em.createQuery("""
-                FROM LearningContent lc
-                ORDER BY lc.createdAt DESC
-               """, LearningContent.class)
+        SELECT lc FROM model.LearningContent lc
+        ORDER BY lc.createdAt DESC
+        """, LearningContent.class)
                 .getResultStream()
                 .map(LearningContentDto::fromEntity)
                 .toList();
     }
 
-    /* ─────────────────────────────────────────────
-     *  2) CREATE  (admin เท่านั้น)
-     * ───────────────────────────────────────────── */
     @POST
     @Transactional
     @RolesAllowed("admin")
     public Response create(LearningContentDto dto) {
-
         LearningContent lc = dto.toEntity();
         lc.setAuthorName(jwt.getClaim("name"));
-        lc.setAuthorEmail(jwt.getSubject());     // 🆕 เก็บ email
+        lc.setAuthorEmail(jwt.getSubject());
         lc.setAuthorRole("admin");
 
         em.persist(lc);
@@ -76,16 +66,13 @@ public class LearningContentResource {
                 .build();
     }
 
-    /* ─────────────────────────────────────────────
-     *  3) UPDATE  (admin)
-     * ───────────────────────────────────────────── */
+    /* ─────────────── 3) UPDATE ─────────────── */
     @PUT
     @Path("/{id}")
     @Transactional
     @RolesAllowed("admin")
-    public LearningContentDto update(@PathParam("id") Long id,
+    public LearningContentDto update(@PathParam("id") String id,
                                      LearningContentDto dto) {
-
         LearningContent lc = em.find(LearningContent.class, id);
         if (lc == null) throw new NotFoundException();
 
@@ -97,24 +84,20 @@ public class LearningContentResource {
         return LearningContentDto.fromEntity(lc);
     }
 
-    /* ─────────────────────────────────────────────
-     *  4) DELETE  (admin)
-     * ───────────────────────────────────────────── */
+    /* ─────────────── 4) DELETE ─────────────── */
     @DELETE
     @Path("/{id}")
     @Transactional
     @RolesAllowed("admin")
-    public void delete(@PathParam("id") Long id) {
+    public void delete(@PathParam("id") String id) {
         LearningContent lc = em.find(LearningContent.class, id);
         if (lc != null) em.remove(lc);
     }
 
-    /* ─────────────────────────────────────────────
-     *  5) GET ONE  (public)
-     * ───────────────────────────────────────────── */
+    /* ─────────────── 5) GET ONE ─────────────── */
     @GET
     @Path("/{id}")
-    public LearningContentDto getOne(@PathParam("id") Long id) {
+    public LearningContentDto getOne(@PathParam("id") String id) {
         LearningContent lc = em.find(LearningContent.class, id);
         if (lc == null) throw new NotFoundException();
         return LearningContentDto.fromEntity(lc);

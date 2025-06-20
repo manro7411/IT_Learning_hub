@@ -1,12 +1,11 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
 import Sidebar from "../../widgets/SidebarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
 
-/* ---------- Types ---------- */
 interface Lesson {
-    id: number;
+    id: string;
     title: string;
     description: string;
     category: string;
@@ -21,12 +20,13 @@ const LessonDetailPage = () => {
     const { id } = useParams();
     const { token } = useContext(AuthContext);
     const videoRef = useRef<HTMLVideoElement>(null);
+    const navigate = useNavigate();
 
     const [lesson, setLesson] = useState<Lesson | null>(null);
     const [progress, setProgress] = useState(0);
     const [loading, setLoading] = useState(true);
+    const [showQuiz, setShowQuiz] = useState(false);
 
-    /* ── Load Lesson ── */
     useEffect(() => {
         axios
             .get<Lesson>(`http://localhost:8080/learning/${id}`)
@@ -35,7 +35,6 @@ const LessonDetailPage = () => {
             .finally(() => setLoading(false));
     }, [id]);
 
-    /* ── Video progress tracking ── */
     const handleTimeUpdate = () => {
         const v = videoRef.current;
         if (!v || !v.duration) return;
@@ -43,15 +42,12 @@ const LessonDetailPage = () => {
         setProgress(pct);
     };
 
-    /* ── Sync progress to backend ── */
     useEffect(() => {
         if (!lesson || !token) return;
 
         const timer = setInterval(() => {
-            if (progress > 0) {
+            if (progress > 0 && progress < 100) {
                 const data = { percent: Math.floor(progress) };
-
-                console.log("📤 PUT /progress", lesson.id, data);
 
                 axios
                     .put(`http://localhost:8080/progress/${lesson.id}`, data, {
@@ -65,10 +61,13 @@ const LessonDetailPage = () => {
             }
         }, 10_000);
 
-        return () => clearInterval(timer);
-    }, [progress, lesson, token]);
+        if (progress >= 100 && !showQuiz) {
+            setShowQuiz(true);
+        }
 
-    /* ── UI ── */
+        return () => clearInterval(timer);
+    }, [progress, lesson, token, showQuiz]);
+
     if (loading || !lesson) {
         return <div className="p-6 text-gray-400">⏳ Loading lesson…</div>;
     }
@@ -76,7 +75,6 @@ const LessonDetailPage = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <Sidebar />
-
             <main className="flex-1 p-8">
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
                     {/* ▶ Video & Details */}
@@ -110,7 +108,7 @@ const LessonDetailPage = () => {
                         </section>
                     </div>
 
-                    {/* ▶ Schedule (Mock) */}
+                    {/* ▶ Schedule */}
                     <aside className="space-y-6 mt-4 xl:mt-0">
                         <div className="bg-white p-4 rounded-xl shadow">
                             <h3 className="text-sm font-semibold mb-4 text-gray-700">Schedule</h3>
@@ -129,6 +127,25 @@ const LessonDetailPage = () => {
                     </aside>
                 </div>
             </main>
+
+            {/* 🎉 Popup Quiz */}
+            {showQuiz && (
+                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+                    <div className="bg-white p-6 rounded-xl shadow-xl w-[90%] max-w-md text-center">
+                        <h2 className="text-xl font-bold mb-4">🎉 You finished the lesson!</h2>
+                        <p className="text-gray-700 mb-6">Take a short quiz to test your knowledge.</p>
+                        <button
+                            onClick={() => {
+                                setShowQuiz(false);
+                                navigate(`/quiz/${lesson.id}`);
+                            }}
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+                        >
+                            Start Quiz
+                        </button>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

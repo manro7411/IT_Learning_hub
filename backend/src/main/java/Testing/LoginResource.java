@@ -9,6 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import model.User;
 import util.JwtUtil;
+import org.mindrot.jbcrypt.BCrypt;  // ✅ เพิ่ม import
 
 @Path("/login")
 @Produces(MediaType.APPLICATION_JSON)
@@ -29,7 +30,7 @@ public class LoginResource {
                     .setParameter("email", request.email)
                     .getSingleResult();
 
-            if (!user.getPassword().equals(request.password)) {
+            if (!BCrypt.checkpw(request.password, user.getPassword())) {
                 System.out.println("❌ Invalid password for: " + request.email);
                 return Response.status(Response.Status.UNAUTHORIZED)
                         .entity(new ErrorResponse("Invalid credentials"))
@@ -48,6 +49,7 @@ public class LoginResource {
                     .build();
         }
     }
+
     public static class LoginRequest {
         public String email;
         public String password;

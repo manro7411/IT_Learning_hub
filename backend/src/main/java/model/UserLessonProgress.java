@@ -2,7 +2,6 @@ package model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-
 @Entity
 @Table(name = "user_lesson_progress")
 public class UserLessonProgress {
@@ -11,42 +10,28 @@ public class UserLessonProgress {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /* ⬇ เปลี่ยนจาก Long ➜ String  และกำหนด length */
+    @Column(name = "lesson_id", nullable = false, length = 30)
+    private String lessonId;
+
     @Column(name = "user_email", nullable = false)
-    private String userEmail; // ✅ เพิ่ม field นี้
+    private String userEmail;
 
-    @Column(name = "lesson_id", nullable = false)
-    private Long lessonId;
-
-    @Column(name = "percent", nullable = false)
+    @Column(nullable = false)
     private Integer percent = 0;
 
     @Column(name = "updated_at", nullable = false)
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
-    public UserLessonProgress() {}
+    /* --- getters / setters --- */
+    public Long getId()                    { return id; }
+    public String  getLessonId()           { return lessonId; }
+    public String  getUserEmail()          { return userEmail; }
+    public Integer getPercent()            { return percent; }
+    public LocalDateTime getUpdatedAt()    { return updatedAt; }
 
-    @PrePersist
-    public void prePersist() {
-        if (updatedAt == null) {
-            updatedAt = LocalDateTime.now();
-        }
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
-
-    // --- Getters ---
-    public Long getId() { return id; }
-    public String getUserEmail() { return userEmail; } // ✅
-    public Long getLessonId() { return lessonId; }
-    public Integer getPercent() { return percent; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
-
-    // --- Setters ---
-    public void setUserEmail(String userEmail) { this.userEmail = userEmail; } // ✅
-    public void setLessonId(Long lessonId) { this.lessonId = lessonId; }
-    public void setPercent(Integer percent) { this.percent = percent; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public void setLessonId(String lessonId)        { this.lessonId = lessonId; }
+    public void setUserEmail(String userEmail)      { this.userEmail = userEmail; }
+    public void setPercent(Integer percent)         { this.percent = percent; }
+    public void setUpdatedAt(LocalDateTime updatedAt){ this.updatedAt = updatedAt; }
 }

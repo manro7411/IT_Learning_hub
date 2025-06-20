@@ -4,6 +4,7 @@ import LoginPage from "./pages/Login/LoginPage";
 import { AuthProvider } from "./Authentication/AuthContext";
 import { UserRoutes } from "./routes/UserRoutes";
 import { AdminRoutes } from "./routes/AdminRoutes";
+import RegisterPage from "./pages/Login/Register.tsx";
 
 function App() {
     return (
@@ -11,6 +12,7 @@ function App() {
             <Router>
                 <Routes>
                     <Route path="/" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage/>}/>
                 </Routes>
                 <UserRoutes />
                 <AdminRoutes />
