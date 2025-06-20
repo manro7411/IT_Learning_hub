@@ -48,8 +48,6 @@ public class LoginResource {
                     .build();
         }
     }
-
-    // DTOs
     public static class LoginRequest {
         public String email;
         public String password;

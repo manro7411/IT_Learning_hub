@@ -10,7 +10,7 @@ import {AuthContext} from "../../../Authentication/AuthContext.tsx";
 
 const adminMenuItems = [
   { name: "Dashboard", icon: <Home size={20} />, path: "/admin" },
-  { name: "Manage Users", icon: <Users size={20} />, path: "/admin/users" },
+  { name: "Task management", icon: <Users size={20} />, path: "/admin/lesson/management" },
   { name: "Courses", icon: <BookOpen size={20} />, path: "/admin/lesson/create" },
   { name: "System Logs", icon: <FileText size={20} />, path: "/admin/logs" },
   { name: "Settings", icon: <Settings size={20} />, path: "/settings" },
