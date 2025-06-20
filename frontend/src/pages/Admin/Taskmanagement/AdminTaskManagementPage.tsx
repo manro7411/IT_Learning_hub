@@ -23,7 +23,6 @@ const AdminTaskManagementPage = () => {
     const [progressList, setProgressList] = useState<UserProgress[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserProgress | null>(null);
 
-    // โหลดคอร์สที่ผู้ใช้เป็นคนสร้าง (ใช้ ?mine=true แทน my-courses ที่ไม่มี endpoint)
     useEffect(() => {
         axios
             .get("http://localhost:8080/learning?mine=true", {
@@ -41,7 +40,6 @@ const AdminTaskManagementPage = () => {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => {
-                // กรองเฉพาะ progress ของ lesson ที่เลือก
                 const filtered = res.data.filter((p: UserProgress) => p.lessonId === lesson.id);
                 setProgressList(filtered);
             })
@@ -73,7 +71,7 @@ const AdminTaskManagementPage = () => {
                             </div>
                         ))}
                     </section>
-                    
+
                     <section className="col-span-1 space-y-4">
                         {progressList.map((user, i) => (
                             <div
