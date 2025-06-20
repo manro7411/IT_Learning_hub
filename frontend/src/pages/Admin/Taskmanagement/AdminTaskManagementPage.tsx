@@ -15,36 +15,45 @@ interface UserProgress {
     percent: number;
     lessonId: number;
 }
+
 const AdminTaskManagementPage = () => {
     const { token } = useContext(AuthContext);
     const [lessons, setLessons] = useState<Lesson[]>([]);
     const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
     const [progressList, setProgressList] = useState<UserProgress[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserProgress | null>(null);
+
+    // โหลดคอร์สที่ผู้ใช้เป็นคนสร้าง (ใช้ ?mine=true แทน my-courses ที่ไม่มี endpoint)
     useEffect(() => {
         axios
-            .get("http://localhost:8080/learning/my-courses", {
+            .get("http://localhost:8080/learning?mine=true", {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => setLessons(res.data))
             .catch(console.error);
     }, [token]);
+
     const handleSelectLesson = (lesson: Lesson) => {
         setSelectedLesson(lesson);
         setSelectedUser(null);
         axios
-            .get(`http://localhost:8080/learning/${lesson.id}/progress`, {
+            .get(`http://localhost:8080/admin/progress`, {
                 headers: { Authorization: `Bearer ${token}` },
             })
-            .then((res) => setProgressList(res.data))
+            .then((res) => {
+                // กรองเฉพาะ progress ของ lesson ที่เลือก
+                const filtered = res.data.filter((p: UserProgress) => p.lessonId === lesson.id);
+                setProgressList(filtered);
+            })
             .catch(console.error);
     };
+
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <AdminSidebarWidget />
             <main className="flex-1 p-10 space-y-6">
                 <h1 className="text-2xl font-bold text-blue-800 border-b pb-2">
-                    🧩 Task Management
+                    🧙 Task Management
                 </h1>
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     <section className="col-span-1 space-y-4">
@@ -64,8 +73,7 @@ const AdminTaskManagementPage = () => {
                             </div>
                         ))}
                     </section>
-
-                    {/* รายชื่อคนเรียน */}
+                    
                     <section className="col-span-1 space-y-4">
                         {progressList.map((user, i) => (
                             <div
@@ -85,6 +93,8 @@ const AdminTaskManagementPage = () => {
                             </div>
                         ))}
                     </section>
+
+                    {/* รายละเอียด progress */}
                     <section className="col-span-1 bg-white p-6 rounded-xl shadow">
                         <h2 className="text-lg font-semibold mb-4 text-gray-700">
                             Quick overview of employee progress
@@ -119,7 +129,8 @@ const AdminTaskManagementPage = () => {
                                 </div>
                             </div>
                         ) : (
-                            <p className="text-gray-400">← Select a user to see details</p>
+                            <p className="text-gray-400">← Select a user to see details
+                            </p>
                         )}
                     </section>
                 </div>
