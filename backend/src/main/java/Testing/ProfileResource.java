@@ -10,6 +10,9 @@ import jakarta.ws.rs.core.MediaType;
 import model.User;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.mindrot.jbcrypt.BCrypt;
+
+import java.util.List;
+
 @Path("/profile")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -29,6 +32,7 @@ public class ProfileResource {
 
         return new ProfileDto(user.getName(), user.getEmail(), null);
     }
+
     @PUT
     @Transactional
     @RolesAllowed({ "user", "employee", "admin" })
@@ -50,11 +54,23 @@ public class ProfileResource {
 
         if (dto.password != null && !dto.password.isBlank()) {
             String hashed = BCrypt.hashpw(dto.password, BCrypt.gensalt(12));
-            user.setPassword(hashed); //
+            user.setPassword(hashed);
         }
 
-        return new ProfileDto(user.getName(), user.getEmail(), null); // ❌ ไม่ส่ง password
+        return new ProfileDto(user.getName(), user.getEmail(), null);
     }
+
+    @GET
+    @Path("/users")
+    @RolesAllowed("admin")
+    public List<ProfileDto> getAllUsers() {
+        return em.createQuery("SELECT u FROM User u", User.class)
+                .getResultList()
+                .stream()
+                .map(u -> new ProfileDto(u.getName(), u.getEmail(), null))
+                .toList();
+    }
+
     public static class UpdateDto {
         public String name;
         public String email;
