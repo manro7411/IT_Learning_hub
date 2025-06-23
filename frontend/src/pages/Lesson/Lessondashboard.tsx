@@ -1,10 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import {useNavigate } from 'react-router-dom';
+
+import { AuthContext } from '../../Authentication/AuthContext';
 import CalendarWidget from '../../widgets/CalendarWidget';
 import ScoreboardChart from '../../components/ScoreboardChart';
 import Sidebar from '../../widgets/SidebarWidget';
 import defaultUserAvatar from '../../assets/user.png';
+
+/* ─────── TYPES ─────── */
 interface Lesson {
     id: string;
     title: string;
@@ -14,36 +18,55 @@ interface Lesson {
     authorName?: string;
     authorAvatarUrl?: string;
 }
+
 const LessonPage = () => {
+    const { token: ctxToken } = useContext(AuthContext);
+    const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!token) {
+            navigate("/");
+        }
+    }, [token, navigate]);
+
     const [lessons, setLessons] = useState<Lesson[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
-    const navigate = useNavigate();
+
     useEffect(() => {
+        if (!token) return;
         axios
-            .get('http://localhost:8080/learning')
+            .get('http://localhost:8080/learning', {
+                headers: { Authorization: `Bearer ${token}` },
+            })
             .then((res) => setLessons(res.data))
             .catch((err) => {
                 console.error('❌ Failed to fetch lessons:', err);
                 alert('Failed to fetch lessons');
             })
             .finally(() => setLoading(false));
-    }, []);
+    }, [token]);
+
     const handleLessonClick = async (id: string) => {
         try {
-            await axios.post(`http://localhost:8080/learning/${id}/click`);
+            await axios.post(`http://localhost:8080/learning/${id}/click`, null, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
             navigate(`/lesson/${id}`);
         } catch (error) {
             console.error("Failed to log click:", error);
-            navigate(`/lesson/${id}`); // Fallback navigation even if click fails
+            navigate(`/lesson/${id}`);
         }
     };
+
     const filteredLessons = lessons.filter(
         (lesson) =>
             lesson.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
             lesson.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
             (lesson.description?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false)
     );
+
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <Sidebar />
@@ -57,6 +80,7 @@ const LessonPage = () => {
                         className="w-full xl:w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
                     />
                 </div>
+
                 <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
                     <div className="xl:col-span-3 grid gap-6 grid-cols-[repeat(auto-fill,minmax(256px,1fr))]">
                         {loading ? (
@@ -71,7 +95,6 @@ const LessonPage = () => {
                                     className="block focus:outline-none focus-visible:ring-0 cursor-pointer"
                                 >
                                     <div className="w-64 h-[300px] bg-white rounded-xl shadow-md flex flex-col overflow-hidden">
-                                        {/* Thumbnail */}
                                         <div className="w-full h-32 bg-gray-100">
                                             <img
                                                 src={lesson.thumbnailUrl || '/placeholder.png'}
@@ -119,6 +142,7 @@ const LessonPage = () => {
                             ))
                         )}
                     </div>
+
                     <div className="order-1 xl:order-2 space-y-6">
                         <CalendarWidget />
                         <ScoreboardChart />

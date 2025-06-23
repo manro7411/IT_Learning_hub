@@ -1,19 +1,15 @@
-import { useContext, useState } from "react";
-import axios                     from "axios";
-import { AuthContext }           from "../../../Authentication/AuthContext";
-import AdminSidebarWidget        from "../Widgets/AdminSideBar";
-import {useNavigate} from "react-router-dom";
-
-/* ──────────────────────
- *  Internal types
- * ──────────────────────*/
+import { useContext, useEffect, useState } from "react";
+import axios from "axios";
+import { AuthContext } from "../../../Authentication/AuthContext";
+import AdminSidebarWidget from "../Widgets/AdminSideBar";
+import { useNavigate } from "react-router-dom";
 type LessonFormState = {
-    title:            string;
-    description:      string;
-    category:         "AGILE" | "SCRUM" | "WATERFALL";
-    thumbnailUrl:     string;
-    authorAvatarUrl:  string;      // ← ตรง field กับ backend
-    progressPercent:  number;
+    title: string;
+    description: string;
+    category: "AGILE" | "SCRUM" | "WATERFALL";
+    thumbnailUrl: string;
+    authorAvatarUrl: string;
+    progressPercent: number;
 };
 const INITIAL_FORM: LessonFormState = {
     title: "",
@@ -24,12 +20,16 @@ const INITIAL_FORM: LessonFormState = {
     progressPercent: 0,
 };
 const AdminAddLessonPage = () => {
-    const { token, user } = useContext(AuthContext);    // user = decoded JWT
-    const [form, setForm]   = useState<LessonFormState>(INITIAL_FORM);
-    const [loading, setLoading] = useState(false);
+    const { token, user } = useContext(AuthContext);
     const navigate = useNavigate();
+    const [form, setForm] = useState<LessonFormState>(INITIAL_FORM);
+    const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        if (!token) navigate("/");
+    }, [token, navigate]);
 
+    if (!token) return null;
     const handleChange = (
         e: React.ChangeEvent<
             HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -38,28 +38,34 @@ const AdminAddLessonPage = () => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
     };
+
     const resetForm = () => setForm(INITIAL_FORM);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true);
-        try {
-            const payload = {
-                ...form,
-                authorName:      user?.name  || "Admin",
-                authorRole:      "Admin",
-                authorEmail:     user?.email || user?.upn || "unknown@host",
-            };
 
+        const payload = {
+            ...form,
+            authorName: user?.name || "Admin",
+            authorRole: "Admin",
+            authorEmail: user?.email || user?.upn || "unknown@host",
+        };
+
+        try {
             await axios.post("http://localhost:8080/learning", payload, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-
             alert("✅ Lesson created!");
             resetForm();
             navigate("/admin/lesson/management");
-        } catch (err) {
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                alert(`❌ Failed to create lesson\n${err.response?.data ?? "Unknown error"}`);
+            } else {
+                alert("❌ An unexpected error occurred.");
+            }
             console.error(err);
-            alert("❌ Failed to create lesson");
         } finally {
             setLoading(false);
         }
@@ -67,15 +73,11 @@ const AdminAddLessonPage = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 flex">
-            {/* Sidebar */}
             <AdminSidebarWidget />
-
-            {/* Main */}
             <main className="flex-1 p-10 space-y-6">
                 <h1 className="text-2xl font-bold text-blue-800 border-b pb-2">
                     📚 Add New Lesson
                 </h1>
-
                 <form
                     onSubmit={handleSubmit}
                     className="bg-white p-8 rounded-xl shadow space-y-6 max-w-3xl"
@@ -95,7 +97,6 @@ const AdminAddLessonPage = () => {
                         onChange={handleChange}
                     />
 
-                    {/* Category */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">Category</label>
                         <select
@@ -110,7 +111,6 @@ const AdminAddLessonPage = () => {
                         </select>
                     </div>
 
-                    {/* Description */}
                     <div>
                         <label className="text-sm font-medium text-gray-700">Description</label>
                         <textarea
@@ -122,7 +122,7 @@ const AdminAddLessonPage = () => {
                             placeholder="Write a brief overview of this lesson"
                         />
                     </div>
-                    {/* Buttons */}
+
                     <div className="flex gap-4">
                         <button
                             type="submit"
@@ -144,7 +144,6 @@ const AdminAddLessonPage = () => {
         </div>
     );
 };
-
 function Field(
     props: {
         label: string;

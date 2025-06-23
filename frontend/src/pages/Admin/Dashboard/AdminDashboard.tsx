@@ -1,18 +1,24 @@
-import { useContext } from "react";
-import {AuthContext} from "../../../Authentication/AuthContext.tsx";
+import { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../../Authentication/AuthContext.tsx";
 import AdminSidebarWidget from "../Widgets/AdminSideBar.tsx";
 
 const AdminDashboard = () => {
-    const { user } = useContext(AuthContext);
+    const { user, token: ctxToken } = useContext(AuthContext);
+    const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
+    const navigate = useNavigate();
 
+    useEffect(() => {
+        if (!token) {
+            navigate("/");
+        }
+    }, [token, navigate]);
     const displayName = user?.name || user?.email || "Administrator";
-
     return (
         <div className="min-h-screen bg-gray-50 flex">
             {/* Sidebar */}
             <AdminSidebarWidget />
 
-            {/* Main Content */}
             <main className="flex-1 p-8">
                 <h1 className="text-3xl font-bold text-gray-800 mb-6">
                     🔐 Admin Dashboard
@@ -31,8 +37,6 @@ const AdminDashboard = () => {
                             Manage Users
                         </button>
                     </div>
-
-                    {/* Card 2: Course Oversight */}
                     <div className="bg-white p-6 rounded-xl shadow-md">
                         <h2 className="text-lg font-semibold text-gray-700 mb-2">
                             📘 Course Oversight

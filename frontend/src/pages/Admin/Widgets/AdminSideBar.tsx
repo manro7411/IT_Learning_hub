@@ -5,14 +5,12 @@ import {
   FileText,
   Settings,
   LogOut,
-  Bell, // ✅ เพิ่มไอคอน
+  Bell,
 } from "lucide-react";
 import Logo from "../../../assets/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../../../Authentication/AuthContext.tsx";
-
-// ✅ เพิ่ม Notifications ลงในเมนู
 const adminMenuItems = [
   { name: "Dashboard", icon: <Home size={20} />, path: "/admin" },
   { name: "Task management", icon: <Users size={20} />, path: "/admin/lesson/management" },
@@ -21,21 +19,17 @@ const adminMenuItems = [
   { name: "System Logs", icon: <FileText size={20} />, path: "/admin/logs" },
   { name: "Settings", icon: <Settings size={20} />, path: "/admin/setting" },
 ];
-
 export default function AdminSidebarWidget() {
   const location = useLocation();
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
   const [showConfirm, setShowConfirm] = useState(false);
-
   const handleLogout = () => {
     logout();
     navigate("/");
   };
-
   return (
       <aside className="w-64 bg-white shadow-md p-6 m-4 rounded-xl flex flex-col justify-between">
-        {/* Top Section */}
         <div>
           <img src={Logo} alt="Bangkok Bank Logo" className="h-12 mb-8" />
 
@@ -56,8 +50,6 @@ export default function AdminSidebarWidget() {
             ))}
           </nav>
         </div>
-
-        {/* Bottom Section */}
         <div className="text-sm space-y-2">
           <button
               onClick={() => navigate("/admin/setting")}
@@ -66,7 +58,6 @@ export default function AdminSidebarWidget() {
             <Settings size={18} />
             <span>Settings</span>
           </button>
-
           <button
               onClick={() => setShowConfirm(true)}
               className="flex items-center space-x-2 text-red-500 hover:underline"
@@ -76,7 +67,6 @@ export default function AdminSidebarWidget() {
           </button>
         </div>
 
-        {/* Confirm Logout */}
         {showConfirm && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
               <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full text-center space-y-4">

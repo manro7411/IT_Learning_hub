@@ -1,8 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
-import { AuthContext } from "../../../Authentication/AuthContext"; // -- ปรับ path ตามโปรเจ็กต์คุณ
-
-/* ──────────────── types ──────────────── */
+import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../../Authentication/AuthContext";
 type User = { id: string; name: string };
 
 type FormState = {
@@ -10,26 +9,31 @@ type FormState = {
     target: "ALL" | "USER";
     selectedUsers: string[];
 };
-
 const INITIAL_STATE: FormState = {
     message: "",
     target: "ALL",
     selectedUsers: [],
 };
-
-/* ─────────── Main Component ─────────── */
+const getToken = (ctxToken: string | null | undefined): string | null => {
+    return (
+        ctxToken ||
+        localStorage.getItem("token") ||
+        sessionStorage.getItem("token")
+    );
+};
 const AdminCreateNotificationPage: React.FC = () => {
-    /* JWT token จาก context (คุณอาจเก็บ localStorage ก็ได้) */
-    const { token } = useContext(AuthContext);
-
-    const [form, setForm]   = useState<FormState>(INITIAL_STATE);
+    const { token: ctxToken } = useContext(AuthContext);
+    const token = getToken(ctxToken);
+    const navigate = useNavigate();
+    const [form, setForm] = useState<FormState>(INITIAL_STATE);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
 
-    /* โหลดรายชื่อผู้ใช้ (ต้องมี token ก่อน) */
     useEffect(() => {
-        if (!token) return; // ยังไม่มี token → ยังไม่เรียก
-
+        if (!token) {
+            navigate("/");
+            return;
+        }
         axios
             .get<User[]>("http://localhost:8080/profile/users", {
                 headers: { Authorization: `Bearer ${token}` },
@@ -39,11 +43,12 @@ const AdminCreateNotificationPage: React.FC = () => {
                 console.error("❌ Failed to load users:", err);
                 alert("Failed to load user list.");
             });
-    }, [token]);
-
-    /* handler ต่าง ๆ */
+    }, [token, navigate]);
+    if (!token) return null;
     const handleChange = (
-        e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
+        e: React.ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
     ) => {
         const { name, value } = e.target;
         setForm((prev) => ({
@@ -52,48 +57,46 @@ const AdminCreateNotificationPage: React.FC = () => {
             ...(name === "target" && value === "ALL" ? { selectedUsers: [] } : {}),
         }));
     };
-
     const handleUserSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selected = Array.from(e.currentTarget.selectedOptions, (o) => o.value);
         setForm((prev) => ({ ...prev, selectedUsers: selected }));
     };
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!token) {
-            alert("No auth token – please log in again.");
+        if (!token) return;
+        if (form.target === "USER" && form.selectedUsers.length === 0) {
+            alert("❗ Please select at least one user.");
             return;
         }
-
-        setLoading(true);
         const payload = {
             message: form.message,
             target: form.target,
             userIds: form.target === "USER" ? form.selectedUsers : [],
         };
-
         try {
+            setLoading(true);
             await axios.post("http://localhost:8080/notifications", payload, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             alert("✅ Notification sent!");
+            navigate("/admin");
             setForm(INITIAL_STATE);
-        } catch (err) {
-            console.error("❌ Failed to send notification:", err);
-            alert("Failed to send notification.");
+        } catch (err: unknown) {
+            if (axios.isAxiosError(err)) {
+                alert(`❌ ${err.response?.data || "Failed to send notification."}`);
+            } else {
+                alert("❌ Unknown error occurred.");
+            }
         } finally {
             setLoading(false);
         }
     };
-
-    /* ─────────────── render ─────────────── */
     return (
         <div className="min-h-screen bg-gray-50 p-10">
             <div className="max-w-2xl mx-auto bg-white shadow p-8 rounded-xl space-y-6">
                 <h1 className="text-2xl font-bold text-blue-800">📢 Send Notification</h1>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* message */}
                     <div>
                         <label className="font-medium text-sm text-gray-700">Message</label>
                         <textarea
@@ -106,8 +109,6 @@ const AdminCreateNotificationPage: React.FC = () => {
                             placeholder="Type your announcement or message..."
                         />
                     </div>
-
-                    {/* target */}
                     <div>
                         <label className="font-medium text-sm text-gray-700">Send To</label>
                         <select
@@ -120,11 +121,11 @@ const AdminCreateNotificationPage: React.FC = () => {
                             <option value="USER">Specific Users</option>
                         </select>
                     </div>
-
-                    {/* user list */}
                     {form.target === "USER" && (
                         <div>
-                            <label className="font-medium text-sm text-gray-700">Select Users</label>
+                            <label className="font-medium text-sm text-gray-700">
+                                Select Users
+                            </label>
                             <select
                                 multiple
                                 value={form.selectedUsers}
@@ -137,13 +138,11 @@ const AdminCreateNotificationPage: React.FC = () => {
                                     </option>
                                 ))}
                             </select>
-                            <p className="text-xs text-gray-500 mt-1">
-                                Hold Ctrl / Cmd to select multiple users
-                            </p>
+                            {users.length === 0 && (
+                                <p className="text-xs text-gray-400 mt-1">Loading users...</p>
+                            )}
                         </div>
                     )}
-
-                    {/* submit */}
                     <button
                         type="submit"
                         disabled={loading}

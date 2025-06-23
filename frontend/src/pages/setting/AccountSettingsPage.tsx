@@ -16,6 +16,12 @@ const AccountSettingsPage = () => {
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
 
+    useEffect(() => {
+        if (!token) {
+            navigate("/");
+        }
+    }, [token, navigate]);
+
 
   const [form, setForm] = useState<FormState>({
     fullName: "",

@@ -7,51 +7,35 @@ import java.time.LocalDateTime;
 public class Notification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID) // ใช้ UUID แทน auto int
+    @Column(length = 36)
     private String id;
 
+    @Column(nullable = false)
     private String message;
 
-    @Column(name = "read_status") //
+    @Column(name = "read_status", nullable = false)
     private boolean read = false;
 
+    @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @ManyToOne
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @JoinColumn(name = "recipient_id", nullable = false)
     private User recipient;
-    public String getId() {
-        return id;
-    }
 
-    public String getMessage() {
-        return message;
-    }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
+    public String getId()                 { return id; }
+    public void   setId(String id)        { this.id = id; }
 
-    public boolean isRead() {
-        return read;
-    }
+    public String getMessage()            { return message; }
+    public void   setMessage(String m)    { this.message = m; }
 
-    public void setRead(boolean read) {
-        this.read = read;
-    }
+    public boolean isRead()               { return read; }
+    public void   setRead(boolean r)      { this.read = r; }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public LocalDateTime getCreatedAt()   { return createdAt; }
+    public void   setCreatedAt(LocalDateTime t){ this.createdAt = t; }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
-    public User getRecipient() {
-        return recipient;
-    }
-
-    public void setRecipient(User recipient) {
-        this.recipient = recipient;
-    }
+    public User   getRecipient()          { return recipient; }
+    public void   setRecipient(User r)    { this.recipient = r; }
 }
