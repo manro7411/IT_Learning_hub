@@ -13,7 +13,6 @@ import Scenario from "../pages/Game/Scenario.tsx";
 import Question from "../pages/Game/Question.tsx";
 import AnswerTrue from "../pages/Game/Answer_true.tsx";
 import AnswerFalse from "../pages/Game/Answer_false.tsx";
-
 export const UserRoutes = () => (
     <Routes>
         <Route path="/dashboard" element={<UserDashboard />} />
@@ -31,6 +30,5 @@ export const UserRoutes = () => (
         <Route path="/question" element={<Question />} />
         <Route path="/answer_true" element={<AnswerTrue />} />
         <Route path="/answer_false" element={<AnswerFalse />} />
-
     </Routes>
 );

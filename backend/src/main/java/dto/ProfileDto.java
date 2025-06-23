@@ -1,24 +1,17 @@
 package dto;
 
-public record ProfileDto(
-        String name,
-        String email,
-        String password
+public class ProfileDto {
 
+    public String id;
+    public String name;
+    public String email;
 
-) {
-    @Override
-    public String name() {
-        return name;
+    public ProfileDto() {}
+
+    public ProfileDto(String id, String name, String email) {
+        this.id    = id;
+        this.name  = name;
+        this.email = email;
     }
 
-    @Override
-    public String email() {
-        return email;
-    }
-
-    @Override
-    public String password() {
-        return password;
-    }
 }

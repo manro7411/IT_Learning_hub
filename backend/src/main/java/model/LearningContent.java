@@ -42,6 +42,9 @@ public class LearningContent {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "click_count", nullable = false)
+    private Long clickCount = 0L;
+
     @PrePersist
     private void prePersist() {
 
@@ -76,4 +79,7 @@ public class LearningContent {
     public void setAuthorAvatarUrl(String authorAvatarUrl){ this.authorAvatarUrl = authorAvatarUrl; }
     public void setProgressPercent(Integer progress)      { this.progressPercent = progress; }
     public void setCreatedAt(LocalDateTime createdAt)     { this.createdAt = createdAt; }
+    public Long getClickCount() { return clickCount; }
+    public void setClickCount(Long clickCount) { this.clickCount = clickCount; }
+
 }
