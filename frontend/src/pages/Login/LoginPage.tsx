@@ -1,26 +1,55 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import InstructionModal from "./../../components/InstructionModal";
+import InstructionModal from "../../components/InstructionModal";
+import axios from "axios";
+import { jwtDecode } from "jwt-decode";
+
+interface JwtPayload {
+  email: string;
+  role?: string;
+  groups?: string[];
+  [key: string]: unknown;
+}
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const [showModal, setShowModal] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/dashboard");
+
+    try {
+      const res = await axios.post("http://localhost:8080/login", { email, password });
+      const token = res.data.token;
+      localStorage.setItem("token", token);
+
+      const decoded: JwtPayload = jwtDecode(token);
+      const role = (decoded.role ?? decoded.groups?.[0] ?? "user").toLowerCase();
+
+      if (role === "admin") {
+        navigate("/admin");
+      } else {
+        navigate("/dashboard");
+      }
+      window.location.reload();
+
+    } catch (err) {
+      alert("Login failed");
+      console.error("❌ Login error:", err);
+    }
   };
 
   return (
-    <>
       <div className="w-full h-screen flex flex-col md:flex-row">
         {/* Left Panel */}
         <div className="w-full md:w-1/2 h-1/2 md:h-full bg-gradient-to-b from-blue-500 to-blue-800 text-white flex flex-col justify-center items-center p-8">
           <h1 className="text-5xl font-bold mb-4 text-center">BBL Learning Hub</h1>
           <p className="text-lg mb-6 text-center">E-learning-platform</p>
           <button
-            onClick={() => setShowModal(true)}
-            className="bg-white text-blue-700 font-semibold py-2 px-6 rounded-full shadow hover:opacity-90 transition"
+              onClick={() => setShowModal(true)}
+              className="bg-white text-blue-700 font-semibold py-2 px-6 rounded-full shadow hover:opacity-90 transition"
           >
             Read More
           </button>
@@ -34,36 +63,39 @@ const LoginPage = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <input
-                type="text"
-                placeholder="users"
-                className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="firstname.lastname@example.com"
+                  className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
               />
               <input
-                type="password"
-                placeholder="********"
-                className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                required
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="********"
+                  className="w-full px-4 py-2 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
               />
               <button
-                type="submit"
-                className="w-full bg-blue-600 text-white font-semibold py-2 rounded-full hover:bg-blue-700 transition"
+                  type="submit"
+                  className="w-full bg-blue-600 text-white font-semibold py-2 rounded-full hover:bg-blue-700 transition"
               >
                 Login
               </button>
             </form>
 
             <div className="text-center mt-4">
-              <a href="#" className="text-sm text-gray-500 hover:underline">
-                Forgot Password
+              <a href="/register" className="text-sm text-blue-600 hover:underline">
+                Don't have an account? Register
               </a>
             </div>
           </div>
         </div>
-      </div>
 
-      <InstructionModal isOpen={showModal} onClose={() => setShowModal(false)} />
-    </>
+        <InstructionModal isOpen={showModal} onClose={() => setShowModal(false)} />
+      </div>
   );
 };
 

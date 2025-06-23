@@ -24,3 +24,4 @@ export const menuItems: MenuItem[] = [
   { name: 'Point', icon: Star, path: '/point' },
   { name: 'Game', icon: Gamepad2, path: '/game' },
 ];
+
