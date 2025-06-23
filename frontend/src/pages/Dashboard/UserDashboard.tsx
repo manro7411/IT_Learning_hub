@@ -1,4 +1,5 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
+import axios from "axios";
 import { AuthContext } from "../../Authentication/AuthContext";
 
 import CalendarWidget from "../../widgets/CalendarWidget";
@@ -6,13 +7,28 @@ import SidebarWidget from "../../widgets/SidebarWidget";
 import ScoreboardChart from "../../components/ScoreboardChart";
 import StatisticsChart from "../../components/StatisticsChart";
 import OnlineCourseBanner from "../../components/OnlineCourseBanner";
-import ChatBubbleWidget from "../../widgets/ChatBubbleWidget"; // 👈 import chatbot
+import ChatBubbleWidget from "../../widgets/ChatBubbleWidget"; // ✅ chatbot
+
+interface TopLesson {
+  id: string;
+  title: string;
+  category: string;
+  thumbnailUrl?: string;
+  viewers?: number; // 👁 optional: backend สามารถใส่ได้
+}
 
 const UserDashboard = () => {
   const { user } = useContext(AuthContext);
-  console.log("Decoded user =>", user);
-
   const displayName = user?.name || user?.upn;
+
+  const [topLessons, setTopLessons] = useState<TopLesson[]>([]);
+
+  useEffect(() => {
+    axios
+        .get("http://localhost:8080/learning/top-viewed")
+        .then((res) => setTopLessons(res.data))
+        .catch(console.error);
+  }, []);
 
   return (
       <>
@@ -27,15 +43,48 @@ const UserDashboard = () => {
             </h1>
 
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-              {/* Central content (3/4 width) */}
+              {/* Central Content (3/4 width) */}
               <div className="xl:col-span-3 space-y-6">
                 <OnlineCourseBanner />
                 <StatisticsChart />
 
+                {/* 🔥 Top Viewed Lessons */}
+                <section>
+                  <h2 className="text-xl font-semibold mb-3">
+                    🔥 Most Viewed Lessons
+                  </h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {topLessons.map((lesson) => (
+                        <div
+                            key={lesson.id}
+                            className="p-4 bg-white rounded-xl shadow hover:shadow-md border border-gray-100"
+                        >
+                          <h3 className="text-lg font-bold text-gray-800">
+                            {lesson.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 mb-1">
+                            {lesson.category}
+                          </p>
+                          {lesson.viewers !== undefined && (
+                              <p className="text-xs text-blue-600">
+                                👁 {lesson.viewers} viewers
+                              </p>
+                          )}
+                        </div>
+                    ))}
+                  </div>
+                </section>
+
+                {/* Example cards: Agile/Scrum/Waterfall */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   {["Agile", "Scrum", "Waterfall"].map((title, i) => (
-                      <div key={i} className="bg-white p-4 rounded-xl shadow-md">
-                        <div className="text-sm text-purple-600 font-medium mb-2">{title}</div>
+                      <div
+                          key={i}
+                          className="bg-white p-4 rounded-xl shadow-md"
+                      >
+                        <div className="text-sm text-purple-600 font-medium mb-2">
+                          {title}
+                        </div>
                         <div className="text-lg font-semibold">
                           {title} Methodologies Overview
                         </div>
