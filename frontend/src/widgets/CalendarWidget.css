@@ -1,0 +1,88 @@
+.react-calendar {
+  width: 100%;
+  max-width: 320px;
+  border: none;
+  border-radius: 1rem;
+  padding: 1rem;
+  background: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.05);
+}
+
+/* Navigation header */
+.react-calendar__navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.25rem;
+}
+
+.react-calendar__navigation__label {
+  font-weight: 600;
+  font-size: 1rem; /* 👈 ลดจาก 1.2rem เหลือ 1rem */
+  line-height: 1.2;
+}
+
+/* Navigation arrows (‹ ›) */
+.react-calendar__navigation button {
+  background: none;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 0.5rem;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.react-calendar__navigation button:enabled:hover {
+  background-color: #f3f4f6;
+}
+
+/* Weekday headers */
+.react-calendar__month-view__weekdays {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.3rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.react-calendar__month-view__weekdays abbr {
+  text-decoration: none;
+  font-size: 0.75rem;
+}
+
+/* Calendar day tiles */
+.react-calendar__tile {
+  border: none;
+  outline: none;
+  padding: 0.6rem 0;
+  border-radius: 9999px;
+  transition: background 0.2s;
+  text-align: center;
+  font-weight: 500;
+}
+
+.react-calendar__tile:enabled:hover {
+  background-color: #e4f0ff;
+}
+
+/* Today */
+.react-calendar__tile--now {
+  background: #dbeafe;
+  color: #2563eb;
+  font-weight: 700;
+}
+
+/* Selected day */
+.react-calendar__tile--active {
+  background-color: #2563eb !important;
+  color: white !important;
+  font-weight: 700;
+}
+
+/* Weekend styling */
+.weekend {
+  color: #e11d48;
+}
