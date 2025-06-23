@@ -2,6 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../Authentication/AuthContext";
+
+/* ──────────────── types ──────────────── */
 type User = { id: string; name: string };
 
 type FormState = {
@@ -9,11 +11,14 @@ type FormState = {
     target: "ALL" | "USER";
     selectedUsers: string[];
 };
+
 const INITIAL_STATE: FormState = {
     message: "",
     target: "ALL",
     selectedUsers: [],
 };
+
+/* ──────────────── utils ──────────────── */
 const getToken = (ctxToken: string | null | undefined): string | null => {
     return (
         ctxToken ||
@@ -21,19 +26,24 @@ const getToken = (ctxToken: string | null | undefined): string | null => {
         sessionStorage.getItem("token")
     );
 };
+
+/* ──────────────── component ──────────────── */
 const AdminCreateNotificationPage: React.FC = () => {
     const { token: ctxToken } = useContext(AuthContext);
     const token = getToken(ctxToken);
     const navigate = useNavigate();
+
     const [form, setForm] = useState<FormState>(INITIAL_STATE);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
 
+    /* ───── Load Users ───── */
     useEffect(() => {
         if (!token) {
             navigate("/");
             return;
         }
+
         axios
             .get<User[]>("http://localhost:8080/profile/users", {
                 headers: { Authorization: `Bearer ${token}` },
@@ -44,7 +54,10 @@ const AdminCreateNotificationPage: React.FC = () => {
                 alert("Failed to load user list.");
             });
     }, [token, navigate]);
+
     if (!token) return null;
+
+    /* ───── Handlers ───── */
     const handleChange = (
         e: React.ChangeEvent<
             HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -57,46 +70,60 @@ const AdminCreateNotificationPage: React.FC = () => {
             ...(name === "target" && value === "ALL" ? { selectedUsers: [] } : {}),
         }));
     };
+
     const handleUserSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const selected = Array.from(e.currentTarget.selectedOptions, (o) => o.value);
         setForm((prev) => ({ ...prev, selectedUsers: selected }));
     };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!token) return;
+
         if (form.target === "USER" && form.selectedUsers.length === 0) {
             alert("❗ Please select at least one user.");
             return;
         }
+
         const payload = {
             message: form.message,
             target: form.target,
             userIds: form.target === "USER" ? form.selectedUsers : [],
         };
+
+        console.log("📤 Sending payload:", payload);
+
         try {
             setLoading(true);
+
             await axios.post("http://localhost:8080/notifications", payload, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+
             alert("✅ Notification sent!");
-            navigate("/admin");
             setForm(INITIAL_STATE);
+            navigate("/admin");
         } catch (err: unknown) {
             if (axios.isAxiosError(err)) {
+                console.error("❌ Axios Error:", err.response?.data || err.message);
                 alert(`❌ ${err.response?.data || "Failed to send notification."}`);
             } else {
+                console.error("❌ Unknown Error:", err);
                 alert("❌ Unknown error occurred.");
             }
         } finally {
             setLoading(false);
         }
     };
+
+    /* ───── Render ───── */
     return (
         <div className="min-h-screen bg-gray-50 p-10">
             <div className="max-w-2xl mx-auto bg-white shadow p-8 rounded-xl space-y-6">
                 <h1 className="text-2xl font-bold text-blue-800">📢 Send Notification</h1>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
+                    {/* Message */}
                     <div>
                         <label className="font-medium text-sm text-gray-700">Message</label>
                         <textarea
@@ -109,6 +136,8 @@ const AdminCreateNotificationPage: React.FC = () => {
                             placeholder="Type your announcement or message..."
                         />
                     </div>
+
+                    {/* Target */}
                     <div>
                         <label className="font-medium text-sm text-gray-700">Send To</label>
                         <select
@@ -121,6 +150,8 @@ const AdminCreateNotificationPage: React.FC = () => {
                             <option value="USER">Specific Users</option>
                         </select>
                     </div>
+
+                    {/* Users */}
                     {form.target === "USER" && (
                         <div>
                             <label className="font-medium text-sm text-gray-700">
@@ -143,6 +174,7 @@ const AdminCreateNotificationPage: React.FC = () => {
                             )}
                         </div>
                     )}
+
                     <button
                         type="submit"
                         disabled={loading}

@@ -14,6 +14,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * REST endpoint สำหรับดึง–สร้าง Notifications
@@ -76,10 +77,97 @@ public class NotificationResource {
                     .build();
         }
     }
+    @DELETE
+    @Transactional
+    @RolesAllowed({ "user", "employee", "admin" })
+    public Response deleteAllMyNotifications() {
+        try {
+            String email = jwt.getClaim("email");
+            if (email == null || email.isBlank()) {
+                return Response.status(Response.Status.UNAUTHORIZED)
+                        .entity("No email claim in JWT").build();
+            }
 
-    /* ─────────────────────────────────────────────
-     *  POST /notifications   – Admin ส่งแจ้งเตือน
-     * ───────────────────────────────────────────── */
+            User me = em.createQuery("SELECT u FROM User u WHERE u.email = :e", User.class)
+                    .setParameter("e", email)
+                    .getSingleResult();
+
+            int deleted = em.createQuery("DELETE FROM Notification n WHERE n.recipient = :me")
+                    .setParameter("me", me)
+                    .executeUpdate();
+
+            System.out.println("🗑️ Cleared " + deleted + " notifications for " + email);
+            return Response.noContent().build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.serverError()
+                    .entity("Failed to delete notifications: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @PUT
+    @Path("/{id}/read")
+    @Transactional
+    @RolesAllowed({ "user", "employee", "admin" })
+    public Response markAsRead(@PathParam("id") String id) {
+        Notification n = em.find(Notification.class, UUID.fromString(id));
+        if (n == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        n.setRead(true);
+        em.merge(n);
+        return Response.noContent().build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Transactional
+    @RolesAllowed({ "user", "employee", "admin" })
+    public Response deleteNotification(@PathParam("id") String id) {
+        Notification n = em.find(Notification.class, UUID.fromString(id));
+        if (n == null) {
+            return Response.status(Response.Status.NOT_FOUND).build();
+        }
+
+        em.remove(n);
+        return Response.noContent().build();
+    }
+
+
+
+    @PUT
+    @Path("/read-all")
+    @Transactional
+    @RolesAllowed({ "user", "employee", "admin" })
+    public Response markAllAsRead() {
+        String email = jwt.getClaim("email");
+        if (email == null || email.isBlank()) {
+            return Response.status(Response.Status.UNAUTHORIZED)
+                    .entity("No e-mail claim in JWT")
+                    .build();
+        }
+
+        List<User> users = em.createQuery("SELECT u FROM User u WHERE u.email = :e", User.class)
+                .setParameter("e", email)
+                .getResultList();
+
+        if (users.isEmpty()) {
+            return Response.status(Response.Status.NOT_FOUND).entity("User not found").build();
+        }
+
+        User me = users.get(0);
+
+        int updated = em.createQuery("UPDATE Notification n SET n.read = true WHERE n.recipient = :me AND n.read = false")
+                .setParameter("me", me)
+                .executeUpdate();
+
+        return Response.ok("Marked " + updated + " notifications as read").build();
+    }
+
+
     @POST
     @Transactional
     @RolesAllowed("admin")

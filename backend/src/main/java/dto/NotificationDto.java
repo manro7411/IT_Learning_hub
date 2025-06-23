@@ -9,6 +9,8 @@ public class NotificationDto {
     public boolean       read;
 
     public static NotificationDto fromEntity(Notification n) {
+        if (n == null) return null;
+
         NotificationDto dto = new NotificationDto();
         dto.id        = n.getId();
         dto.message   = n.getMessage();
