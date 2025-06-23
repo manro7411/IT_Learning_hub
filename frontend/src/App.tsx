@@ -7,17 +7,17 @@ import { AdminRoutes } from "./routes/AdminRoutes";
 import RegisterPage from "./pages/Login/Register.tsx";
 
 function App() {
-    return (
-        <AuthProvider>
-            <Router>
-                <Routes>
-                    <Route path="/" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage/>}/>
-                </Routes>
-                <UserRoutes />
-                <AdminRoutes />
-            </Router>
-        </AuthProvider>
-    );
+  return (
+      <AuthProvider>
+        <Router>
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage/>}/>
+          </Routes>
+          <UserRoutes />
+          <AdminRoutes />
+        </Router>
+      </AuthProvider>
+  );
 }
 export default App;
