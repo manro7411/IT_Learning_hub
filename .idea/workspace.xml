@@ -4,12 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/compiler.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/compiler.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/routes/UserRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/UserRoutes.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -46,7 +41,7 @@
     "RunOnceActivity.go.migrated.go.modules.settings": "true",
     "dart.analysis.tool.window.visible": "false",
     "extract.method.default.visibility": "private",
-    "git-widget-placeholder": "main",
+    "git-widget-placeholder": "feature/authen",
     "go.import.settings.migrated": "true",
     "last_opened_file_path": "/Users/sleanz/Desktop/CSC302/untitled folder/IT_Learning_hub/backend/src/main/resources",
     "node.js.detected.package.eslint": "true",
@@ -151,6 +146,7 @@
       <workItem from="1750227025540" duration="49515000" />
       <workItem from="1750384216426" duration="21982000" />
       <workItem from="1750645118987" duration="711000" />
+      <workItem from="1750648224586" duration="5604000" />
     </task>
     <servers />
   </component>

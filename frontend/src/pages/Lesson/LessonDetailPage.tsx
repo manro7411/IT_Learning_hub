@@ -3,7 +3,6 @@ import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
 import Sidebar from "../../widgets/SidebarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
-
 interface Lesson {
     id: string;
     title: string;
@@ -13,20 +12,16 @@ interface Lesson {
     videoUrl?: string;
     authorName?: string;
 }
-
 const fallbackVideo = "https://www.w3schools.com/html/mov_bbb.mp4";
-
 const LessonDetailPage = () => {
     const { id } = useParams();
     const { token } = useContext(AuthContext);
     const videoRef = useRef<HTMLVideoElement>(null);
     const navigate = useNavigate();
-
     const [lesson, setLesson] = useState<Lesson | null>(null);
     const [progress, setProgress] = useState(0);
     const [loading, setLoading] = useState(true);
     const [showQuiz, setShowQuiz] = useState(false);
-
     useEffect(() => {
         axios
             .get<Lesson>(`http://localhost:8080/learning/${id}`)
@@ -34,14 +29,12 @@ const LessonDetailPage = () => {
             .catch(() => alert("Lesson not found"))
             .finally(() => setLoading(false));
     }, [id]);
-
     const handleTimeUpdate = () => {
         const v = videoRef.current;
         if (!v || !v.duration) return;
         const pct = (v.currentTime / v.duration) * 100;
         setProgress(pct);
     };
-
     useEffect(() => {
         if (!lesson || !token) return;
 
@@ -56,23 +49,18 @@ const LessonDetailPage = () => {
                             "Content-Type": "application/json",
                         },
                     })
-                    // .then(() => console.log("✅ Progress saved"))
                     .catch((err) => console.error("❌ PUT failed:", err));
             }
         }, 0);
-        // 10_000
-
         if (progress >= 100 && !showQuiz) {
             setShowQuiz(true);
         }
-
         return () => clearInterval(timer);
     }, [progress, lesson, token, showQuiz]);
 
     if (loading || !lesson) {
         return <div className="p-6 text-gray-400">⏳ Loading lesson…</div>;
     }
-
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <Sidebar />
@@ -109,7 +97,6 @@ const LessonDetailPage = () => {
                         </section>
                     </div>
 
-                    {/* ▶ Schedule */}
                     <aside className="space-y-6 mt-4 xl:mt-0">
                         <div className="bg-white p-4 rounded-xl shadow">
                             <h3 className="text-sm font-semibold mb-4 text-gray-700">Schedule</h3>
@@ -129,7 +116,6 @@ const LessonDetailPage = () => {
                 </div>
             </main>
 
-            {/* 🎉 Popup Quiz */}
             {showQuiz && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-xl shadow-xl w-[90%] max-w-md text-center">
@@ -150,5 +136,4 @@ const LessonDetailPage = () => {
         </div>
     );
 };
-
 export default LessonDetailPage;

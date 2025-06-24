@@ -1,57 +1,45 @@
 import { useContext } from "react";
 import { AuthContext } from "../../Authentication/AuthContext";
 
-import CalendarWidget from "../../widgets/CalendarWidget";
-import SidebarWidget from "../../widgets/SidebarWidget";
-import ScoreboardChart from "../../components/ScoreboardChart";
-import StatisticsChart from "../../components/StatisticsChart";
-import OnlineCourseBanner from "../../components/OnlineCourseBanner";
-import ChatBubbleWidget from "../../widgets/ChatBubbleWidget"; // 👈 import chatbot
+import SidebarWidget       from "../../widgets/SidebarWidget";
+import CalendarWidget      from "../../widgets/CalendarWidget";
+import ChatBubbleWidget    from "../../widgets/ChatBubbleWidget";
+import ScoreboardChart     from "../../components/ScoreboardChart";
+import StatisticsChart     from "../../components/StatisticsChart";
+import OnlineCourseBanner  from "../../components/OnlineCourseBanner";
+import TopViewedLessonsWidget from "./TopViewedLessonsWidget";
+import NotificationWidget  from "../../widgets/NotificationWidget";
+import {Navigate} from "react-router-dom";
+// import { Navigate } from "react-router-dom"; // ← ถ้าอยาก redirect
 
 const UserDashboard = () => {
-  const { user } = useContext(AuthContext);
-  console.log("Decoded user =>", user);
+  const { user, token: ctxToken } = useContext(AuthContext);
+  const token =
+      ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
+  if (!token) {
+    return <Navigate to="/" replace />;
 
-  const displayName = user?.name || user?.upn;
-
+  }
+  const displayName = user?.name || user?.upn || "User";
   return (
       <>
         <div className="min-h-screen bg-gray-50 flex">
-          {/* Sidebar */}
           <SidebarWidget />
 
-          {/* Main Content */}
           <main className="flex-1 p-6">
-            <h1 className="text-3xl font-bold text-gray-800 mb-4">
-              👋 Welcome, {displayName}
-            </h1>
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-3xl font-bold text-gray-800">
+                👋 Welcome, {displayName}
+              </h1>
+              <NotificationWidget />
+            </div>
 
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-              {/* Central content (3/4 width) */}
               <div className="xl:col-span-3 space-y-6">
                 <OnlineCourseBanner />
                 <StatisticsChart />
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {["Agile", "Scrum", "Waterfall"].map((title, i) => (
-                      <div key={i} className="bg-white p-4 rounded-xl shadow-md">
-                        <div className="text-sm text-purple-600 font-medium mb-2">{title}</div>
-                        <div className="text-lg font-semibold">
-                          {title} Methodologies Overview
-                        </div>
-                        <div className="mt-2 flex items-center space-x-2">
-                          <div className="w-8 h-8 bg-blue-500 rounded-full" />
-                          <div>
-                            <div className="text-sm font-medium">{displayName}</div>
-                            <div className="text-xs text-gray-500">Software Developer</div>
-                          </div>
-                        </div>
-                      </div>
-                  ))}
-                </div>
+                <TopViewedLessonsWidget />
               </div>
-
-              {/* Calendar and Scoreboard */}
               <div className="order-1 xl:order-2">
                 <div className="space-y-6 mt-4 xl:mt-0">
                   <CalendarWidget />
@@ -61,11 +49,8 @@ const UserDashboard = () => {
             </div>
           </main>
         </div>
-
-        {/* ✅ Floating Chatbot */}
         <ChatBubbleWidget />
       </>
   );
 };
-
 export default UserDashboard;

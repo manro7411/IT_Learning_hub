@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import CalendarWidget from '../../widgets/CalendarWidget';
 import ScoreboardChart from '../../components/ScoreboardChart';
 import Sidebar from '../../widgets/SidebarWidget';
+import {AuthContext} from "../../Authentication/AuthContext.tsx";
+import {useNavigate} from "react-router-dom";
 
 interface Task {
   id: number;
@@ -12,6 +14,16 @@ interface Task {
 const TaskManagement = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
+
+  const {token: ctxToken } = useContext(AuthContext);
+  const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!token) {
+      navigate("/");
+    }
+  }, [token, navigate]);
 
   const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

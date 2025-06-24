@@ -1,7 +1,19 @@
 import CalendarWidget from "../../widgets/CalendarWidget";
 import Sidebar from "../../widgets/SidebarWidget";
+import {useContext, useEffect} from "react";
+import {AuthContext} from "../../Authentication/AuthContext.tsx";
+import {useNavigate} from "react-router-dom";
 
 const KnowledgeForumLayout = () => {
+    const { token: ctxToken } = useContext(AuthContext);
+    const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (!token) {
+            navigate("/");
+        }
+    }, [token, navigate]);
   return (
     <div className="flex min-h-screen bg-gray-50">
       {/* Sidebar - Left */}

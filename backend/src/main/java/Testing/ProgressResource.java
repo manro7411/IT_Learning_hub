@@ -1,5 +1,6 @@
 package Testing;
 
+import dto.LearningContentDto;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -7,6 +8,7 @@ import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import model.LearningContent;
 import model.UserLessonProgress;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
@@ -63,6 +65,27 @@ public class ProgressResource {
                 """, UserLessonProgress.class)
                 .setParameter("email", userEmail)
                 .getResultList();
+    }
+
+    @GET
+    @Path("/top-viewed")
+    public List<LearningContentDto> getTopViewedLessons(@QueryParam("limit") @DefaultValue("3") int limit) {
+        List<Object[]> result = em.createQuery("""
+        SELECT lc, COUNT(DISTINCT p.userEmail)
+        FROM UserLessonProgress p
+        JOIN LearningContent lc ON lc.id = p.lessonId
+        GROUP BY lc
+        ORDER BY COUNT(DISTINCT p.userEmail) DESC
+    """, Object[].class)
+                .setMaxResults(limit)
+                .getResultList();
+
+        return result.stream()
+                .map(r -> {
+                    LearningContent lc = (LearningContent) r[0];
+                    return LearningContentDto.fromEntity(lc);
+                })
+                .toList();
     }
 
     public static class ProgressDto {
