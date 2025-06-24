@@ -4,6 +4,7 @@ import Sidebar from "../../widgets/SidebarWidget";
 import CalendarWidget from "../../widgets/CalendarWidget";
 import PostCardWidget from "./PostCardWidget.tsx";
 import AddPostWidget from "./AddPostWidget.tsx";
+
 type Post = {
     id: string;
     authorName: string;
@@ -14,26 +15,30 @@ type Post = {
     views: number;
     likes: number;
 };
+
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+
 const KnowledgeForumLayout = () => {
     const { token } = useContext(AuthContext);
-
-    const [posts, setPosts]   = useState<Post[]>([]);
-    const [loading, setLoad]  = useState(true);
+    const [posts, setPosts] = useState<Post[]>([]);
+    const [loading, setLoading] = useState(true);
 
     const fetchPosts = async () => {
         try {
-            const res  = await fetch(`${API_URL}/posts`, {
+            const res = await fetch(`${API_URL}/posts`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             const data = await res.json();
             setPosts(data);
         } finally {
-            setLoad(false);
+            setLoading(false);
         }
     };
 
-    useEffect(() => { fetchPosts(); }, []);
+    useEffect(() => {
+        fetchPosts();
+    }, []);
+
     const handlePostCreated = () => fetchPosts();
 
     return (
@@ -44,7 +49,7 @@ const KnowledgeForumLayout = () => {
                     <p className="text-gray-500">Loading posts…</p>
                 ) : (
                     <div className="space-y-4">
-                        {posts.map(post => (
+                        {posts.map((post) => (
                             <PostCardWidget
                                 key={post.id}
                                 user={post.authorName}
@@ -60,7 +65,6 @@ const KnowledgeForumLayout = () => {
                     </div>
                 )}
             </main>
-
             <aside className="w-80 p-6 hidden lg:block">
                 <CalendarWidget />
             </aside>

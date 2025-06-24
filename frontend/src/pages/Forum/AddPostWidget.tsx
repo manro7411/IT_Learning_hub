@@ -31,7 +31,7 @@ const AddPostWidget = ({ onCreated }: { onCreated?: () => void }) => {
             const res = await fetch(`${API_URL}/posts`, {
                 method: "POST",
                 headers,
-                body: JSON.stringify({ title, message })
+                body: JSON.stringify({ title, message , authorName: user?.name  })
             });
 
             if (res.ok) {

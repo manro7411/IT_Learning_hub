@@ -1,12 +1,7 @@
-package Forum.dto;
-
+package Forum;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-/**
- * DTO สำหรับรับข้อมูลจาก REST API เวลาผู้ใช้สร้างโพสต์ใหม่
- * ไม่ต้องมี author เพราะ backend จะดึงจาก SecurityIdentity
- */
 public class PostCreateRequest {
 
     @NotBlank(message = "Title must not be blank")
@@ -16,5 +11,6 @@ public class PostCreateRequest {
     @NotBlank(message = "Message must not be blank")
     public String message;
 
-    // ✅ ไม่ต้องมี field author — backend จะจัดการให้
+    @Size(max = 100, message = "Author name must be at most 100 characters")
+    public String authorName;
 }
