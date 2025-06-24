@@ -15,9 +15,6 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * REST resource for LearningContent CRUD + click-tracking.
- */
 @Path("/learning")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -26,7 +23,6 @@ public class LearningContentResource {
     @Inject EntityManager em;
     @Inject JsonWebToken jwt;
 
-    /* ─────────────── 1) LIST ─────────────── */
     @GET
     public List<LearningContentDto> list(@QueryParam("mine") @DefaultValue("false") boolean mine) {
         if (mine) {
@@ -50,7 +46,6 @@ public class LearningContentResource {
                 .toList();
     }
 
-    /* ─────────────── 2) CREATE ─────────────── */
     @POST
     @Transactional
     @RolesAllowed("admin")
@@ -68,7 +63,6 @@ public class LearningContentResource {
                 .build();
     }
 
-    /* ─────────────── 3) UPDATE ─────────────── */
     @PUT
     @Path("/{id}")
     @Transactional

@@ -28,7 +28,7 @@ public class Notification {
     @JoinColumn(
             name            = "recipient_id",
             nullable        = false,
-            columnDefinition = "varchar(21)"        // ✅ ให้ DB สร้างเป็น VARCHAR(21)
+            columnDefinition = "varchar(21)"
     )
     private User recipient;
 
