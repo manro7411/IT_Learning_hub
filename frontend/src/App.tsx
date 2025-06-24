@@ -5,6 +5,8 @@ import { AuthProvider } from "./Authentication/AuthContext";
 import { UserRoutes } from "./routes/UserRoutes";
 import { AdminRoutes } from "./routes/AdminRoutes";
 import RegisterPage from "./pages/Login/Register.tsx";
+import AdminDashboard from './pages/Admin/Dashboard/AdminDashboard';
+import AdminDashboard_overall from './pages/Admin/Dashboard/AdminDashboard_overall';
 
 function App() {
   return (
@@ -13,6 +15,8 @@ function App() {
           <Routes>
             <Route path="/" element={<LoginPage />} />
             <Route path="/register" element={<RegisterPage/>}/>
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/admin-overall" element={<AdminDashboard_overall />} />
           </Routes>
           <UserRoutes />
           <AdminRoutes />
