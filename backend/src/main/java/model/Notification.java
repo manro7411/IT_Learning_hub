@@ -1,5 +1,4 @@
 package model;
-
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -7,13 +6,11 @@ import java.util.UUID;
 @Entity
 public class Notification {
 
-    /* -------- primary key (UUID) -------- */
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(columnDefinition = "uuid", updatable = false, nullable = false)
     private UUID id;
 
-    /* -------- fields -------- */
     @Column(nullable = false)
     private String message;
 
@@ -23,16 +20,14 @@ public class Notification {
     @Column(nullable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    /* -------- FK → users(id)  (users.id = String length 21) -------- */
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(
             name            = "recipient_id",
             nullable        = false,
-            columnDefinition = "varchar(21)"        // ✅ ให้ DB สร้างเป็น VARCHAR(21)
+            columnDefinition = "varchar(21)"
     )
     private User recipient;
 
-    /* -------- getters / setters -------- */
     public String getId()                   { return id != null ? id.toString() : null; }
     public void   setId(UUID id)            { this.id = id; }
 

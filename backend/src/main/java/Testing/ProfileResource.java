@@ -19,8 +19,6 @@ public class ProfileResource {
 
     @Inject EntityManager em;
     @Inject JsonWebToken  jwt;
-
-    /* ─────────────────── GET – Current user ─────────────────── */
     @GET
     @RolesAllowed({ "user", "employee", "admin" })
     public ProfileDto getMe() {
@@ -32,13 +30,11 @@ public class ProfileResource {
                 .getSingleResult();
 
         return new ProfileDto(
-                user.getId().toString(),         // ← ใส่ id กลับไป
+                user.getId().toString(),
                 user.getName(),
                 user.getEmail()
         );
     }
-
-    /* ─────────────────── PUT – Update current user ─────────────────── */
     @PUT
     @Transactional
     @RolesAllowed({ "user", "employee", "admin" })
@@ -66,8 +62,6 @@ public class ProfileResource {
                 user.getEmail()
         );
     }
-
-    /* ─────────────────── GET – Admin: list ทุก user ─────────────────── */
     @GET
     @Path("/users")
     @RolesAllowed("admin")
@@ -76,13 +70,11 @@ public class ProfileResource {
                 .getResultList()
                 .stream()
                 .map(u -> new ProfileDto(
-                        u.getId().toString(),    // ← ส่ง id ออกไป
+                        u.getId().toString(),
                         u.getName(),
                         u.getEmail()))
                 .toList();
     }
-
-    /* ──────────── inner DTO ──────────── */
     public static class UpdateDto {
         public String name;
         public String email;
