@@ -6,9 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Forum/PostCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/PostCreateRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/Forum/PostResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/PostResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/ProfileResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/ProfileResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/dto/ProfileDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dto/ProfileDto.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/model/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/model/Notification.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -153,7 +154,7 @@
       <workItem from="1750645118987" duration="711000" />
       <workItem from="1750648224586" duration="1740000" />
       <workItem from="1750653812528" duration="15939000" />
-      <workItem from="1750729812357" duration="12219000" />
+      <workItem from="1750729812357" duration="14053000" />
     </task>
     <servers />
   </component>
