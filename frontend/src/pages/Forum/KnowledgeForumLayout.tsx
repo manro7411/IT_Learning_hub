@@ -4,13 +4,11 @@ import Sidebar from "../../widgets/SidebarWidget";
 import CalendarWidget from "../../widgets/CalendarWidget";
 import PostCardWidget from "./PostCardWidget.tsx";
 import AddPostWidget from "./AddPostWidget.tsx";
-
-/* ───── Types ───── */
 export type Comment = {
     id: string;
     authorName: string;
     message: string;
-    createdAt: string;          // ISO-8601
+    createdAt: string;
 };
 
 export type Post = {
@@ -19,7 +17,7 @@ export type Post = {
     authorEmail: string;
     title: string;
     message: string;
-    createdAt: string;          // ISO-8601
+    createdAt: string;
     views: number;
     likes: number;
     comments: Comment[];
@@ -32,10 +30,9 @@ const KnowledgeForumLayout = () => {
     const [posts, setPosts]   = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    /* ───── API helpers ───── */
     const fetchComments = async (postId: string): Promise<Comment[]> => {
         try {
-            const res = await fetch(`${API_URL}/posts/${postId}/comments`, {
+            const res = await fetch(`${API_URL}/forum/posts/${postId}/comments`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             return res.ok ? (await res.json()) as Comment[] : [];
@@ -51,13 +48,11 @@ const KnowledgeForumLayout = () => {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
 
-            /* basePosts *ไม่* มี comments */
             const basePosts: Omit<Post, "comments">[] = (await res.json()) as Omit<
                 Post,
                 "comments"
             >[];
 
-            /* enrich ด้วย comments แต่ละโพสต์ */
             const enriched: Post[] = await Promise.all(
                 basePosts.map(async (p) => ({
                     ...p,
@@ -73,10 +68,8 @@ const KnowledgeForumLayout = () => {
 
     useEffect(() => {
         void fetchPosts(); // ignore returned promise
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
-    /* เมื่อสร้างโพสต์ใหม่ – reload */
+    }, []);
     const handlePostCreated = () => {
         void fetchPosts();
     };

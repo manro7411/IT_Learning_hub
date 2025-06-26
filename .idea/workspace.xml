@@ -4,13 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/CommentResource.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/dto/CommentDto.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/model/CommentEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Forum/PostEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/PostEntity.java" afterDir="false" />
-    </list>
+    <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -158,6 +152,7 @@
       <workItem from="1750729812357" duration="14053000" />
       <workItem from="1750904080161" duration="6935000" />
       <workItem from="1750911680993" duration="177000" />
+      <workItem from="1750912168329" duration="2811000" />
     </task>
     <servers />
   </component>

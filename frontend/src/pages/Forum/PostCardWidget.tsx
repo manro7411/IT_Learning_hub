@@ -3,6 +3,7 @@ import type { Post } from "./KnowledgeForumLayout.tsx";
 
 type Props = {
     post: Post;
+    // comment: Comment;
 };
 
 const PostCardWidget = ({ post }: Props) => {
