@@ -5,6 +5,7 @@ import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import model.CommentEntity;
 
 import java.time.LocalDateTime;
 
@@ -50,6 +51,10 @@ public class PostEntity extends PanacheEntityBase {
         createdAt  = LocalDateTime.now();
         updatedAt  = createdAt;
     }
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private java.util.List<CommentEntity> comments = new java.util.ArrayList<>();
+
 
     @PreUpdate
     void preUpdate() { updatedAt = LocalDateTime.now(); }
