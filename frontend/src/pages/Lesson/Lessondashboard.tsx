@@ -18,25 +18,17 @@ interface Lesson {
     authorName?: string;
     authorAvatarUrl?: string;
 }
-
 const LessonPage = () => {
-    /* auth & nav */
     const { token: ctxToken } = useContext(AuthContext);
     const token =
         ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
     const navigate = useNavigate();
-
-    /* redirect if no token */
     useEffect(() => {
         if (!token) navigate("/");
     }, [token, navigate]);
-
-    /* local state */
     const [lessons, setLessons] = useState<Lesson[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-
-    /* fetch lessons */
     useEffect(() => {
         if (!token) return;
         axios
@@ -50,23 +42,21 @@ const LessonPage = () => {
             })
             .finally(() => setLoading(false));
     }, [token]);
-
-    /* log click → go to lesson detail */
     const handleLessonClick = async (id: string) => {
         try {
             await axios.post(
                 `http://localhost:8080/learning/${id}/click`,
-                {}, /* 👈 ต้องส่ง body ({}), ไม่ใช่ null */
+                {},
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
-                        "Content-Type": "application/json", // ป้องกัน 415
+                        "Content-Type": "application/json",
                     },
                 }
             );
         } catch (err) {
             console.error("Failed to log click:", err);
-            /* ไม่ต้อง alert – ไปต่อเหมือนเดิม */
+
         } finally {
             navigate(`/lesson/${id}`);
         }
@@ -78,13 +68,10 @@ const LessonPage = () => {
             .some((v) => v.toLowerCase().includes(searchQuery.toLowerCase()))
     );
 
-    /* ─────────────── render ─────────────── */
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <Sidebar />
-
             <main className="flex-1 p-6">
-                {/* search bar */}
                 <div className="mb-6">
                     <input
                         type="text"
@@ -97,7 +84,6 @@ const LessonPage = () => {
                 </div>
 
                 <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-                    {/* lesson cards */}
                     <div className="xl:col-span-3 grid gap-6 grid-cols-[repeat(auto-fill,minmax(256px,1fr))]">
                         {loading ? (
                             <div className="text-gray-500">Loading lessons…</div>
@@ -106,7 +92,6 @@ const LessonPage = () => {
                         ) : (
                             filtered.map((lesson) => (
                                 <button
-                                    /* ใช้ <button> เพื่อ A11y และ focus ring */
                                     key={lesson.id}
                                     onClick={() => handleLessonClick(lesson.id)}
                                     className="block cursor-pointer focus:outline-none focus-visible:ring-2

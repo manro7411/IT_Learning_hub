@@ -5,12 +5,11 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizPage.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/CommentResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/CommentResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/dto/CommentDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dto/CommentDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/model/CommentEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/model/CommentEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Forum/PostCardWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Forum/PostCardWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/routes/AdminRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/AdminRoutes.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/routes/UserRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/UserRoutes.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -162,6 +161,7 @@
       <workItem from="1750911680993" duration="177000" />
       <workItem from="1750912168329" duration="2811000" />
       <workItem from="1750918734880" duration="5055000" />
+      <workItem from="1750924913671" duration="1255000" />
     </task>
     <servers />
   </component>

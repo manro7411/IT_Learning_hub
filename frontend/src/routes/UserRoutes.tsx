@@ -1,4 +1,3 @@
-import { Routes, Route } from "react-router-dom";
 import UserDashboard from "../pages/Dashboard/UserDashboard";
 import KnowledgeForumLayout from "../pages/Forum/KnowledgeForumLayout";
 import PointDashboard from "../pages/Point/PointDashboard";
@@ -14,8 +13,9 @@ import Question from "../pages/Game/Question.tsx";
 import AnswerTrue from "../pages/Game/Answer_true.tsx";
 import AnswerFalse from "../pages/Game/Answer_false.tsx";
 import QuizPage from "../pages/quiz/QuizPage.tsx";
+import { Route } from "react-router-dom";
 export const UserRoutes = () => (
-    <Routes>
+    <>
         <Route path="/dashboard" element={<UserDashboard />} />
         <Route path="/lesson" element={<Lessondashboard />} />
         <Route path="/lesson/:id" element={<LessonDetailPage />} />
@@ -32,5 +32,5 @@ export const UserRoutes = () => (
         <Route path="/question" element={<Question />} />
         <Route path="/answer_true" element={<AnswerTrue />} />
         <Route path="/answer_false" element={<AnswerFalse />} />
-    </Routes>
+    </>
 );
