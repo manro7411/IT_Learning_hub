@@ -47,7 +47,6 @@ public class CommentResource {
 
         CommentEntity comment = dto.toEntity(post);
 
-        /* เติม author จาก JWT ถ้า client ไม่ส่งมา */
         if (comment.getAuthorName() == null || comment.getAuthorName().isBlank())
             comment.setAuthorName(jwt.getClaim("name"));
 

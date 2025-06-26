@@ -1,30 +1,25 @@
 package model;
+
 import Forum.PostEntity;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
-import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "comments")
-public class CommentEntity extends PanacheEntityBase {
+public class CommentEntity {
 
-    /* ────────── PK ────────── */
     @Id
     @Column(length = 21, nullable = false, updatable = false)
     private String id;
 
-    /* ────────── FK ไปยัง Post ────────── */
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "post_id", nullable = false)
-    private PostEntity post;          // <-- เชื่อมกับ PostEntity
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "post_id")
+    private PostEntity post;
 
-    /* ────────── DATA ────────── */
     @NotBlank
-    @Size(max = 100)
     @Column(name = "author_name", nullable = false, length = 100)
     private String authorName;
 
@@ -36,29 +31,25 @@ public class CommentEntity extends PanacheEntityBase {
     @Column(columnDefinition = "TEXT", nullable = false)
     private String message;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    /* ────────── Lifecycle ────────── */
     @PrePersist
-    void prePersist() {
-        if (id == null || id.isBlank())
-            id = NanoIdUtils.randomNanoId();
-
-        if (createdAt == null)
-            createdAt = LocalDateTime.now();
+    public void prePersist() {
+        if (id == null || id.isBlank()) id = NanoIdUtils.randomNanoId();
+        createdAt = LocalDateTime.now();
     }
 
-    /* ────────── Getters / Setters ────────── */
-    public String getId()                 { return id; }
-    public PostEntity getPost()           { return post; }
-    public String getAuthorName()         { return authorName; }
-    public String getAuthorEmail()        { return authorEmail; }
-    public String getMessage()            { return message; }
-    public LocalDateTime getCreatedAt()   { return createdAt; }
+    // Getters & Setters
+    public String getId() { return id; }
+    public PostEntity getPost() { return post; }
+    public String getAuthorName() { return authorName; }
+    public String getAuthorEmail() { return authorEmail; }
+    public String getMessage() { return message; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 
-    public void setPost(PostEntity p)         { this.post = p; }
-    public void setAuthorName(String n)       { this.authorName = n; }
-    public void setAuthorEmail(String e)      { this.authorEmail = e; }
-    public void setMessage(String m)          { this.message = m; }
+    public void setPost(PostEntity post) { this.post = post; }
+    public void setAuthorName(String authorName) { this.authorName = authorName; }
+    public void setAuthorEmail(String authorEmail) { this.authorEmail = authorEmail; }
+    public void setMessage(String message) { this.message = message; }
 }

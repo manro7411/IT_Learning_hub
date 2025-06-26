@@ -13,11 +13,13 @@ import Scenario from "../pages/Game/Scenario.tsx";
 import Question from "../pages/Game/Question.tsx";
 import AnswerTrue from "../pages/Game/Answer_true.tsx";
 import AnswerFalse from "../pages/Game/Answer_false.tsx";
+import QuizPage from "../pages/quiz/QuizPage.tsx";
 export const UserRoutes = () => (
     <Routes>
         <Route path="/dashboard" element={<UserDashboard />} />
         <Route path="/lesson" element={<Lessondashboard />} />
         <Route path="/lesson/:id" element={<LessonDetailPage />} />
+            <Route path="/quiz/:id" element={<QuizPage/>} />
         <Route path="/task" element={<TaskManagement />} />
         <Route path="/forum" element={<KnowledgeForumLayout />} />
         <Route path="/point" element={<PointDashboard />} />
