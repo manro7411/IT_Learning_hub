@@ -6,10 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Forum/PostResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/PostResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/ProfileResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/ProfileResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/dto/ProfileDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dto/ProfileDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/model/Notification.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/model/Notification.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/NotificationWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/NotificationWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/SidebarWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/SidebarWidget.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,6 +58,7 @@
     &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.64712644&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.repository.indices&quot;,
     &quot;ts.external.directory.path&quot;: &quot;/Users/sleanz/Desktop/CSC302/untitled folder/IT_Learning_hub/frontend/node_modules/typescript/lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
@@ -155,6 +156,11 @@
       <workItem from="1750648224586" duration="1740000" />
       <workItem from="1750653812528" duration="15939000" />
       <workItem from="1750729812357" duration="14053000" />
+      <workItem from="1750904080161" duration="6935000" />
+      <workItem from="1750911680993" duration="177000" />
+      <workItem from="1750912168329" duration="2811000" />
+      <workItem from="1750918734880" duration="5055000" />
+      <workItem from="1750924913671" duration="7032000" />
     </task>
     <servers />
   </component>

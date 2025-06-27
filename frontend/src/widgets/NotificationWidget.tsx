@@ -9,9 +9,6 @@ import { BellIcon, TrashIcon } from "lucide-react";
 import axios from "axios";
 import { AuthContext } from "../Authentication/AuthContext";
 
-/* ──────────────────────────
- *  Internal types
- * ──────────────────────────*/
 type Notification = {
     id: string;
     message: string;
@@ -29,14 +26,12 @@ const NotificationWidget = () => {
     const token =
         ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
 
-    /* UI state */
     const [open, setOpen] = useState(false);
     const [items, setItems] = useState<Notification[]>([]);
     const [unread, setUnread] = useState(0);
     const [error, setError] = useState<string | null>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
 
-    /* ───── fetch notifications ───── */
     const fetchNotifications = useCallback(async () => {
         if (!token) return;
         try {
@@ -53,12 +48,10 @@ const NotificationWidget = () => {
         }
     }, [token]);
 
-    /* first load */
     useEffect(() => {
         fetchNotifications();
     }, [fetchNotifications]);
 
-    /* close on outside-click */
     useEffect(() => {
         const handle = (e: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node))
