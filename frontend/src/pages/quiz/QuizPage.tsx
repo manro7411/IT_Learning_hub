@@ -128,6 +128,7 @@ const QuizPageStyled = () => {
           <div className="text-center mt-20">
             <h2 className="text-2xl font-bold text-green-600 mb-4">🎉 Quiz Completed!</h2>
             <p className="text-gray-600">You may now explore the dashboard.</p>
+            <p className="text-gray-500 mt-2">Your score has been sending out to Admin</p>
           </div>
         )}
             <div className="absolute bottom-8 left-0 right-0 flex justify-between items-center px-16">
@@ -142,11 +143,7 @@ const QuizPageStyled = () => {
     {currentQuestionIndex < sampleQuestions.length - 1 ? "Continue" : "Finish Quiz"}
   </button>
 </div>
-
-
-      
       </div>
-
       <div className="w-64 hidden lg:block">
         <CalendarWidget />
       </div>
