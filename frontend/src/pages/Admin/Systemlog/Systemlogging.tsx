@@ -12,27 +12,38 @@ interface ChatLog {
   timestamp: string;
 }
 
+const tabs = [
+  { label: "Chat_log", value: "chatlog" },
+  { label: "Table2", value: "table2" },
+  { label: "Table3", value: "table3" },
+  { label: "Table4", value: "table4" },
+];
+
 const Systemlogging = () => {
   const [logs, setLogs] = useState<ChatLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const { token } = useContext(AuthContext); // 👈 ใช้ token จาก AuthContext
+  const [activeTab, setActiveTab] = useState("chatlog");
+  const { token } = useContext(AuthContext);
 
   useEffect(() => {
     const fetchLogs = async () => {
+      setLoading(true);
+      setError("");
+
       try {
         const res = await axios.get<ChatLog[]>(
-          "http://localhost:8080/chatlog/all",
+          `http://localhost:8080/${activeTab}/all`,
           {
             headers: {
-              Authorization: `Bearer ${token}`, // 👈 แนบ token ใน header
+              Authorization: `Bearer ${token}`,
             },
           }
         );
         setLogs(res.data);
       } catch (err) {
-        setError("ไม่สามารถโหลดข้อมูล chat log ได้ (401)");
         console.error("❌ Fetch logs failed:", err);
+        setError(`ไม่สามารถโหลดข้อมูล ${activeTab} ได้`);
       } finally {
         setLoading(false);
       }
@@ -44,14 +55,37 @@ const Systemlogging = () => {
       setError("คุณยังไม่ได้เข้าสู่ระบบ");
       setLoading(false);
     }
-  }, [token]);
+  }, [token, activeTab]);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="flex h-screen bg-gray-50">
+      {/* <div className="w-72 h-full shadow-md bg-white flex-shrink-0">
+        <AdminSidebarWidget />
+      </div> */}
       <AdminSidebarWidget />
-      <div className="flex-1 p-6">
+
+      {/* ✅ Content */}
+      <div className="flex-1 overflow-y-auto p-6">
         <h1 className="text-2xl font-bold mb-4">System Logging</h1>
 
+        {/* ✅ Tab bar */}
+        <div className="flex space-x-6 border-b mb-6 text-sm font-semibold">
+          {tabs.map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setActiveTab(tab.value)}
+              className={`pb-2 ${
+                activeTab === tab.value
+                  ? "text-blue-600 border-b-2 border-blue-600"
+                  : "text-gray-500 hover:text-blue-600"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        {/* ✅ Table content */}
         {loading ? (
           <p>กำลังโหลดข้อมูล...</p>
         ) : error ? (
@@ -76,7 +110,9 @@ const Systemlogging = () => {
                     <td className="border px-4 py-2">{log.inputMessage}</td>
                     <td className="border px-4 py-2">{log.responseMessage}</td>
                     <td className="border px-4 py-2">{log.userEmail}</td>
-                    <td className="border px-4 py-2">{log.blocked ? "✔️" : "—"}</td>
+                    <td className="border px-4 py-2">
+                      {log.blocked ? "✔️" : "—"}
+                    </td>
                     <td className="border px-4 py-2">
                       {new Date(log.timestamp).toLocaleString("th-TH")}
                     </td>
