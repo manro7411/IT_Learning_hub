@@ -2,8 +2,8 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../Authentication/AuthContext";
-
-/* ──────────────── types ──────────────── */
+import AdminSidebarWidget from "../Widgets/AdminSideBar";
+import CalendarWidget from "../../../widgets/CalendarWidget";
 type User = { id: string; name: string };
 
 type FormState = {
@@ -11,14 +11,11 @@ type FormState = {
     target: "ALL" | "USER";
     selectedUsers: string[];
 };
-
 const INITIAL_STATE: FormState = {
     message: "",
     target: "ALL",
     selectedUsers: [],
 };
-
-/* ──────────────── utils ──────────────── */
 const getToken = (ctxToken: string | null | undefined): string | null => {
     return (
         ctxToken ||
@@ -27,7 +24,6 @@ const getToken = (ctxToken: string | null | undefined): string | null => {
     );
 };
 
-/* ──────────────── component ──────────────── */
 const AdminCreateNotificationPage: React.FC = () => {
     const { token: ctxToken } = useContext(AuthContext);
     const token = getToken(ctxToken);
@@ -36,8 +32,6 @@ const AdminCreateNotificationPage: React.FC = () => {
     const [form, setForm] = useState<FormState>(INITIAL_STATE);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
-
-    /* ───── Load Users ───── */
     useEffect(() => {
         if (!token) {
             navigate("/");
@@ -115,15 +109,15 @@ const AdminCreateNotificationPage: React.FC = () => {
             setLoading(false);
         }
     };
-
-    /* ───── Render ───── */
     return (
-        <div className="min-h-screen bg-gray-50 p-10">
-            <div className="max-w-2xl mx-auto bg-white shadow p-8 rounded-xl space-y-6">
+        <div className="min-h-screen bg-gray-50 flex">
+            <AdminSidebarWidget />
+            <main className="flex-1 p-6 overflow-y-auto">
+                <div className="max-w-2xl mx-auto bg-white shadow p-8 rounded-xl space-y-6">
                 <h1 className="text-2xl font-bold text-blue-800">📢 Send Notification</h1>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Message */}
+
                     <div>
                         <label className="font-medium text-sm text-gray-700">Message</label>
                         <textarea
@@ -136,8 +130,6 @@ const AdminCreateNotificationPage: React.FC = () => {
                             placeholder="Type your announcement or message..."
                         />
                     </div>
-
-                    {/* Target */}
                     <div>
                         <label className="font-medium text-sm text-gray-700">Send To</label>
                         <select
@@ -150,8 +142,6 @@ const AdminCreateNotificationPage: React.FC = () => {
                             <option value="USER">Specific Users</option>
                         </select>
                     </div>
-
-                    {/* Users */}
                     {form.target === "USER" && (
                         <div>
                             <label className="font-medium text-sm text-gray-700">
@@ -174,7 +164,6 @@ const AdminCreateNotificationPage: React.FC = () => {
                             )}
                         </div>
                     )}
-
                     <button
                         type="submit"
                         disabled={loading}
@@ -183,6 +172,12 @@ const AdminCreateNotificationPage: React.FC = () => {
                         {loading ? "Sending..." : "Send Notification"}
                     </button>
                 </form>
+            </div>
+
+            </main>
+            
+            <div className="w-80 hidden lg:block p-6">
+                <CalendarWidget/>
             </div>
         </div>
     );
