@@ -1,6 +1,7 @@
-import { useState, useRef } from "react";
+import { useContext, useState, useRef } from "react";
 import axios, { AxiosError } from "axios";
 import { MessageCircle, X } from "lucide-react";
+import { AuthContext } from "../Authentication/AuthContext";
 
 interface ChatMessage {
   role: string;
@@ -20,10 +21,40 @@ const ChatBubbleWidget = () => {
   const [showInappropriateModal, setShowInappropriateModal] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const { token } = useContext(AuthContext);
+
+  const logToBackend = async (
+    userMsg: string,
+    aiReply: string,
+    blocked: boolean
+  ) => {
+    if (!token) return;
+
+    try {
+      await axios.post(
+        "http://localhost:8080/chatlog",
+        {
+          inputMessage: userMsg,
+          responseMessage: aiReply,
+          blocked,
+          timestamp: new Date().toISOString(), // ส่ง timestamp ด้วย
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+    } catch (err) {
+      console.warn("❗️ไม่สามารถบันทึก log ได้:", err);
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim()) return;
 
-    const userMsg: ChatMessage = { role: "user", content: input };
+    const userInput = input;
+    const userMsg: ChatMessage = { role: "user", content: userInput };
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
@@ -31,29 +62,31 @@ const ChatBubbleWidget = () => {
     try {
       const res = await axios.post<BackendResponse>(
         "http://localhost:8080/filtering",
-        { msg: input }
+        { msg: userInput }
       );
 
-      // กรณี backend ส่งคำเตือนว่าไม่เหมาะสม
       if (res.data.message?.includes("ไม่เหมาะสม")) {
         setShowInappropriateModal(true);
+        await logToBackend(userInput, "ข้อความไม่เหมาะสม", true);
         return;
       }
 
-      // กรณีได้ข้อความตอบกลับจาก AI
       if (res.data.content) {
         const reply: ChatMessage = {
           role: "assistant",
           content: res.data.content,
         };
         setMessages((prev) => [...prev, reply]);
+        await logToBackend(userInput, reply.content, false);
       } else {
         alert("❌ ไม่พบข้อความจาก AI");
       }
     } catch (err) {
       const axiosError = err as AxiosError<BackendResponse>;
       console.error("❌ Backend error", err);
-      alert(axiosError.response?.data?.message || "❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์");
+      alert(
+        axiosError.response?.data?.message || "❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์"
+      );
     } finally {
       setLoading(false);
     }
