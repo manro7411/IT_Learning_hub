@@ -1,7 +1,9 @@
 package model;
 
 import jakarta.persistence.*;
+
 import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "user_lesson_progress")
 public class UserLessonProgress {
@@ -19,18 +21,24 @@ public class UserLessonProgress {
     @Column(nullable = false)
     private Integer percent = 0;
 
+    @Column(name = "last_timestamp", nullable = false)
+    private Integer lastTimestamp = 0; // ✅ เพิ่มฟิลด์นี้ (วินาที)
+
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    // ===== GETTERS =====
+    public Long getId() { return id; }
+    public String getLessonId() { return lessonId; }
+    public String getUserEmail() { return userEmail; }
+    public Integer getPercent() { return percent; }
+    public Integer getLastTimestamp() { return lastTimestamp; } // ✅ เพิ่ม getter
+    public LocalDateTime getUpdatedAt() { return updatedAt; }
 
-    public Long getId()                    { return id; }
-    public String  getLessonId()           { return lessonId; }
-    public String  getUserEmail()          { return userEmail; }
-    public Integer getPercent()            { return percent; }
-    public LocalDateTime getUpdatedAt()    { return updatedAt; }
-
-    public void setLessonId(String lessonId)        { this.lessonId = lessonId; }
-    public void setUserEmail(String userEmail)      { this.userEmail = userEmail; }
-    public void setPercent(Integer percent)         { this.percent = percent; }
-    public void setUpdatedAt(LocalDateTime updatedAt){ this.updatedAt = updatedAt; }
+    // ===== SETTERS =====
+    public void setLessonId(String lessonId) { this.lessonId = lessonId; }
+    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
+    public void setPercent(Integer percent) { this.percent = percent; }
+    public void setLastTimestamp(Integer lastTimestamp) { this.lastTimestamp = lastTimestamp; } // ✅ เพิ่ม setter
+    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 }

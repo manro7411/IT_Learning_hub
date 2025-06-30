@@ -32,7 +32,7 @@ export default function SidebarWidget() {
     <aside className="w-64 bg-white shadow-md p-6 m-4 rounded-xl flex flex-col justify-between">
 
       <div>
-        <img src={Logo} alt="Bangkok Bank Logo" className="h-12 mb-8" />
+        <img src={Logo} alt="Bangkok Bank Logo" className="h-12 mb-8" onClick={() => navigate("/dashboard")} />
         <nav className="space-y-4 text-sm">
           {menuItems.map(({ name, icon, path }) => (
             <Link

@@ -23,17 +23,18 @@ import java.util.Optional;
 public class ProgressResource {
     @Inject EntityManager em;
     @Inject JsonWebToken jwt;
+
     @PUT
     @Path("/{lessonId}")
     @Transactional
     public Response updateProgress(@PathParam("lessonId") String lessonId, ProgressDto dto) {
         String userEmail = jwt.getSubject();
-
         if (userEmail == null || userEmail.isBlank()) {
             throw new NotAuthorizedException("No user email in JWT");
         }
 
         int clamped = Math.max(0, Math.min(dto.getPercent(), 100));
+        int lastTs = Math.max(0, dto.getLastTimestamp());
 
         Optional<UserLessonProgress> existing = em.createQuery(
                         "SELECT p FROM UserLessonProgress p WHERE p.userEmail = :e AND p.lessonId = :l",
@@ -47,11 +48,13 @@ public class ProgressResource {
         progress.setUserEmail(userEmail);
         progress.setLessonId(lessonId);
         progress.setPercent(clamped);
+        progress.setLastTimestamp(lastTs); // ✅ store video timestamp
         progress.setUpdatedAt(LocalDateTime.now());
         em.merge(progress);
 
         return Response.ok().build();
     }
+
     @GET
     @Path("/my")
     public List<UserLessonProgress> getMyProgress() {
@@ -60,9 +63,9 @@ public class ProgressResource {
             throw new NotAuthorizedException("No user email in JWT");
         }
         return em.createQuery("""
-                SELECT p FROM UserLessonProgress p
-                WHERE p.userEmail = :email
-                """, UserLessonProgress.class)
+            SELECT p FROM UserLessonProgress p
+            WHERE p.userEmail = :email
+        """, UserLessonProgress.class)
                 .setParameter("email", userEmail)
                 .getResultList();
     }
@@ -71,12 +74,12 @@ public class ProgressResource {
     @Path("/top-viewed")
     public List<LearningContentDto> getTopViewedLessons(@QueryParam("limit") @DefaultValue("3") int limit) {
         List<Object[]> result = em.createQuery("""
-        SELECT lc, COUNT(DISTINCT p.userEmail)
-        FROM UserLessonProgress p
-        JOIN LearningContent lc ON lc.id = p.lessonId
-        GROUP BY lc
-        ORDER BY COUNT(DISTINCT p.userEmail) DESC
-    """, Object[].class)
+            SELECT lc, COUNT(DISTINCT p.userEmail)
+            FROM UserLessonProgress p
+            JOIN LearningContent lc ON lc.id = p.lessonId
+            GROUP BY lc
+            ORDER BY COUNT(DISTINCT p.userEmail) DESC
+        """, Object[].class)
                 .setMaxResults(limit)
                 .getResultList();
 
@@ -90,7 +93,12 @@ public class ProgressResource {
 
     public static class ProgressDto {
         private int percent;
+        private int lastTimestamp;
+
         public int getPercent() { return percent; }
         public void setPercent(int percent) { this.percent = percent; }
+
+        public int getLastTimestamp() { return lastTimestamp; }
+        public void setLastTimestamp(int lastTimestamp) { this.lastTimestamp = lastTimestamp; }
     }
 }

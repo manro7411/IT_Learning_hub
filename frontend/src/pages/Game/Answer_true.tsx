@@ -9,13 +9,14 @@ const AnswerTrue = () => {
   const {
     question,
     selected,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     correctAnswer,
     currentIndex = 1,
     total = 5,
   } = location.state || {};
 
   const handleNext = () => {
-    navigate('/next-question'); 
+    navigate('/game'); 
   };
 
   return (

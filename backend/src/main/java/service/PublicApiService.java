@@ -11,7 +11,7 @@ import org.json.JSONObject;
 @ApplicationScoped
 public class PublicApiService {
 
-    private static final String API_KEY = "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";
+    private static final String API_KEY = "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";
     private static final String API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
     public String sendingOut(String userMessage) {

@@ -7,7 +7,8 @@ interface ChatMessage {
   content: string;
 }
 
-interface ErrorResponse {
+interface BackendResponse {
+  content?: string;
   message?: string;
 }
 
@@ -23,22 +24,23 @@ const ChatBubbleWidget = () => {
     if (!input.trim()) return;
 
     const userMsg: ChatMessage = { role: "user", content: input };
-
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setLoading(true);
 
     try {
-      const res = await axios.post<{ content?: string; message?: string }>(
+      const res = await axios.post<BackendResponse>(
         "http://localhost:8080/filtering",
         { msg: input }
       );
 
+      // กรณี backend ส่งคำเตือนว่าไม่เหมาะสม
       if (res.data.message?.includes("ไม่เหมาะสม")) {
         setShowInappropriateModal(true);
         return;
       }
 
+      // กรณีได้ข้อความตอบกลับจาก AI
       if (res.data.content) {
         const reply: ChatMessage = {
           role: "assistant",
@@ -49,7 +51,7 @@ const ChatBubbleWidget = () => {
         alert("❌ ไม่พบข้อความจาก AI");
       }
     } catch (err) {
-      const axiosError = err as AxiosError<ErrorResponse>;
+      const axiosError = err as AxiosError<BackendResponse>;
       console.error("❌ Backend error", err);
       alert(axiosError.response?.data?.message || "❌ ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์");
     } finally {
