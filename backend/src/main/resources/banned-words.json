@@ -1,0 +1,22 @@
+{
+  "bannedWords": [
+    "spam", "scam", "fake", "phishing", "malware", "fraud", "hacked", "unauthorized",
+    "money laundering", "identity theft", "loan scam", "investment fraud", "otp scam",
+    "fake website", "blocked account", "mule account", "pin theft", "refund scam",
+    "steal information", "account takeover", "wire fraud", "smishing", "spoofed email",
+    "suspicious transfer", "ghost transaction", "social engineering", "keylogger",
+    "ransomware", "data breach", "leak", "compromised", "illegal", "hack", "exploit","otp",
+    "card skimmer", "fake support", "atm trap", "blackmail", "impersonate", "unauthorized login",
+    "security bypass", "trojan", "spyware", "credential stuffing", "recovery scam",
+    "bank impersonator", "emergency fund scam", "deceptive", "spoofed call", "clone site",
+    "หลอกลวง", "หลอก", "ฟอกเงิน", "เงินหาย", "บัญชีม้า", "แอบอ้าง", "ขอ otp",
+    "otp ปลอม", "เว็บไซต์ปลอม", "เว็บปลอม", "ปลอมแปลง", "รหัสโดนขโมย", "รหัสหาย",
+    "เงินปลอม", "ถอนเงินไม่ได้", "ระงับบัญชี", "ล็อคบัญชี", "โทรหลอก", "ข้อความปลอม",
+    "sms ปลอม", "พนักงานปลอม", "เจ้าหน้าที่ปลอม", "หลอกให้โอน", "ขอข้อมูลส่วนตัว",
+    "แอพปลอม", "โอนเงินผิด", "กู้เงินด่วน", "ดอกเบี้ยโหด", "สินเชื่อปลอม", "บัญชีถูกแฮก",
+    "แจ้งความ", "แจ้งตำรวจ", "ถูกโกง", "หลอกขอรหัส", "ขโมยข้อมูล", "ติดแบล็คลิสต์",
+    "ล้มละลาย", "เบอร์ปลอม", "ฝากเงินผิด", "ถอนเงินช้า", "เงินไม่เข้า", "รออนุมัติ",
+    "ถูกแฮก", "ไม่ปลอดภัย", "ธุรกรรมต้องสงสัย", "ลิงก์ปลอม", "แจ้งอายัด", "รหัส otp",
+    "sms หลอกลวง", "บัญชีถูกอายัด", "แฮกเกอร์", "ขู่กรรโชก", "โอนซ้ำ", "โอนผิด", "โอนแล้วเงินไม่เข้า"
+  ]
+}

@@ -1,4 +1,5 @@
 package model;
+
 public class MessageRequest {
     private String msg;
 

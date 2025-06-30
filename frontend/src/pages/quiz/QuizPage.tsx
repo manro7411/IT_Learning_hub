@@ -140,7 +140,7 @@ const QuizPageStyled = () => {
             disabled={!selectedOption}
             onClick={handleContinue}
         >
-    {currentQuestionIndex < sampleQuestions.length - 1 ? "Continue" : "Finish Quiz"}
+    {currentQuestionIndex < sampleQuestions.length - 1 ? "Continue" : "Finish Quiz" }
   </button>
 </div>
       </div>

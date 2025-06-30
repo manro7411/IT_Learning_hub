@@ -9,9 +9,11 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import model.LearningContent;
+import model.UserLessonProgress;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -57,6 +59,8 @@ public class LearningContentResource {
         lc.setAuthorName(jwt.getClaim("name"));
         lc.setAuthorEmail(jwt.getSubject());
         lc.setAuthorRole("admin");
+        lc.setClickCount(0L);
+        lc.setCreatedAt(LocalDateTime.now());
         em.persist(lc);
         return Response.created(URI.create("/learning/" + lc.getId()))
                 .entity(LearningContentDto.fromEntity(lc))
@@ -77,7 +81,6 @@ public class LearningContentResource {
         return LearningContentDto.fromEntity(lc);
     }
 
-    /* ─────────────── 4) DELETE ─────────────── */
     @DELETE
     @Path("/{id}")
     @Transactional
@@ -87,7 +90,6 @@ public class LearningContentResource {
         if (lc != null) em.remove(lc);
     }
 
-    /* ─────────────── 5) GET ONE ─────────────── */
     @GET
     @Path("/{id}")
     public LearningContentDto getOne(@PathParam("id") String id) {
@@ -96,18 +98,42 @@ public class LearningContentResource {
         return LearningContentDto.fromEntity(lc);
     }
 
-    /* ─────────────── 6) ADD CLICK ─────────────── */
     @POST
     @Path("/{id}/click")
     @Transactional
-    public void addClick(@PathParam("id") String id) {
+    @RolesAllowed("user")
+    public void addClick(@PathParam("id") String lessonId) {
+        String userEmail = jwt.getSubject();
+
+        // 🔍 ค้นหา progress ของผู้ใช้สำหรับบทเรียนนี้
+        UserLessonProgress progress = em.createQuery(
+                        "SELECT p FROM UserLessonProgress p WHERE p.lessonId = :lessonId AND p.userEmail = :userEmail",
+                        UserLessonProgress.class
+                ).setParameter("lessonId", lessonId)
+                .setParameter("userEmail", userEmail)
+                .getResultStream()
+                .findFirst()
+                .orElse(null);
+
+        if (progress == null) {
+            progress = new UserLessonProgress();
+            progress.setLessonId(lessonId);
+            progress.setUserEmail(userEmail);
+            progress.setPercent(1);
+            progress.setUpdatedAt(LocalDateTime.now());
+            em.persist(progress);
+        } else {
+            progress.setPercent(Math.max(progress.getPercent(), 1));
+            progress.setUpdatedAt(LocalDateTime.now());
+        }
+
+        // ✅ เพิ่ม click count
         int updated = em.createQuery("UPDATE LearningContent lc SET lc.clickCount = lc.clickCount + 1 WHERE lc.id = :id")
-                .setParameter("id", id)
+                .setParameter("id", lessonId)
                 .executeUpdate();
         if (updated == 0) throw new NotFoundException();
     }
 
-    /* ─────────────── 7) GET CLICK COUNT ─────────────── */
     @GET
     @Path("/{id}/click-count")
     public Long getClickCount(@PathParam("id") String id) {
@@ -116,7 +142,6 @@ public class LearningContentResource {
         return lc.getClickCount();
     }
 
-    /* ─────────────── 8) TOP VIEWED ─────────────── */
     @GET
     @Path("/top-viewed")
     public List<LearningContentDto> topViewed(@QueryParam("limit") @DefaultValue("5") int limit) {
