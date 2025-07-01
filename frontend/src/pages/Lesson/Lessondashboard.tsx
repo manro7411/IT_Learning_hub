@@ -7,6 +7,8 @@ import CalendarWidget from "../../widgets/CalendarWidget";
 import ScoreboardChart from "../../components/ScoreboardChart";
 import Sidebar from "../../widgets/SidebarWidget";
 import defaultUserAvatar from "../../assets/user.png";
+import ChatBubbleWidget from "../../widgets/ChatBubbleWidget";
+import NotificationWidget from "../../widgets/NotificationWidget";
 
 interface Lesson {
   id: string;
@@ -18,6 +20,11 @@ interface Lesson {
   authorAvatarUrl?: string;
 }
 
+interface Progress {
+  percent: number;
+  lastTimestamp: number;
+}
+
 const LessonPage = () => {
   const { token: ctxToken } = useContext(AuthContext);
   const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -26,7 +33,7 @@ const LessonPage = () => {
   const location = useLocation();
 
   const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [progressMap, setProgressMap] = useState<Record<string, number>>({});
+  const [progressMap, setProgressMap] = useState<Record<string, Progress>>({});
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -49,10 +56,13 @@ const LessonPage = () => {
 
         setLessons(lessonsRes.data);
 
-        const map: Record<string, number> = {};
-        progressRes.data.forEach((item: { lessonId: string; percent: number }) => {
+        const map: Record<string, Progress> = {};
+        progressRes.data.forEach((item: { lessonId: string; percent: number; lastTimestamp?: number }) => {
           const key = item.lessonId?.toString().trim().toLowerCase();
-          map[key] = item.percent;
+          map[key] = {
+            percent: item.percent,
+            lastTimestamp: item.lastTimestamp || 0,
+          };
         });
         setProgressMap(map);
       } catch (err) {
@@ -64,24 +74,24 @@ const LessonPage = () => {
     };
 
     fetchLessonsAndProgress();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, location.pathname]);
 
   const handleLessonClick = async (id: string) => {
+    const key = id?.toString().trim().toLowerCase();
+    const lastTimestamp = progressMap[key]?.lastTimestamp || 0;
+
     try {
-      await axios.post(
-        `http://localhost:8080/learning/${id}/click`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      await axios.post(`http://localhost:8080/learning/${id}/click`, {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
     } catch (err) {
       console.error("Failed to log click:", err);
     } finally {
-      navigate(`/lesson/${id}`);
+      navigate(`/lesson/${id}`, { state: { lastTimestamp } });
     }
   };
 
@@ -95,7 +105,7 @@ const LessonPage = () => {
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
       <main className="flex-1 p-6">
-        <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
           <input
             type="text"
             placeholder="Search lessons…"
@@ -103,6 +113,7 @@ const LessonPage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full xl:w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
+           <NotificationWidget />
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
@@ -114,7 +125,7 @@ const LessonPage = () => {
             ) : (
               filtered.map((lesson) => {
                 const key = lesson.id?.toString().trim().toLowerCase();
-                const percent = progressMap[key] ?? 0;
+                const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };
 
                 return (
                   <button
@@ -145,11 +156,14 @@ const LessonPage = () => {
                         <div className="mb-2 mt-3 h-1 rounded-full bg-gray-200">
                           <div
                             className="h-full transition-all duration-300 rounded-full bg-blue-500"
-                            style={{ width: `${percent}%` }}
+                            style={{
+                              width: `${Math.max(progress.percent, 1)}%`,
+                              minWidth: progress.percent > 0 ? 4 : 0,
+                            }}
                           />
                         </div>
                         <div className="text-[10px] text-gray-500 mb-1">
-                          Progress: {percent}%
+                          Progress: {progress.percent}%
                         </div>
 
                         <div className="mt-auto flex items-center space-x-2">
@@ -182,6 +196,7 @@ const LessonPage = () => {
           </div>
         </div>
       </main>
+      <ChatBubbleWidget />
     </div>
   );
 };

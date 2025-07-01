@@ -16,7 +16,9 @@ import java.util.Objects;
 @Path("/user/progress")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
-@RolesAllowed("user")
+//@RolesAllowed("user")
+@RolesAllowed({"user", "admin"})
+
 public class UserProgressResource {
 
     @Inject

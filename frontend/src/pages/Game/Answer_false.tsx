@@ -6,10 +6,11 @@ import { motion } from 'framer-motion';
 const AnswerFalse = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { question, selected, correctAnswer, currentIndex = 1, total = 5 } = location.state || {};
 
   const handleNext = () => {
-    navigate('/next-question'); 
+    navigate('/game'); 
   };
 
   return (

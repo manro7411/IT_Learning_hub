@@ -14,16 +14,16 @@ const mockSubmissions = Array(8).fill({
 });
 
 const AdminDashboard_overall = () => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [activeDetailIndex, setActiveDetailIndex] = useState<number | null>(null);
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="flex h-screen bg-gray-50">
       <AdminSidebarWidget />
 
       <main className="flex-1 p-6 flex flex-col">
-        {/* ปุ่มด้านขวาบน */}
         <div className="flex justify-end mb-6">
           <button
             onClick={() => navigate("/admin-dashboard")}
@@ -34,11 +34,9 @@ const AdminDashboard_overall = () => {
         </div>
 
         <div className="flex flex-col xl:flex-row gap-6">
-          {/* Left content */}
           <div className="flex-1 space-y-6">
             <StatisticsChart />
 
-            {/* Submission Table */}
             <div className="bg-white shadow rounded-2xl p-6">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-lg font-semibold text-gray-800">Name’s Submitted</h2>
