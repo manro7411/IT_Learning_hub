@@ -7,6 +7,7 @@ public class NotificationDto {
     public String        message;
     public LocalDateTime createdAt;
     public boolean       read;
+    public String recipientName;
 
     public static NotificationDto fromEntity(Notification n) {
         if (n == null) return null;
@@ -16,6 +17,7 @@ public class NotificationDto {
         dto.message   = n.getMessage();
         dto.createdAt = n.getCreatedAt();
         dto.read      = n.isRead();
+        dto.recipientName = n.getRecipient().getName();
         return dto;
     }
 }

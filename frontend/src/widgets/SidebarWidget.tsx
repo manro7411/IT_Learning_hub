@@ -1,4 +1,3 @@
-// src/widgets/SidebarWidget.tsx
 import {
   Home, BookOpen, ClipboardList, Users, Star, Gamepad2,
   Settings, LogOut, UserCircle
@@ -15,7 +14,7 @@ const menuItems = [
   { name: "Group",     icon: <Users size={20} />, path: "/forum" },
   { name: "Point",     icon: <Star size={20} />, path: "/point" },
   { name: "Game",      icon: <Gamepad2 size={20} />, path: "/game" },
-  { name: "Settings",  icon: <Settings size={20} />, path: "/settings" }, // ✅
+  { name: "Settings",  icon: <Settings size={20} />, path: "/settings" },
 ];
 
 export default function SidebarWidget() {
@@ -24,20 +23,16 @@ export default function SidebarWidget() {
   const { logout }         = useContext(AuthContext);
   const [showConfirm, setShowConfirm] = useState(false);
 
-  /* ───────── Logout flow ───────── */
   const handleLogout = () => {
     logout();
     navigate("/");
   };
 
-  /* ───────── Component ───────── */
   return (
     <aside className="w-64 bg-white shadow-md p-6 m-4 rounded-xl flex flex-col justify-between">
-      {/* Top section */}
-      <div>
-        <img src={Logo} alt="Bangkok Bank Logo" className="h-12 mb-8" />
 
-        {/* Main menu */}
+      <div>
+        <img src={Logo} alt="Bangkok Bank Logo" className="h-12 mb-8" onClick={() => navigate("/dashboard")} />
         <nav className="space-y-4 text-sm">
           {menuItems.map(({ name, icon, path }) => (
             <Link
@@ -54,7 +49,6 @@ export default function SidebarWidget() {
           ))}
         </nav>
 
-        {/* Friends list */}
         <div className="mt-10">
           <h3 className="text-sm font-semibold text-gray-400 mb-2">FRIENDS</h3>
           <div className="space-y-3">
@@ -71,9 +65,7 @@ export default function SidebarWidget() {
         </div>
       </div>
 
-      {/* Bottom controls */}
       <div className="text-sm space-y-2">
-        {/* Settings shortcut  ➜ ไป path /settings */}
         <button
           onClick={() => navigate("/settings")}
           className="flex items-center space-x-2 text-gray-700 hover:text-blue-600"
@@ -82,7 +74,6 @@ export default function SidebarWidget() {
           <span>Settings</span>
         </button>
 
-        {/* Logout */}
         <button
           onClick={() => setShowConfirm(true)}
           className="flex items-center space-x-2 text-red-500 hover:underline"

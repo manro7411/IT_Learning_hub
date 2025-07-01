@@ -4,6 +4,8 @@ import ScoreboardChart from '../../components/ScoreboardChart';
 import Sidebar from '../../widgets/SidebarWidget';
 import {AuthContext} from "../../Authentication/AuthContext.tsx";
 import {useNavigate} from "react-router-dom";
+import ChatBubbleWidget from '../../widgets/ChatBubbleWidget.tsx';
+import NotificationWidget from '../../widgets/NotificationWidget.tsx';
 
 interface Task {
   id: number;
@@ -49,6 +51,7 @@ const TaskManagement = () => {
       <div className="space-y-4">
         {tasks.filter((task) => task.status === status).map((task) => (
           <div key={task.id} className="bg-white p-4 rounded shadow">
+            
             <div className="font-medium mb-2">{task.title}</div>
             <div className="flex space-x-2 text-sm">
               {status !== 'todo' && (
@@ -78,33 +81,44 @@ const TaskManagement = () => {
       <Sidebar />
 
       <main className="flex-1 p-6 overflow-x-auto">
-        <form onSubmit={handleAddTask} className="flex space-x-4 mb-6">
-          <input
-            type="text"
-            value={newTask}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => setNewTask(e.target.value)}
-            className="flex-1 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Enter new task"
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            Add Task
-          </button>
-        </form>
+  <div className="flex items-center justify-between mb-6">
+   <form onSubmit={handleAddTask} className="flex w-full max-w-2xl space-x-4">
+  <input
+    type="text"
+    value={newTask}
+    onChange={(e) => setNewTask(e.target.value)}
+    className="w-1/2 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+    placeholder="Enter new task"
+  />
+  <button
+    type="submit"
+    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+  >
+    Add Task
+  </button>
+</form>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {renderColumn('todo', 'To do')}
-          {renderColumn('inprogress', 'In progress')}
-          {renderColumn('done', 'Done')}
-        </div>
-      </main>
+    <NotificationWidget />
+  </div>
 
-      <div className="hidden xl:block w-80 space-y-6 p-4">
-        <CalendarWidget />
-        <ScoreboardChart />
-      </div>
+  {/* Grid layout */}
+  <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+  {/* Left: Task columns (แนวนอน) */}
+  <div className="xl:col-span-3 flex space-x-4">
+    {renderColumn('todo', 'To do')}
+    {renderColumn('inprogress', 'In progress')}
+    {renderColumn('done', 'Done')}
+  </div>
+
+  {/* Right: Calendar & Scoreboard */}
+  <div className="xl:col-span-1 space-y-6">
+    <CalendarWidget />
+    <ScoreboardChart />
+  </div>
+</div>
+</main>
+
+       <ChatBubbleWidget />
     </div>
   );
 };

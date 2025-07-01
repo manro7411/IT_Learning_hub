@@ -10,6 +10,7 @@ const AnswerTrue = () => {
   const {
     question,
     selected,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     correctAnswer,
     correctCount = 1,
     total = 1,

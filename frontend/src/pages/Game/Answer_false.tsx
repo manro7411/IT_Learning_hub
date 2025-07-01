@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 const AnswerFalse = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
   const {
     question,
     selected,
