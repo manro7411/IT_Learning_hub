@@ -7,6 +7,8 @@ import CalendarWidget from "../../widgets/CalendarWidget";
 import ScoreboardChart from "../../components/ScoreboardChart";
 import Sidebar from "../../widgets/SidebarWidget";
 import defaultUserAvatar from "../../assets/user.png";
+import ChatBubbleWidget from "../../widgets/ChatBubbleWidget";
+import NotificationWidget from "../../widgets/NotificationWidget";
 
 interface Lesson {
   id: string;
@@ -103,7 +105,7 @@ const LessonPage = () => {
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
       <main className="flex-1 p-6">
-        <div className="mb-6">
+        <div className="flex items-center justify-between mb-4">
           <input
             type="text"
             placeholder="Search lessons…"
@@ -111,6 +113,7 @@ const LessonPage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full xl:w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
+           <NotificationWidget />
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
@@ -193,6 +196,7 @@ const LessonPage = () => {
           </div>
         </div>
       </main>
+      <ChatBubbleWidget />
     </div>
   );
 };

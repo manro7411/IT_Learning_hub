@@ -1,6 +1,7 @@
 import CalendarWidget from '../../widgets/CalendarWidget';
 import { Gift, Medal } from 'lucide-react';
 import Sidebar from '../../widgets/SidebarWidget';
+import ChatBubbleWidget from '../../widgets/ChatBubbleWidget';
 
 const rewards = [
   { name: 'Tumbler', points: 200 },
@@ -95,8 +96,8 @@ const PointDashboard = () => {
           </div>
         </div>
       </main>
+      <ChatBubbleWidget />
     </div>
   );
 };
-
 export default PointDashboard;

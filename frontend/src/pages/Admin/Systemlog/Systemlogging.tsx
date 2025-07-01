@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useState, useContext } from "react";
 import axios from "axios";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
@@ -23,10 +22,19 @@ interface UserProgress {
   updatedAt: string;
 }
 
+interface NotificationLog {
+  id: string;
+  message: string;
+  createdAt: string;
+  read: boolean;
+  recipientId: string;
+  recipientName: string;
+}
+
 const tabs = [
-  { label: "Chat Log", value: "chatlog" },
-  { label: "User Progress", value: "progress" },
-  { label: "Notifications_feedback", value: "notifications" },
+  { label: "Chat_Log", value: "chatlog" },
+  { label: "User_Progress", value: "progress" },
+  { label: "Notifications_activity", value: "notifications" },
 ];
 
 const Systemlogging = () => {
@@ -35,6 +43,7 @@ const Systemlogging = () => {
 
   const [chatLogs, setChatLogs] = useState<ChatLog[]>([]);
   const [userProgress, setUserProgress] = useState<UserProgress[]>([]);
+  const [notifications, setNotifications] = useState<NotificationLog[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -51,6 +60,12 @@ const Systemlogging = () => {
     saveAs(blob, "user_progress.csv");
   };
 
+  const exportNotificationsCSV = () => {
+    const csv = Papa.unparse(notifications);
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    saveAs(blob, "notifications.csv");
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
@@ -60,7 +75,9 @@ const Systemlogging = () => {
         const url =
           activeTab === "chatlog"
             ? "http://localhost:8080/chatlog/all"
-            : "http://localhost:8080/progress/all";
+            : activeTab === "progress"
+            ? "http://localhost:8080/progress/all"
+            : "http://localhost:8080/notifications/all";
 
         const res = await axios.get(url, {
           headers: {
@@ -70,8 +87,10 @@ const Systemlogging = () => {
 
         if (activeTab === "chatlog") {
           setChatLogs(res.data);
-        } else {
+        } else if (activeTab === "progress") {
           setUserProgress(res.data);
+        } else if (activeTab === "notifications") {
+          setNotifications(res.data);
         }
       } catch (err) {
         console.error("❌ Fetch logs failed:", err);
@@ -110,9 +129,7 @@ const Systemlogging = () => {
                 <td className="border px-4 py-2">{log.inputMessage}</td>
                 <td className="border px-4 py-2">{log.responseMessage}</td>
                 <td className="border px-4 py-2">{log.userEmail}</td>
-                <td className="border px-4 py-2">
-                  {log.blocked ? "✔️" : "—"}
-                </td>
+                <td className="border px-4 py-2">{log.blocked ? "✔️" : "—"}</td>
                 <td className="border px-4 py-2">
                   {new Date(log.timestamp).toLocaleString("th-TH")}
                 </td>
@@ -151,34 +168,34 @@ const Systemlogging = () => {
         </table>
       );
     }
+
     if (activeTab === "notifications") {
       return (
-         <table className="min-w-full text-sm text-left border-collapse border">
+        <table className="min-w-full text-sm text-left border-collapse border">
           <thead className="bg-gray-100 font-bold">
             <tr>
-              <th className="border px-4 py-2">Lesson ID</th>
-              <th className="border px-4 py-2">Title</th>
-              <th className="border px-4 py-2">Email</th>
-              <th className="border px-4 py-2">Progress</th>
-              <th className="border px-4 py-2">Updated At</th>
+              <th className="border px-4 py-2">ID</th>
+              <th className="border px-4 py-2">Message</th>
+              <th className="border px-4 py-2">User</th>
+              <th className="border px-4 py-2">Read</th>
+              <th className="border px-4 py-2">Created At</th>
             </tr>
           </thead>
           <tbody>
-            {userProgress.map((item, index) => (
-              <tr key={index} className="border-t">
-                <td className="border px-4 py-2">{item.lessonId}</td>
-                <td className="border px-4 py-2">{item.lessonTitle}</td>
-                <td className="border px-4 py-2">{item.userEmail}</td>
-                <td className="border px-4 py-2">{item.percent}%</td>
+            {notifications.map((item) => (
+              <tr key={item.id} className="border-t">
+                <td className="border px-4 py-2">{item.id}</td>
+                <td className="border px-4 py-2">{item.message}</td>
+                <td className="border px-4 py-2">{item.recipientName}</td>
+                <td className="border px-4 py-2">{item.read ? "✔️" : "—"}</td>
                 <td className="border px-4 py-2">
-                  {new Date(item.updatedAt).toLocaleString("th-TH")}
+                  {new Date(item.createdAt).toLocaleString("th-TH")}
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       );
-        
     }
 
     return <p className="text-gray-500">ยังไม่มีข้อมูลสำหรับแท็บนี้</p>;
@@ -207,6 +224,14 @@ const Systemlogging = () => {
               Download Progress CSV
             </button>
           )}
+          {activeTab === "notifications" && (
+            <button
+              onClick={exportNotificationsCSV}
+              className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded"
+            >
+              Download Notifications CSV
+            </button>
+          )}
         </div>
 
         <div className="flex space-x-6 border-b mb-6 text-sm font-semibold">
@@ -225,7 +250,6 @@ const Systemlogging = () => {
           ))}
         </div>
 
-        {/* Table Content */}
         {loading ? (
           <p>กำลังโหลดข้อมูล...</p>
         ) : error ? (
