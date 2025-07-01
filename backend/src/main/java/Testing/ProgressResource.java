@@ -1,6 +1,7 @@
 package Testing;
 
 import dto.LearningContentDto;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -13,6 +14,7 @@ import model.UserLessonProgress;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -48,7 +50,7 @@ public class ProgressResource {
         progress.setUserEmail(userEmail);
         progress.setLessonId(lessonId);
         progress.setPercent(clamped);
-        progress.setLastTimestamp(lastTs); // ✅ store video timestamp
+        progress.setLastTimestamp(lastTs);
         progress.setUpdatedAt(LocalDateTime.now());
         em.merge(progress);
 
@@ -90,6 +92,44 @@ public class ProgressResource {
                 })
                 .toList();
     }
+
+    @GET
+    @Path("/all")
+    @RolesAllowed("admin")
+    public List<ProgressDisplayDto> getAllUserProgress() {
+        List<UserLessonProgress> progresses = em.createQuery(
+                "SELECT p FROM UserLessonProgress p ORDER BY p.updatedAt DESC",
+                UserLessonProgress.class
+        ).getResultList();
+
+        List<ProgressDisplayDto> result = new ArrayList<>();
+
+        for (UserLessonProgress p : progresses) {
+            if (p.getLessonId() == null || p.getLessonId().isBlank()) continue;
+
+            LearningContent lesson = em.find(LearningContent.class, p.getLessonId().trim());
+            if (lesson == null) continue;
+
+            ProgressDisplayDto dto = new ProgressDisplayDto();
+            dto.lessonId = lesson.getId();
+            dto.lessonTitle = lesson.getTitle();
+            dto.userEmail = p.getUserEmail();
+            dto.percent = p.getPercent();
+            dto.updatedAt = p.getUpdatedAt();
+            result.add(dto);
+        }
+
+        return result;
+    }
+
+    public static class ProgressDisplayDto {
+        public String lessonId;
+        public String lessonTitle;
+        public String userEmail;
+        public int percent;
+        public LocalDateTime updatedAt;
+    }
+
 
     public static class ProgressDto {
         private int percent;

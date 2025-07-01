@@ -45,7 +45,7 @@ const LoginPage = () => {
       <div className="w-full h-screen flex flex-col md:flex-row">
         {/* Left Panel */}
         <div className="w-full md:w-1/2 h-1/2 md:h-full bg-gradient-to-b from-blue-500 to-blue-800 text-white flex flex-col justify-center items-center p-8">
-          <h1 className="text-5xl font-bold mb-4 text-center">BBL Learning Hub</h1>
+          <h1 className="text-5xl font-bold mb-4 text-center">IT Learning Hub</h1>
           <p className="text-lg mb-6 text-center">E-learning-platform</p>
           <button
               onClick={() => setShowModal(true)}
@@ -55,7 +55,6 @@ const LoginPage = () => {
           </button>
         </div>
 
-        {/* Right Panel */}
         <div className="w-full md:w-1/2 h-1/2 md:h-full flex items-center justify-center p-8">
           <div className="w-full max-w-md">
             <h2 className="text-2xl font-bold text-gray-900 mb-1">Hello Again!</h2>

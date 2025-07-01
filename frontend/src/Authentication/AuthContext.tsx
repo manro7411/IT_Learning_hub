@@ -32,18 +32,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     const [user, setUser] = useState<User | null>(null);
 
-    // Decode token and set user state
     const decodeAndSetUser = (jwt: string) => {
         try {
             const decoded = jwtDecode<User>(jwt);
             setUser(decoded);
         } catch (e) {
             console.error("❌ Failed to decode token:", e);
-            logout(); // Clear invalid token
+            logout(); 
         }
     };
 
-    // Set token on load if valid
     useEffect(() => {
         if (token) {
             try {

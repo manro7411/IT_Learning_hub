@@ -16,9 +16,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * REST endpoint สำหรับดึง–สร้าง Notifications
- */
 @Path("/notifications")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -27,9 +24,6 @@ public class NotificationResource {
     @Inject EntityManager em;
     @Inject JsonWebToken  jwt;
 
-    /* ─────────────────────────────────────────────
-     *  GET  /notifications   – ผู้ใช้ดึงแจ้งเตือนตัวเอง
-     * ───────────────────────────────────────────── */
     @GET
     @RolesAllowed({ "user", "employee", "admin" })
     public Response getMyNotifications() {
@@ -136,8 +130,6 @@ public class NotificationResource {
         return Response.noContent().build();
     }
 
-
-
     @PUT
     @Path("/read-all")
     @Transactional
@@ -175,14 +167,12 @@ public class NotificationResource {
 
         System.out.println("📨 [CREATE NOTIFICATION] " + req);
 
-        /* validate */
         if (req == null || req.message == null || req.message.isBlank()) {
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity("Message must not be empty")
                     .build();
         }
 
-        /* ส่งถึงทุกคน */
         if ("ALL".equalsIgnoreCase(req.target)) {
             List<User> all = em.createQuery("SELECT u FROM User u", User.class)
                     .getResultList();
@@ -191,7 +181,6 @@ public class NotificationResource {
             return Response.status(Response.Status.CREATED).build();
         }
 
-        /* ส่งเฉพาะราย */
         if ("USER".equalsIgnoreCase(req.target)) {
             if (req.userIds == null || req.userIds.isEmpty()) {
                 return Response.status(Response.Status.BAD_REQUEST)
@@ -215,28 +204,25 @@ public class NotificationResource {
                     .build();
         }
 
-        /* target ไม่ถูกต้อง */
         return Response.status(Response.Status.BAD_REQUEST)
                 .entity("Invalid target: " + req.target)
                 .build();
     }
 
-    /* helper – save & flush */
     private void persist(String msg, User u) {
         Notification n = new Notification();
         n.setMessage(msg);
         n.setRecipient(u);
         n.setCreatedAt(LocalDateTime.now());
         em.persist(n);
-        em.flush();                               // force write to DB
+        em.flush();
         System.out.println("✅  Saved for " + u.getEmail());
     }
 
-    /* ──────────── request body ──────────── */
     public static class NotificationCreationReq {
         public String       message;
-        public String       target;      // "ALL" | "USER"
-        public List<String> userIds;     // ส่งเมื่อ target == USER
+        public String       target;
+        public List<String> userIds;
 
         @Override public String toString() {
             return "NotificationCreationReq{" +
