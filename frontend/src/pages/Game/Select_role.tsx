@@ -4,14 +4,18 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
 const roles = [
-  { label: '👩🏻‍💼 Product Owner', value: 'PO' },
-  { label: '👨🏻‍💻 Developer', value: 'Dev' },
-  { label: '🧑🏼‍🏫 Scrum Master', value: 'SM' },
+  { label: '👩🏻‍💼 Product Owner', value: 'po' },
+  { label: '👨🏻‍💻 Developer', value: 'dev' },
+  { label: '🧑🏼‍🏫 Scrum Master', value: 'sm' },
 ];
 
 const SelectRole = () => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string | null>(null);
+
+  const handleSelect = (role: 'dev' | 'po' | 'sm') => {
+  navigate(`/scenario/${role}/0`);
+  };
 
   return (
     <div className="min-h-screen bg-white flex">
@@ -39,9 +43,9 @@ const SelectRole = () => {
           <button
             onClick={() => {
               if (selected) {
-                navigate('/scenario');
+                navigate(`/scenario/${selected}/0`);
               }
-            }}
+            }}    
             disabled={!selected}
             className={`mt-4 px-10 py-3 rounded-full text-white text-xl font-bold shadow-md transition-all ${
               selected
