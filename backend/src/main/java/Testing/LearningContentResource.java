@@ -1,6 +1,7 @@
 package Testing;
 
 import dto.LearningContentDto;
+import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Path("/learning")
+//@RunOnVirtualThread
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class LearningContentResource {
