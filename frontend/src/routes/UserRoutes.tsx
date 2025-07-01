@@ -13,6 +13,8 @@ import Scenario from "../pages/Game/Scenario.tsx";
 import Question from "../pages/Game/Question.tsx";
 import AnswerTrue from "../pages/Game/Answer_true.tsx";
 import AnswerFalse from "../pages/Game/Answer_false.tsx";
+import Rule from "../pages/Game/Rule";
+
 export const UserRoutes = () => (
     <Routes>
         <Route path="/dashboard" element={<UserDashboard />} />
@@ -26,9 +28,10 @@ export const UserRoutes = () => (
         <Route path="/lesson/:id/video" element={<LessonVideoPage />} />
         <Route path="/lesson" element={<Lessondashboard />} />
         <Route path="/select-role" element={<Select_role />} />
-        <Route path="/scenario" element={<Scenario />} />
-        <Route path="/question" element={<Question />} />
+        <Route path="/scenario/:role/:scenarioIndex" element={<Scenario />} />
+        <Route path="/question/:role/:scenarioIndex" element={<Question />} />
         <Route path="/answer_true" element={<AnswerTrue />} />
         <Route path="/answer_false" element={<AnswerFalse />} />
+        <Route path="/rule" element={<Rule/>} />
     </Routes>
 );
