@@ -8,6 +8,8 @@ public class QuestionEntity {
     @Id
     @Column(length = 21)
     private String id;
+    @Column(length = 21)
+    private String quiz_id;
     @ManyToOne
     @JoinColumn(name = "learning_content_id", nullable = false)
     private LearningContent learningContent;
