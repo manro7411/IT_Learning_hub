@@ -22,20 +22,18 @@ public class UserLessonProgress {
     private Integer percent = 0;
 
     @Column(name = "last_timestamp", nullable = false)
-    private Integer lastTimestamp = 0; // ✅ เพิ่มฟิลด์นี้ (วินาที)
+    private Integer lastTimestamp = 0;
 
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    // ===== GETTERS =====
     public Long getId() { return id; }
     public String getLessonId() { return lessonId; }
     public String getUserEmail() { return userEmail; }
     public Integer getPercent() { return percent; }
-    public Integer getLastTimestamp() { return lastTimestamp; } // ✅ เพิ่ม getter
+    public Integer getLastTimestamp() { return lastTimestamp; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 
-    // ===== SETTERS =====
     public void setLessonId(String lessonId) { this.lessonId = lessonId; }
     public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
     public void setPercent(Integer percent) { this.percent = percent; }
