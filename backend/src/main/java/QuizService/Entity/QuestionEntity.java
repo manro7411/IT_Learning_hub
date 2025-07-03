@@ -16,7 +16,7 @@ public class QuestionEntity {
     @Column(length = 21)
     private String id;
 
-    @Column(name = "quiz_id", length = 21, nullable = false)
+    @Column(name = "quiz_id", length = 21, nullable = true)
     private String quiz_id;
 
     @ManyToOne
@@ -34,7 +34,6 @@ public class QuestionEntity {
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
 
-    // ✅ NEW: Choices (OneToMany)
     @OneToMany(mappedBy = "question", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionChoiceEntity> choices = new ArrayList<>();
 

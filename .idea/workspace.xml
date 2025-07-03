@@ -5,15 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/QuestionResources.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/ChoiceDTO.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/ExtendedLearningContentDto.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/QuestionDTO.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/QuizService/Entity/QuestionChoiceEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/Entity/QuestionChoiceEntity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/QuizService/Entity/QuestionEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/Entity/QuestionEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/QuizService/QestionResources.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizWidget.tsx" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/routes/UserRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/UserRoutes.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/LearningContentResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/LearningContentResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Coursemanagement/AdminAddLessonPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Coursemanagement/AdminAddLessonPage.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -38,12 +39,18 @@ const AdminAddLessonPage = () => {
     if (!token) navigate("/");
   }, [token, navigate]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleQuestionChange = (index: number, field: keyof QuestionForm, value: string | string[]) => {
+  const handleQuestionChange = (
+    index: number,
+    field: keyof QuestionForm,
+    value: string | string[]
+  ) => {
     const updatedQuestions = [...form.questions];
     updatedQuestions[index] = {
       ...updatedQuestions[index],
@@ -57,7 +64,12 @@ const AdminAddLessonPage = () => {
       ...prev,
       questions: [
         ...prev.questions,
-        { questionText: "", type: "single", options: [""], correctAnswers: [""] },
+        {
+          questionText: "",
+          type: "single",
+          options: [""],
+          correctAnswers: [""],
+        },
       ],
     }));
   };
@@ -68,6 +80,12 @@ const AdminAddLessonPage = () => {
     setForm({ ...form, questions: updated });
   };
 
+  const handleAddCorrectAnswer = (qIdx: number) => {
+    const updated = [...form.questions];
+    updated[qIdx].correctAnswers.push("");
+    setForm({ ...form, questions: updated });
+  };
+
   const resetForm = () => setForm(INITIAL_FORM);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -75,8 +93,14 @@ const AdminAddLessonPage = () => {
     setLoading(true);
     const payload = {
       ...form,
-      authorName: user?.name || "Admin",
-      authorEmail: user?.email || user?.upn || "unknown@host",
+      questions: form.questions.map((q) => ({
+        questionText: q.questionText,
+        type: q.type,
+        choices: q.options.map((text, i) => ({
+          text,
+          isCorrect: q.correctAnswers.includes(text),
+        })),
+      })),
     };
 
     try {
@@ -101,9 +125,23 @@ const AdminAddLessonPage = () => {
         <h1 className="text-2xl font-bold text-blue-800 border-b pb-2">
           📚 Add New Lesson
         </h1>
-        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow space-y-6 max-w-3xl">
-          <Field label="Lesson Thumbnail URL" name="thumbnailUrl" value={form.thumbnailUrl} onChange={handleChange} />
-          <Field label="Lesson Title" name="title" value={form.title} onChange={handleChange} required />
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-8 rounded-xl shadow space-y-6 max-w-3xl"
+        >
+          <Field
+            label="Lesson Thumbnail URL"
+            name="thumbnailUrl"
+            value={form.thumbnailUrl}
+            onChange={handleChange}
+          />
+          <Field
+            label="Lesson Title"
+            name="title"
+            value={form.title}
+            onChange={handleChange}
+            required
+          />
 
           <div>
             <label className="text-sm font-medium text-gray-700">Category</label>
@@ -140,11 +178,19 @@ const AdminAddLessonPage = () => {
                   className="w-full border px-2 py-1 rounded"
                   placeholder="Question text"
                   value={q.questionText}
-                  onChange={(e) => handleQuestionChange(idx, "questionText", e.target.value)}
+                  onChange={(e) =>
+                    handleQuestionChange(idx, "questionText", e.target.value)
+                  }
                 />
                 <select
                   value={q.type}
-                  onChange={(e) => handleQuestionChange(idx, "type", e.target.value as QuestionForm["type"])}
+                  onChange={(e) =>
+                    handleQuestionChange(
+                      idx,
+                      "type",
+                      e.target.value as QuestionForm["type"]
+                    )
+                  }
                   className="w-full border px-2 py-1 rounded"
                 >
                   <option value="single">Single Choice</option>
@@ -153,26 +199,52 @@ const AdminAddLessonPage = () => {
                   <option value="ordering">Ordering</option>
                   <option value="matching">Matching</option>
                 </select>
-                {q.options.map((opt, oIdx) => (
-                  <input
-                    key={oIdx}
-                    className="w-full border px-2 py-1 rounded"
-                    placeholder={`Option ${oIdx + 1}`}
-                    value={opt}
-                    onChange={(e) => {
-                      const opts = [...q.options];
-                      opts[oIdx] = e.target.value;
-                      handleQuestionChange(idx, "options", opts);
-                    }}
-                  />
-                ))}
-                <button
-                  type="button"
-                  className="text-blue-600 text-sm underline"
-                  onClick={() => handleAddOption(idx)}
-                >
-                  + Add Option
-                </button>
+
+                <div className="space-y-1">
+                  {q.options.map((opt, oIdx) => (
+                    <input
+                      key={oIdx}
+                      className="w-full border px-2 py-1 rounded"
+                      placeholder={`Option ${oIdx + 1}`}
+                      value={opt}
+                      onChange={(e) => {
+                        const opts = [...q.options];
+                        opts[oIdx] = e.target.value;
+                        handleQuestionChange(idx, "options", opts);
+                      }}
+                    />
+                  ))}
+                  <button
+                    type="button"
+                    className="text-blue-600 text-sm underline"
+                    onClick={() => handleAddOption(idx)}
+                  >
+                    + Add Option
+                  </button>
+                </div>
+
+                <div className="space-y-1">
+                  {q.correctAnswers.map((ans, aIdx) => (
+                    <input
+                      key={aIdx}
+                      className="w-full border px-2 py-1 rounded"
+                      placeholder={`Correct answer ${aIdx + 1}`}
+                      value={ans}
+                      onChange={(e) => {
+                        const answ = [...q.correctAnswers];
+                        answ[aIdx] = e.target.value;
+                        handleQuestionChange(idx, "correctAnswers", answ);
+                      }}
+                    />
+                  ))}
+                  <button
+                    type="button"
+                    className="text-green-600 text-sm underline"
+                    onClick={() => handleAddCorrectAnswer(idx)}
+                  >
+                    + Add Correct Answer
+                  </button>
+                </div>
               </div>
             ))}
             <button
@@ -206,12 +278,17 @@ const AdminAddLessonPage = () => {
   );
 };
 
-function Field(props: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
+function Field(
+  props: { label: string } & React.InputHTMLAttributes<HTMLInputElement>
+) {
   const { label, ...inputProps } = props;
   return (
     <div>
       <label className="text-sm font-medium text-gray-700">{label}</label>
-      <input {...inputProps} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50" />
+      <input
+        {...inputProps}
+        className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
+      />
     </div>
   );
 }

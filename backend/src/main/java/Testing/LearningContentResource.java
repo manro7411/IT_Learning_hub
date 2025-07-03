@@ -1,5 +1,11 @@
 package Testing;
 
+import QuizService.Entity.QuestionChoiceEntity;
+import QuizService.Entity.QuestionEntity;
+import QuizService.QuestionType;
+import QuizService.ExtendedLearningContentDto;
+import QuizService.QuestionDTO;
+import QuizService.ChoiceDTO;
 import dto.LearningContentDto;
 import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.annotation.security.RolesAllowed;
@@ -19,7 +25,6 @@ import java.util.List;
 import java.util.UUID;
 
 @Path("/learning")
-//@RunOnVirtualThread
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class LearningContentResource {
@@ -53,21 +58,48 @@ public class LearningContentResource {
     @POST
     @Transactional
     @RolesAllowed("admin")
-    public Response create(LearningContentDto dto) {
-        LearningContent lc = dto.toEntity();
-        if (lc.getId() == null || lc.getId().isBlank()) {
-            lc.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
-        }
+    public Response create(ExtendedLearningContentDto dto) {
+        LearningContent lc = new LearningContent();
+        lc.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
+        lc.setTitle(dto.title);
+        lc.setDescription(dto.description);
+        lc.setCategory(dto.category);
+        lc.setThumbnailUrl(dto.thumbnailUrl);
         lc.setAuthorName(jwt.getClaim("name"));
         lc.setAuthorEmail(jwt.getSubject());
         lc.setAuthorRole("admin");
         lc.setClickCount(0L);
         lc.setCreatedAt(LocalDateTime.now());
         em.persist(lc);
+        String quizId = UUID.randomUUID().toString().replace("-", "").substring(0, 21);
+        if (dto.questions != null) {
+            for (QuestionDTO q : dto.questions) {
+                QuestionEntity qe = new QuestionEntity();
+                qe.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
+                qe.setLearningContent(lc);
+                qe.setQuiz_id(quizId);
+                qe.setQuestionText(q.questionText);
+                qe.setType(QuestionType.valueOf(q.type.toUpperCase()));
+                qe.setPoints(q.points != null ? q.points : 1);
+                em.persist(qe);
+                if (q.choices != null) {
+                    for (ChoiceDTO c : q.choices) {
+                        QuestionChoiceEntity ce = new QuestionChoiceEntity();
+                        ce.id = UUID.randomUUID().toString().replace("-", "").substring(0, 21);
+                        ce.question = qe;
+                        ce.choiceText = c.text;
+                        ce.isCorrect = c.isCorrect;
+                        em.persist(ce);
+                    }
+                }
+            }
+        }
+
         return Response.created(URI.create("/learning/" + lc.getId()))
                 .entity(LearningContentDto.fromEntity(lc))
                 .build();
     }
+
 
     @PUT
     @Path("/{id}")
@@ -106,12 +138,10 @@ public class LearningContentResource {
     @RolesAllowed("user")
     public void addClick(@PathParam("id") String lessonId) {
         String userEmail = jwt.getSubject();
-
-        // 🔍 ค้นหา progress ของผู้ใช้สำหรับบทเรียนนี้
         UserLessonProgress progress = em.createQuery(
                         "SELECT p FROM UserLessonProgress p WHERE p.lessonId = :lessonId AND p.userEmail = :userEmail",
-                        UserLessonProgress.class
-                ).setParameter("lessonId", lessonId)
+                        UserLessonProgress.class)
+                .setParameter("lessonId", lessonId)
                 .setParameter("userEmail", userEmail)
                 .getResultStream()
                 .findFirst()
@@ -129,7 +159,6 @@ public class LearningContentResource {
             progress.setUpdatedAt(LocalDateTime.now());
         }
 
-        // ✅ เพิ่ม click count
         int updated = em.createQuery("UPDATE LearningContent lc SET lc.clickCount = lc.clickCount + 1 WHERE lc.id = :id")
                 .setParameter("id", lessonId)
                 .executeUpdate();
