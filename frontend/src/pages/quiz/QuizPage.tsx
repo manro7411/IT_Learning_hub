@@ -134,23 +134,6 @@ const QuizPageStyled = () => {
               <p className="text-sm text-gray-500">ประเภท: {currentQuestion.type}</p>
               <p className="text-sm text-gray-500">คะแนน: {currentQuestion.points}</p>
             </div>
-
-            <div className="bg-blue-50 p-4 rounded-md flex items-start gap-4">
-              <img
-                src={currentQuestion.learningContent.thumbnailUrl}
-                alt={currentQuestion.learningContent.title}
-                className="w-32 h-20 object-cover rounded shadow"
-              />
-              <div>
-                <h4 className="text-md font-bold text-blue-700">
-                  {currentQuestion.learningContent.title}
-                </h4>
-                <p className="text-sm text-gray-600 whitespace-pre-line">
-                  {currentQuestion.learningContent.description}
-                </p>
-              </div>
-            </div>
-
             <div className="mt-8">
               <QuestionWidget
                 type={currentQuestion.type}
