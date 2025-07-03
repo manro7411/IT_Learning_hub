@@ -5,14 +5,15 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/QuestionChoiceEntity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/QuestionMatchingEntity.java" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/QuestionOrderingEntity.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/QuestionResources.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/QuizService/QuestionChoice.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/QuizService/QuestionEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/QuestionEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/QuizService/QuestionFillBlankEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/QuestionFillBlankEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/QuizService/Questionfillin.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/QuizService/Entity/QuestionChoiceEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/Entity/QuestionChoiceEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/QuizService/Entity/QuestionEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/Entity/QuestionEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/QuizService/QestionResources.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizWidget.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/routes/UserRoutes.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/routes/UserRoutes.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

@@ -1,4 +1,5 @@
 package QuizService.Entity;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -10,6 +11,7 @@ public class QuestionChoiceEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "question_id")
+    @JsonIgnore
     public QuestionEntity question;
 
     @Column(name = "choice_text", nullable = false)
