@@ -6,6 +6,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 import model.LearningContent;
 import model.UserLessonProgress;
 import org.eclipse.microprofile.jwt.JsonWebToken;
@@ -13,6 +14,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Path("/user/progress")
 @Produces(MediaType.APPLICATION_JSON)
@@ -24,15 +26,14 @@ public class UserProgressResource {
     @Inject JsonWebToken jwt;
 
     @GET
-    public List<UserCourseProgressDto> getMyProgress() {
-        String userEmail = jwt.getSubject();
+    @Path("/all")
+    @RolesAllowed("admin")
+    public List<UserCourseProgressDto> getAllProgress() {
 
         List<UserLessonProgress> progresses = em.createQuery("""
-                SELECT p FROM UserLessonProgress p
-                WHERE p.userEmail = :email
-                ORDER BY p.updatedAt DESC
-                """, UserLessonProgress.class)
-                .setParameter("email", userEmail)
+            SELECT p FROM UserLessonProgress p
+            ORDER BY p.updatedAt DESC
+            """, UserLessonProgress.class)
                 .getResultList();
 
         List<UserCourseProgressDto> result = new ArrayList<>();
@@ -46,8 +47,10 @@ public class UserProgressResource {
             var dto = new UserCourseProgressDto();
             dto.lessonId = lesson.getId();
             dto.lessonTitle = lesson.getTitle() != null ? lesson.getTitle().trim() : "Untitled";
-            dto.percent = p.getPercent() != null ? p.getPercent() : 0;
-            dto.score = p.getScore() != null ? p.getScore() : 0;
+            dto.percent = Optional.ofNullable(p.getPercent()).orElse(0);
+            dto.score = Optional.ofNullable(p.getScore()).orElse(0);
+            dto.userEmail = p.getUserEmail();
+            dto.updatedAt = Optional.ofNullable(p.getUpdatedAt()).orElse(LocalDateTime.now()).toString();
 
             result.add(dto);
         }
@@ -58,7 +61,7 @@ public class UserProgressResource {
     @PUT
     @Path("/{lessonId}/submit-score")
     @Transactional
-    public void submitScore(@PathParam("lessonId") String lessonId, SubmitScoreRequest req) {
+    public Response submitScore(@PathParam("lessonId") String lessonId, SubmitScoreRequest req) {
         String userEmail = jwt.getSubject();
 
         var progress = em.createQuery("""
@@ -69,24 +72,22 @@ public class UserProgressResource {
                 .setParameter("userEmail", userEmail)
                 .getResultStream()
                 .findFirst()
-                .orElseGet(() -> {
-                    var newProgress = new UserLessonProgress();
-                    newProgress.setLessonId(lessonId);
-                    newProgress.setUserEmail(userEmail);
-                    newProgress.setPercent(100);
-                    newProgress.setUpdatedAt(LocalDateTime.now());
-                    em.persist(newProgress);
-                    return newProgress;
-                });
+                .orElseThrow(() -> new NotFoundException("No progress found. Please watch the lesson first."));
+
+        if (progress.getScore() != null && progress.getScore() > 0) {
+            throw new BadRequestException("You have already completed this quiz.");
+        }
 
         progress.setScore(req.score);
         progress.setUpdatedAt(LocalDateTime.now());
+
+        return Response.ok().build();
     }
 
     @PUT
     @Path("/{lessonId}")
     @Transactional
-    public void updateProgress(@PathParam("lessonId") String lessonId, UpdateProgressRequest req) {
+    public Response updateProgress(@PathParam("lessonId") String lessonId, UpdateProgressRequest req) {
         String userEmail = jwt.getSubject();
 
         var progress = em.createQuery("""
@@ -101,7 +102,6 @@ public class UserProgressResource {
                     var newProgress = new UserLessonProgress();
                     newProgress.setLessonId(lessonId);
                     newProgress.setUserEmail(userEmail);
-                    newProgress.setUpdatedAt(LocalDateTime.now());
                     em.persist(newProgress);
                     return newProgress;
                 });
@@ -109,6 +109,8 @@ public class UserProgressResource {
         progress.setPercent(req.percent);
         progress.setLastTimestamp(req.lastTimestamp != null ? req.lastTimestamp : 0);
         progress.setUpdatedAt(LocalDateTime.now());
+
+        return Response.ok().build();
     }
 
     public static class UserCourseProgressDto {
@@ -116,6 +118,8 @@ public class UserProgressResource {
         public String lessonTitle;
         public int percent;
         public int score;
+        public String userEmail;
+        public String updatedAt;
     }
 
     public static class SubmitScoreRequest {

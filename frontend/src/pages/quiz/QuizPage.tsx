@@ -1,13 +1,11 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react-hooks/rules-of-hooks */
 import { useState, useEffect, useContext } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useParams, Navigate, useNavigate } from "react-router-dom";
 import SidebarWidget from "../../widgets/SidebarWidget";
 import CalendarWidget from "../../widgets/CalendarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
 import QuestionWidget from "./QuestionWidget";
+import axios from "axios";
 
-// Types
 interface LearningContent {
   title: string;
   description: string;
@@ -28,11 +26,17 @@ interface Question {
   choices?: Choice[];
 }
 
+interface Progress {
+  lessonId: string;
+  percent: number;
+  score: number;
+}
+
 const QuizPageStyled = () => {
   const { id: learningContentId } = useParams<{ id: string }>();
   const { user, token: ctxToken } = useContext(AuthContext);
-  const token =
-    ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
+  const navigate = useNavigate();
+  const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
   const displayName = user?.name || user?.upn || "User";
 
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -42,56 +46,87 @@ const QuizPageStyled = () => {
   const [timeLeft, setTimeLeft] = useState(20);
   const [quizFinished, setQuizFinished] = useState(false);
   const [score, setScore] = useState(0);
-  const [answers, setAnswers] = useState<{ questionIndex: number; selected: string }[]>([]);
+  const [hasTakenQuiz, setHasTakenQuiz] = useState(false);
 
-  // Fetch questions
+  useEffect(() => {
+    if (!learningContentId || !token) return;
+
+    const checkProgress = async () => {
+      try {
+        const res = await axios.get<Progress[]>("http://localhost:8080/user/progress", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const progress = res.data.find((p) => p.lessonId === learningContentId);
+        if (progress && progress.score > 0) {
+          setHasTakenQuiz(true);
+        }
+      } catch (err) {
+        console.error("❌ Failed to check progress:", err);
+      }
+    };
+
+    checkProgress();
+  }, [learningContentId, token]);
+
   useEffect(() => {
     if (!learningContentId) return;
 
     fetch(`http://localhost:8080/questions/by-learning/${learningContentId}`)
-      .then(async (res) => {
-        const text = await res.text();
-        try {
-          const parsed = JSON.parse(text);
-          const formatted = Array.isArray(parsed) ? parsed : [parsed];
-          setQuestions(formatted);
-        } catch (err) {
-          console.error("❌ JSON parse error:", text);
-        }
-        setLoading(false);
-      })
-      .catch((error) => {
-        console.error("❌ Failed to fetch questions:", error);
-        setLoading(false);
-      });
+      .then((res) => res.json())
+      .then((parsed) => setQuestions(Array.isArray(parsed) ? parsed : [parsed]))
+      .catch((error) => console.error("❌ Failed to fetch questions:", error))
+      .finally(() => setLoading(false));
   }, [learningContentId]);
 
-  // Timer
   useEffect(() => {
     if (timeLeft <= 0) return;
     const interval = setInterval(() => setTimeLeft((t) => t - 1), 1000);
     return () => clearInterval(interval);
   }, [timeLeft]);
 
-  const currentQuestion = questions[currentQuestionIndex];
+  useEffect(() => {
+    if (quizFinished) {
+      const timer = setTimeout(() => {
+        navigate("/lesson");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [quizFinished, navigate]);
 
-  const handleOptionSelect = (opt: string) => {
-    setSelectedOption(opt);
+  const submitScore = async (finalScore: number) => {
+    try {
+      const response = await fetch(`http://localhost:8080/user/progress/${learningContentId}/submit-score`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ score: finalScore }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`❌ Failed to submit score: ${response.status}`, errorText);
+      } else {
+        console.log(`✅ Score submitted: ${finalScore}`);
+      }
+    } catch (error) {
+      console.error("❌ Error submitting score:", error);
+    }
   };
 
-  const handleContinue = () => {
+  const handleOptionSelect = (opt: string) => setSelectedOption(opt);
+
+  const handleContinue = async () => {
     const current = questions[currentQuestionIndex];
     const isCorrect = current.choices?.some(
       (c) => c.choiceText === selectedOption && c.isCorrect
     );
 
-    setAnswers((prev) => [
-      ...prev,
-      { questionIndex: currentQuestionIndex, selected: selectedOption || "" },
-    ]);
-
+    let updatedScore = score;
     if (isCorrect) {
-      setScore((prev) => prev + current.points);
+      updatedScore += current.points;
+      setScore(updatedScore);
     }
 
     if (currentQuestionIndex < questions.length - 1) {
@@ -99,41 +134,50 @@ const QuizPageStyled = () => {
       setSelectedOption(null);
       setTimeLeft(20);
     } else {
+      await submitScore(updatedScore);
       setQuizFinished(true);
     }
   };
 
-  // Guards
   if (!token) return <Navigate to="/" replace />;
   if (loading) return <div className="p-10 text-gray-500">Loading questions...</div>;
-  if (!questions.length || !currentQuestion)
-    return <div className="p-10 text-red-500">No questions found.</div>;
+  if (hasTakenQuiz)
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-white text-center p-10">
+        <div>
+          <h2 className="text-2xl font-bold text-red-600 mb-4">⚠️ Access Denied</h2>
+          <p className="text-gray-600 mb-4">You have already completed this quiz.</p>
+          <button
+            onClick={() => navigate("/lesson")}
+            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Back to Lessons
+          </button>
+        </div>
+      </div>
+    );
+
+  const currentQuestion = questions[currentQuestionIndex];
+  if (!questions.length || !currentQuestion) return <div className="p-10 text-red-500">No questions found.</div>;
 
   return (
     <div className="flex min-h-screen bg-white">
-
-      <div
-        className={`w-64 hidden lg:block ${
-          !quizFinished ? "pointer-events-none opacity-50" : ""
-        }`}
-      >
+      <div className={`w-64 hidden lg:block ${!quizFinished ? "pointer-events-none opacity-50" : ""}`}>
         <SidebarWidget />
       </div>
 
-      {/* Main Content */}
       <div className="flex-1 px-16 py-10 relative">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome, {displayName}</h1>
         <p className="text-sm text-gray-400 mb-6">Let’s get started!</p>
 
         {!quizFinished ? (
-          <div>
-            <h2 className="text-xl font-bold mb-6">
-              {currentQuestion.questionText}
-            </h2>
+          <>
+            <h2 className="text-xl font-bold mb-6">{currentQuestion.questionText}</h2>
             <div className="mb-6">
               <p className="text-sm text-gray-500">ประเภท: {currentQuestion.type}</p>
               <p className="text-sm text-gray-500">คะแนน: {currentQuestion.points}</p>
             </div>
+
             <div className="mt-8">
               <QuestionWidget
                 type={currentQuestion.type}
@@ -142,16 +186,15 @@ const QuizPageStyled = () => {
                 onSelect={handleOptionSelect}
               />
             </div>
-          </div>
+          </>
         ) : (
           <div className="text-center mt-20">
             <h2 className="text-2xl font-bold text-green-600 mb-4">🎉 Quiz Completed!</h2>
             <p className="text-gray-600 mb-2">You scored: <strong>{score}</strong> point(s)</p>
-            <p className="text-gray-500">Thanks for participating!</p>
+            <p className="text-gray-500">Thanks for participating! Redirecting to lessons...</p>
           </div>
         )}
 
-        {/* Bottom Bar */}
         {!quizFinished && (
           <div className="absolute bottom-8 left-0 right-0 flex justify-between items-center px-16">
             <div className="flex items-center justify-center w-16 h-16 border-4 border-blue-400 rounded-full text-blue-600 text-lg font-bold">
@@ -162,15 +205,12 @@ const QuizPageStyled = () => {
               onClick={handleContinue}
               disabled={!selectedOption}
             >
-              {currentQuestionIndex < questions.length - 1
-                ? "Continue"
-                : "Finish Quiz"}
+              {currentQuestionIndex < questions.length - 1 ? "Continue" : "Finish Quiz"}
             </button>
           </div>
         )}
       </div>
 
-      {/* Calendar */}
       <div className="w-64 hidden lg:block">
         <CalendarWidget />
       </div>
