@@ -86,7 +86,7 @@ const LessonDetailPage = () => {
           )
           .catch((err) => console.error("❌ PUT failed:", err));
       }
-    }, 10000); // every 10 sec
+    }, 0); 
 
     if (progress >= 100 && !showQuiz) {
       setShowQuiz(true);

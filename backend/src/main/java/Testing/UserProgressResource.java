@@ -26,14 +26,15 @@ public class UserProgressResource {
     @Inject JsonWebToken jwt;
 
     @GET
-    @Path("/all")
-    @RolesAllowed("admin")
-    public List<UserCourseProgressDto> getAllProgress() {
+    public List<UserCourseProgressDto> getMyProgress() {
+        String userEmail = jwt.getSubject();
 
         List<UserLessonProgress> progresses = em.createQuery("""
-            SELECT p FROM UserLessonProgress p
-            ORDER BY p.updatedAt DESC
-            """, UserLessonProgress.class)
+                SELECT p FROM UserLessonProgress p
+                WHERE p.userEmail = :email
+                ORDER BY p.updatedAt DESC
+                """, UserLessonProgress.class)
+                .setParameter("email", userEmail)
                 .getResultList();
 
         List<UserCourseProgressDto> result = new ArrayList<>();
@@ -49,15 +50,11 @@ public class UserProgressResource {
             dto.lessonTitle = lesson.getTitle() != null ? lesson.getTitle().trim() : "Untitled";
             dto.percent = Optional.ofNullable(p.getPercent()).orElse(0);
             dto.score = Optional.ofNullable(p.getScore()).orElse(0);
-            dto.userEmail = p.getUserEmail();
-            dto.updatedAt = Optional.ofNullable(p.getUpdatedAt()).orElse(LocalDateTime.now()).toString();
 
             result.add(dto);
         }
-
         return result;
     }
-
     @PUT
     @Path("/{lessonId}/submit-score")
     @Transactional
@@ -118,8 +115,6 @@ public class UserProgressResource {
         public String lessonTitle;
         public int percent;
         public int score;
-        public String userEmail;
-        public String updatedAt;
     }
 
     public static class SubmitScoreRequest {

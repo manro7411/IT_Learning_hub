@@ -37,7 +37,6 @@ const tabs = [
   { label: "User_Progress", value: "progress" },
   { label: "Notifications_activity", value: "notifications" },
 ];
-
 const Systemlogging = () => {
   const { token } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("chatlog");
