@@ -1,16 +1,15 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
 import { AuthContext } from "../../../Authentication/AuthContext";
 
-// Types
 interface LessonFormState {
   title: string;
   description: string;
   category: "AGILE" | "SCRUM" | "WATERFALL";
   thumbnailUrl: string;
+  quizAttemptLimit: number;
   questions: QuestionForm[];
 }
 
@@ -26,11 +25,12 @@ const INITIAL_FORM: LessonFormState = {
   description: "",
   category: "AGILE",
   thumbnailUrl: "",
+  quizAttemptLimit: 1,
   questions: [],
 };
 
 const AdminAddLessonPage = () => {
-  const { token, user } = useContext(AuthContext);
+  const { token } = useContext(AuthContext);
   const navigate = useNavigate();
   const [form, setForm] = useState<LessonFormState>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
@@ -39,38 +39,24 @@ const AdminAddLessonPage = () => {
     if (!token) navigate("/");
   }, [token, navigate]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === "quizAttemptLimit" ? parseInt(value) : value,
+    }));
   };
 
-  const handleQuestionChange = (
-    index: number,
-    field: keyof QuestionForm,
-    value: string | string[]
-  ) => {
+  const handleQuestionChange = (index: number, field: keyof QuestionForm, value: string | string[]) => {
     const updatedQuestions = [...form.questions];
-    updatedQuestions[index] = {
-      ...updatedQuestions[index],
-      [field]: value,
-    };
+    updatedQuestions[index] = { ...updatedQuestions[index], [field]: value };
     setForm({ ...form, questions: updatedQuestions });
   };
 
   const handleAddQuestion = () => {
     setForm((prev) => ({
       ...prev,
-      questions: [
-        ...prev.questions,
-        {
-          questionText: "",
-          type: "single",
-          options: [""],
-          correctAnswers: [""],
-        },
-      ],
+      questions: [...prev.questions, { questionText: "", type: "single", options: [""], correctAnswers: [""] }],
     }));
   };
 
@@ -91,12 +77,17 @@ const AdminAddLessonPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
     const payload = {
-      ...form,
+      title: form.title,
+      description: form.description,
+      category: form.category,
+      thumbnailUrl: form.thumbnailUrl,
+      maxAttempts: form.quizAttemptLimit, // <-- ส่งชื่อให้ตรงกับ DTO
       questions: form.questions.map((q) => ({
         questionText: q.questionText,
         type: q.type,
-        choices: q.options.map((text, i) => ({
+        choices: q.options.map((text) => ({
           text,
           isCorrect: q.correctAnswers.includes(text),
         })),
@@ -122,26 +113,12 @@ const AdminAddLessonPage = () => {
     <div className="min-h-screen bg-gray-50 flex">
       <AdminSidebarWidget />
       <main className="flex-1 p-10 space-y-6">
-        <h1 className="text-2xl font-bold text-blue-800 border-b pb-2">
-          📚 Add New Lesson
-        </h1>
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-8 rounded-xl shadow space-y-6 max-w-3xl"
-        >
-          <Field
-            label="Lesson Thumbnail URL"
-            name="thumbnailUrl"
-            value={form.thumbnailUrl}
-            onChange={handleChange}
-          />
-          <Field
-            label="Lesson Title"
-            name="title"
-            value={form.title}
-            onChange={handleChange}
-            required
-          />
+        <h1 className="text-2xl font-bold text-blue-800 border-b pb-2">📚 Add New Lesson</h1>
+
+        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow space-y-6 max-w-3xl">
+          <Field label="Lesson Thumbnail URL" name="thumbnailUrl" value={form.thumbnailUrl} onChange={handleChange} />
+
+          <Field label="Lesson Title" name="title" value={form.title} onChange={handleChange} required />
 
           <div>
             <label className="text-sm font-medium text-gray-700">Category</label>
@@ -157,6 +134,14 @@ const AdminAddLessonPage = () => {
             </select>
           </div>
 
+          <Field
+            label="Max Quiz Attempts"
+            name="quizAttemptLimit"
+            type="number"
+            value={form.quizAttemptLimit.toString()}
+            onChange={handleChange}
+          />
+
           <div>
             <label className="text-sm font-medium text-gray-700">Description</label>
             <textarea
@@ -169,7 +154,6 @@ const AdminAddLessonPage = () => {
             />
           </div>
 
-          {/* Questions */}
           <div className="space-y-4">
             <h2 className="text-lg font-semibold">Questions</h2>
             {form.questions.map((q, idx) => (
@@ -178,19 +162,12 @@ const AdminAddLessonPage = () => {
                   className="w-full border px-2 py-1 rounded"
                   placeholder="Question text"
                   value={q.questionText}
-                  onChange={(e) =>
-                    handleQuestionChange(idx, "questionText", e.target.value)
-                  }
+                  onChange={(e) => handleQuestionChange(idx, "questionText", e.target.value)}
                 />
+
                 <select
                   value={q.type}
-                  onChange={(e) =>
-                    handleQuestionChange(
-                      idx,
-                      "type",
-                      e.target.value as QuestionForm["type"]
-                    )
-                  }
+                  onChange={(e) => handleQuestionChange(idx, "type", e.target.value as QuestionForm["type"])}
                   className="w-full border px-2 py-1 rounded"
                 >
                   <option value="single">Single Choice</option>
@@ -214,11 +191,7 @@ const AdminAddLessonPage = () => {
                       }}
                     />
                   ))}
-                  <button
-                    type="button"
-                    className="text-blue-600 text-sm underline"
-                    onClick={() => handleAddOption(idx)}
-                  >
+                  <button type="button" className="text-blue-600 text-sm underline" onClick={() => handleAddOption(idx)}>
                     + Add Option
                   </button>
                 </div>
@@ -237,38 +210,22 @@ const AdminAddLessonPage = () => {
                       }}
                     />
                   ))}
-                  <button
-                    type="button"
-                    className="text-green-600 text-sm underline"
-                    onClick={() => handleAddCorrectAnswer(idx)}
-                  >
+                  <button type="button" className="text-green-600 text-sm underline" onClick={() => handleAddCorrectAnswer(idx)}>
                     + Add Correct Answer
                   </button>
                 </div>
               </div>
             ))}
-            <button
-              type="button"
-              className="text-blue-700 font-semibold"
-              onClick={handleAddQuestion}
-            >
+            <button type="button" className="text-blue-700 font-semibold" onClick={handleAddQuestion}>
               + Add Question
             </button>
           </div>
 
           <div className="flex gap-4">
-            <button
-              type="submit"
-              disabled={loading}
-              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50"
-            >
+            <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50">
               {loading ? "Saving…" : "Create Lesson"}
             </button>
-            <button
-              type="button"
-              onClick={resetForm}
-              className="text-gray-600 hover:underline"
-            >
+            <button type="button" onClick={resetForm} className="text-gray-600 hover:underline">
               Reset
             </button>
           </div>
@@ -278,17 +235,12 @@ const AdminAddLessonPage = () => {
   );
 };
 
-function Field(
-  props: { label: string } & React.InputHTMLAttributes<HTMLInputElement>
-) {
+function Field(props: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
   const { label, ...inputProps } = props;
   return (
     <div>
       <label className="text-sm font-medium text-gray-700">{label}</label>
-      <input
-        {...inputProps}
-        className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
-      />
+      <input {...inputProps} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50" />
     </div>
   );
 }

@@ -1,10 +1,10 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
+import axios from "axios";
 import SidebarWidget from "../../widgets/SidebarWidget";
 import CalendarWidget from "../../widgets/CalendarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
 import QuestionWidget from "./QuestionWidget";
-import axios from "axios";
 
 interface LearningContent {
   title: string;
@@ -30,6 +30,8 @@ interface Progress {
   lessonId: string;
   percent: number;
   score: number;
+  attempts: number;
+  maxAttempts: number;
 }
 
 const QuizPageStyled = () => {
@@ -46,111 +48,93 @@ const QuizPageStyled = () => {
   const [timeLeft, setTimeLeft] = useState(20);
   const [quizFinished, setQuizFinished] = useState(false);
   const [score, setScore] = useState(0);
+  const [attempts, setAttempts] = useState(0);
+  const [maxAttempts, setMaxAttempts] = useState(1);
   const [hasTakenQuiz, setHasTakenQuiz] = useState(false);
+
+  const fetchProgress = async () => {
+    try {
+      const res = await axios.get<Progress[]>(`http://localhost:8080/user/progress`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const progress = res.data.find((p) => p.lessonId === learningContentId);
+      if (!progress) return;
+
+      setAttempts(progress.attempts || 0);
+      setMaxAttempts(progress.maxAttempts || 1);
+      if (progress.attempts >= progress.maxAttempts) {
+        setHasTakenQuiz(true);
+      } else {
+        setHasTakenQuiz(false);
+      }
+    } catch (err) {
+      console.error("❌ Failed to check progress:", err);
+    }
+  };
 
   useEffect(() => {
     if (!learningContentId || !token) return;
-
-    const checkProgress = async () => {
-      try {
-        const res = await axios.get<Progress[]>("http://localhost:8080/user/progress", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const progress = res.data.find((p) => p.lessonId === learningContentId);
-        if (progress && progress.score > 0) {
-          setHasTakenQuiz(true);
-        }
-      } catch (err) {
-        console.error("❌ Failed to check progress:", err);
-      }
-    };
-
-    checkProgress();
+    fetchProgress();
   }, [learningContentId, token]);
 
   useEffect(() => {
     if (!learningContentId) return;
-
-    fetch(`http://localhost:8080/questions/by-learning/${learningContentId}`)
-      .then((res) => res.json())
-      .then((parsed) => setQuestions(Array.isArray(parsed) ? parsed : [parsed]))
+    axios.get<Question[]>(`http://localhost:8080/questions/by-learning/${learningContentId}`)
+      .then((res) => setQuestions(res.data))
       .catch((error) => console.error("❌ Failed to fetch questions:", error))
       .finally(() => setLoading(false));
   }, [learningContentId]);
 
   useEffect(() => {
     if (timeLeft <= 0) return;
-    const interval = setInterval(() => setTimeLeft((t) => t - 1), 1000);
-    return () => clearInterval(interval);
+    const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
+    return () => clearInterval(timer);
   }, [timeLeft]);
-
-  useEffect(() => {
-    if (quizFinished) {
-      const timer = setTimeout(() => {
-        navigate("/lesson");
-      }, 5000);
-      return () => clearTimeout(timer);
-    }
-  }, [quizFinished, navigate]);
 
   const submitScore = async (finalScore: number) => {
     try {
-      const response = await fetch(`http://localhost:8080/user/progress/${learningContentId}/submit-score`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ score: finalScore }),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`❌ Failed to submit score: ${response.status}`, errorText);
-      } else {
-        console.log(`✅ Score submitted: ${finalScore}`);
-      }
+      await axios.put(`http://localhost:8080/user/progress/${learningContentId}/submit-score`,
+        { score: finalScore },
+        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
+      );
+      console.log(`✅ Score submitted: ${finalScore}`);
     } catch (error) {
       console.error("❌ Error submitting score:", error);
     }
   };
 
-  const handleOptionSelect = (opt: string) => setSelectedOption(opt);
-
   const handleContinue = async () => {
     const current = questions[currentQuestionIndex];
-    const isCorrect = current.choices?.some(
-      (c) => c.choiceText === selectedOption && c.isCorrect
-    );
-
-    let updatedScore = score;
-    if (isCorrect) {
-      updatedScore += current.points;
-      setScore(updatedScore);
-    }
+    const isCorrect = current.choices?.some(c => c.choiceText === selectedOption && c.isCorrect);
+    if (isCorrect) setScore((prev) => prev + current.points);
 
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
       setSelectedOption(null);
       setTimeLeft(20);
     } else {
-      await submitScore(updatedScore);
+      await submitScore(score);
       setQuizFinished(true);
+      await fetchProgress(); // 🔄 Refresh progress to update attempts
     }
   };
 
+  useEffect(() => {
+    if (!quizFinished) return;
+    const timeout = setTimeout(() => navigate("/lesson"), 4000);
+    return () => clearTimeout(timeout);
+  }, [quizFinished, navigate]);
+
   if (!token) return <Navigate to="/" replace />;
   if (loading) return <div className="p-10 text-gray-500">Loading questions...</div>;
+
   if (hasTakenQuiz)
     return (
       <div className="flex min-h-screen items-center justify-center bg-white text-center p-10">
         <div>
-          <h2 className="text-2xl font-bold text-red-600 mb-4">⚠️ Access Denied</h2>
-          <p className="text-gray-600 mb-4">You have already completed this quiz.</p>
-          <button
-            onClick={() => navigate("/lesson")}
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-          >
+          <h2 className="text-2xl font-bold text-red-600 mb-4">⚠️ Quiz Unavailable</h2>
+          <p className="text-gray-600 mb-4">You have used {attempts}/{maxAttempts} attempts.</p>
+          <button onClick={() => navigate("/lesson")} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
             Back to Lessons
           </button>
         </div>
@@ -158,7 +142,7 @@ const QuizPageStyled = () => {
     );
 
   const currentQuestion = questions[currentQuestionIndex];
-  if (!questions.length || !currentQuestion) return <div className="p-10 text-red-500">No questions found.</div>;
+  if (!currentQuestion) return <div className="p-10 text-red-500">No questions found.</div>;
 
   return (
     <div className="flex min-h-screen bg-white">
@@ -173,25 +157,20 @@ const QuizPageStyled = () => {
         {!quizFinished ? (
           <>
             <h2 className="text-xl font-bold mb-6">{currentQuestion.questionText}</h2>
-            <div className="mb-6">
-              <p className="text-sm text-gray-500">ประเภท: {currentQuestion.type}</p>
-              <p className="text-sm text-gray-500">คะแนน: {currentQuestion.points}</p>
-            </div>
+            <p className="text-sm text-gray-500 mb-4">ประเภท: {currentQuestion.type} | คะแนน: {currentQuestion.points}</p>
 
-            <div className="mt-8">
-              <QuestionWidget
-                type={currentQuestion.type}
-                choices={currentQuestion.choices}
-                selectedOption={selectedOption}
-                onSelect={handleOptionSelect}
-              />
-            </div>
+            <QuestionWidget
+              type={currentQuestion.type}
+              choices={currentQuestion.choices}
+              selectedOption={selectedOption}
+              onSelect={setSelectedOption}
+            />
           </>
         ) : (
           <div className="text-center mt-20">
             <h2 className="text-2xl font-bold text-green-600 mb-4">🎉 Quiz Completed!</h2>
             <p className="text-gray-600 mb-2">You scored: <strong>{score}</strong> point(s)</p>
-            <p className="text-gray-500">Thanks for participating! Redirecting to lessons...</p>
+            <p className="text-gray-500">Redirecting to lessons...</p>
           </div>
         )}
 

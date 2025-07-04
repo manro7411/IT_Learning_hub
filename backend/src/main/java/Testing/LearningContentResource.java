@@ -7,7 +7,6 @@ import QuizService.ExtendedLearningContentDto;
 import QuizService.QuestionDTO;
 import QuizService.ChoiceDTO;
 import dto.LearningContentDto;
-import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -22,6 +21,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Path("/learning")
@@ -70,7 +70,9 @@ public class LearningContentResource {
         lc.setAuthorRole("admin");
         lc.setClickCount(0L);
         lc.setCreatedAt(LocalDateTime.now());
+        lc.setMaxAttempts(Optional.ofNullable(dto.maxAttempts).orElse(1));
         em.persist(lc);
+
         String quizId = UUID.randomUUID().toString().replace("-", "").substring(0, 21);
         if (dto.questions != null) {
             for (QuestionDTO q : dto.questions) {
@@ -82,6 +84,7 @@ public class LearningContentResource {
                 qe.setType(QuestionType.valueOf(q.type.toUpperCase()));
                 qe.setPoints(q.points != null ? q.points : 1);
                 em.persist(qe);
+
                 if (q.choices != null) {
                     for (ChoiceDTO c : q.choices) {
                         QuestionChoiceEntity ce = new QuestionChoiceEntity();
@@ -99,7 +102,6 @@ public class LearningContentResource {
                 .entity(LearningContentDto.fromEntity(lc))
                 .build();
     }
-
 
     @PUT
     @Path("/{id}")

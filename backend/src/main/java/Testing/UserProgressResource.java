@@ -28,33 +28,54 @@ public class UserProgressResource {
     @GET
     public List<UserCourseProgressDto> getMyProgress() {
         String userEmail = jwt.getSubject();
+        return fetchProgressByEmail(userEmail);
+    }
 
+    @GET
+    @Path("/all")
+    @RolesAllowed("admin")
+    public List<UserCourseProgressDto> getAllProgress() {
+        List<UserLessonProgress> progresses = em.createQuery("""
+                SELECT p FROM UserLessonProgress p
+                ORDER BY p.updatedAt DESC
+                """, UserLessonProgress.class).getResultList();
+
+        return buildProgressDtoList(progresses);
+    }
+
+    private List<UserCourseProgressDto> fetchProgressByEmail(String email) {
         List<UserLessonProgress> progresses = em.createQuery("""
                 SELECT p FROM UserLessonProgress p
                 WHERE p.userEmail = :email
                 ORDER BY p.updatedAt DESC
                 """, UserLessonProgress.class)
-                .setParameter("email", userEmail)
+                .setParameter("email", email)
                 .getResultList();
 
-        List<UserCourseProgressDto> result = new ArrayList<>();
+        return buildProgressDtoList(progresses);
+    }
 
+    private List<UserCourseProgressDto> buildProgressDtoList(List<UserLessonProgress> progresses) {
+        List<UserCourseProgressDto> result = new ArrayList<>();
         for (UserLessonProgress p : progresses) {
             if (p.getLessonId() == null || p.getLessonId().isBlank()) continue;
-
             LearningContent lesson = em.find(LearningContent.class, p.getLessonId().trim());
             if (lesson == null) continue;
 
             var dto = new UserCourseProgressDto();
             dto.lessonId = lesson.getId();
-            dto.lessonTitle = lesson.getTitle() != null ? lesson.getTitle().trim() : "Untitled";
+            dto.lessonTitle = Optional.ofNullable(lesson.getTitle()).orElse("Untitled");
             dto.percent = Optional.ofNullable(p.getPercent()).orElse(0);
             dto.score = Optional.ofNullable(p.getScore()).orElse(0);
+            dto.attempts = Optional.ofNullable(p.getAttempts()).orElse(0);
+            dto.maxAttempts = Optional.ofNullable(lesson.getMaxAttempts()).orElse(1);
+            dto.userEmail = p.getUserEmail();
 
             result.add(dto);
         }
         return result;
     }
+
     @PUT
     @Path("/{lessonId}/submit-score")
     @Transactional
@@ -62,24 +83,32 @@ public class UserProgressResource {
         String userEmail = jwt.getSubject();
 
         var progress = em.createQuery("""
-                SELECT p FROM UserLessonProgress p
-                WHERE p.lessonId = :lessonId AND p.userEmail = :userEmail
-                """, UserLessonProgress.class)
+            SELECT p FROM UserLessonProgress p
+            WHERE p.lessonId = :lessonId AND p.userEmail = :userEmail
+            """, UserLessonProgress.class)
                 .setParameter("lessonId", lessonId)
                 .setParameter("userEmail", userEmail)
                 .getResultStream()
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("No progress found. Please watch the lesson first."));
 
-        if (progress.getScore() != null && progress.getScore() > 0) {
-            throw new BadRequestException("You have already completed this quiz.");
+        LearningContent lesson = em.find(LearningContent.class, lessonId);
+        if (lesson == null) throw new NotFoundException("Lesson not found.");
+
+        int maxAttempts = Optional.ofNullable(lesson.getMaxAttempts()).orElse(1);
+        int currentAttempts = Optional.ofNullable(progress.getAttempts()).orElse(0);
+
+        if (currentAttempts >= maxAttempts) {
+            throw new BadRequestException("You have reached the maximum number of attempts for this quiz.");
         }
 
+        progress.setAttempts(currentAttempts + 1);
         progress.setScore(req.score);
         progress.setUpdatedAt(LocalDateTime.now());
 
         return Response.ok().build();
     }
+
 
     @PUT
     @Path("/{lessonId}")
@@ -104,7 +133,7 @@ public class UserProgressResource {
                 });
 
         progress.setPercent(req.percent);
-        progress.setLastTimestamp(req.lastTimestamp != null ? req.lastTimestamp : 0);
+        progress.setLastTimestamp(Optional.ofNullable(req.lastTimestamp).orElse(0));
         progress.setUpdatedAt(LocalDateTime.now());
 
         return Response.ok().build();
@@ -115,6 +144,9 @@ public class UserProgressResource {
         public String lessonTitle;
         public int percent;
         public int score;
+        public int attempts;
+        public int maxAttempts;
+        public String userEmail;
     }
 
     public static class SubmitScoreRequest {

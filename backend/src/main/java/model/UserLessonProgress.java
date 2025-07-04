@@ -21,7 +21,10 @@ public class UserLessonProgress {
     private Integer percent = 0;
 
     @Column(name = "score")
-    private Integer score = 0;   // ✅ เพิ่ม field score
+    private Integer score = 0;
+
+    @Column(name = "attempts", nullable = false)
+    private Integer attempts = 0;
 
     @Column(name = "last_timestamp", nullable = false)
     private Integer lastTimestamp = 0;
@@ -30,19 +33,65 @@ public class UserLessonProgress {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     // --- Getter ---
-    public Long getId() { return id; }
-    public String getLessonId() { return lessonId; }
-    public String getUserEmail() { return userEmail; }
-    public Integer getPercent() { return percent; }
-    public Integer getScore() { return score; }          // ✅ Getter score
-    public Integer getLastTimestamp() { return lastTimestamp; }
-    public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public Long getId() {
+        return id;
+    }
+
+    public String getLessonId() {
+        return lessonId;
+    }
+
+    public String getUserEmail() {
+        return userEmail;
+    }
+
+    public Integer getPercent() {
+        return percent;
+    }
+
+    public Integer getScore() {
+        return score;
+    }
+
+    public Integer getAttempts() {
+        return attempts;
+    }
+
+    public Integer getLastTimestamp() {
+        return lastTimestamp;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
     // --- Setter ---
-    public void setLessonId(String lessonId) { this.lessonId = lessonId; }
-    public void setUserEmail(String userEmail) { this.userEmail = userEmail; }
-    public void setPercent(Integer percent) { this.percent = percent; }
-    public void setScore(Integer score) { this.score = score; }           // ✅ Setter score
-    public void setLastTimestamp(Integer lastTimestamp) { this.lastTimestamp = lastTimestamp; }
-    public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+    public void setLessonId(String lessonId) {
+        this.lessonId = lessonId;
+    }
+
+    public void setUserEmail(String userEmail) {
+        this.userEmail = userEmail;
+    }
+
+    public void setPercent(Integer percent) {
+        this.percent = percent;
+    }
+
+    public void setScore(Integer score) {
+        this.score = score;
+    }
+
+
+    public void setAttempts(Integer attempts) {
+        this.attempts = attempts;
+    }
+
+    public void setLastTimestamp(Integer lastTimestamp) {
+        this.lastTimestamp = lastTimestamp;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
+    }
 }

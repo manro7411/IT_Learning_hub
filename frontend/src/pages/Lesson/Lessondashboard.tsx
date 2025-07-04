@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 
@@ -32,26 +32,48 @@ const LessonPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // State
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, Progress>>({});
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  const categories = Array.from(new Set(lessons.map((l) => l.category).filter(Boolean)));
+
+  const filteredLessons = lessons.filter((l) =>
+    [l.title, l.category, l.description ?? ""].some((v) =>
+      v.toLowerCase().includes(searchQuery.toLowerCase())
+    ) && (selectedCategories.length === 0 || selectedCategories.includes(l.category))
+  );
+
+  // Close category menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setCategoryMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch lessons & progress
   useEffect(() => {
     if (!token) {
       navigate("/");
       return;
     }
 
-    const fetchLessonsAndProgress = async () => {
+    const fetchData = async () => {
       try {
         const [lessonsRes, progressRes] = await Promise.all([
-          axios.get("http://localhost:8080/learning", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get("http://localhost:8080/user/progress", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+          axios.get("http://localhost:8080/learning", { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get("http://localhost:8080/user/progress", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
         setLessons(lessonsRes.data);
@@ -59,10 +81,7 @@ const LessonPage = () => {
         const map: Record<string, Progress> = {};
         progressRes.data.forEach((item: { lessonId: string; percent: number; lastTimestamp?: number }) => {
           const key = item.lessonId?.toString().trim().toLowerCase();
-          map[key] = {
-            percent: item.percent,
-            lastTimestamp: item.lastTimestamp || 0,
-          };
+          map[key] = { percent: item.percent, lastTimestamp: item.lastTimestamp || 0 };
         });
         setProgressMap(map);
       } catch (err) {
@@ -73,9 +92,8 @@ const LessonPage = () => {
       }
     };
 
-    fetchLessonsAndProgress();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, location.pathname]);
+    fetchData();
+  }, [token, location.pathname, navigate]);
 
   const handleLessonClick = async (id: string) => {
     const key = id?.toString().trim().toLowerCase();
@@ -83,10 +101,7 @@ const LessonPage = () => {
 
     try {
       await axios.post(`http://localhost:8080/learning/${id}/click`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
     } catch (err) {
       console.error("Failed to log click:", err);
@@ -94,12 +109,6 @@ const LessonPage = () => {
       navigate(`/lesson/${id}`, { state: { lastTimestamp } });
     }
   };
-
-  const filtered = lessons.filter((l) =>
-    [l.title, l.category, l.description ?? ""].some((v) =>
-      v.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -113,17 +122,61 @@ const LessonPage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full xl:w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
-           <NotificationWidget />
+
+          <div className="flex items-center space-x-4">
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setCategoryMenuOpen(!categoryMenuOpen)}
+                className="px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-100 text-sm"
+              >
+                {selectedCategories.length > 0
+                  ? `Category (${selectedCategories.length})`
+                  : "Filter by Category"}
+              </button>
+
+              {categoryMenuOpen && (
+                <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
+                  <div className="p-2 space-y-1">
+                    {categories.map((category) => (
+                      <label key={category} className="flex items-center space-x-2 cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(category)}
+                          onChange={() => {
+                            setSelectedCategories((prev) =>
+                              prev.includes(category)
+                                ? prev.filter((c) => c !== category)
+                                : [...prev, category]
+                            );
+                          }}
+                          className="accent-purple-500"
+                        />
+                        <span>{category}</span>
+                      </label>
+                    ))}
+                    <button
+                      className="mt-2 text-xs text-blue-500 hover:underline"
+                      onClick={() => setSelectedCategories([])}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <NotificationWidget />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 grid gap-6 grid-cols-[repeat(auto-fill,minmax(256px,1fr))]">
             {loading ? (
               <div className="text-gray-500">Loading lessons…</div>
-            ) : filtered.length === 0 ? (
+            ) : filteredLessons.length === 0 ? (
               <div className="text-gray-500">No lessons found</div>
             ) : (
-              filtered.map((lesson) => {
+              filteredLessons.map((lesson) => {
                 const key = lesson.id?.toString().trim().toLowerCase();
                 const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };
 
@@ -138,9 +191,7 @@ const LessonPage = () => {
                         <img
                           src={lesson.thumbnailUrl || "/placeholder.png"}
                           alt={lesson.title}
-                          onError={(e) => {
-                            e.currentTarget.src = "/placeholder.png";
-                          }}
+                          onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
                           className="h-full w-full object-cover"
                         />
                       </div>
@@ -170,9 +221,7 @@ const LessonPage = () => {
                           <img
                             src={lesson.authorAvatarUrl || defaultUserAvatar}
                             alt="Author"
-                            onError={(e) => {
-                              e.currentTarget.src = defaultUserAvatar;
-                            }}
+                            onError={(e) => { e.currentTarget.src = defaultUserAvatar; }}
                             className="h-7 w-7 rounded-full object-cover"
                           />
                           <div>
