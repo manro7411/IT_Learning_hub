@@ -71,6 +71,10 @@ public class LearningContentResource {
         lc.setClickCount(0L);
         lc.setCreatedAt(LocalDateTime.now());
         lc.setMaxAttempts(Optional.ofNullable(dto.maxAttempts).orElse(1));
+
+        lc.setAssignType(dto.assignType);
+        lc.setAssignedUserIds(dto.assignedUserIds);
+
         em.persist(lc);
 
         String quizId = UUID.randomUUID().toString().replace("-", "").substring(0, 21);
@@ -110,10 +114,14 @@ public class LearningContentResource {
     public LearningContentDto update(@PathParam("id") String id, LearningContentDto dto) {
         LearningContent lc = em.find(LearningContent.class, id);
         if (lc == null) throw new NotFoundException();
+
         lc.setTitle(dto.title());
         lc.setDescription(dto.description());
         lc.setCategory(dto.category());
         lc.setThumbnailUrl(dto.thumbnailUrl());
+        lc.setAssignType(dto.assignType());
+        lc.setAssignedUserIds(dto.assignedUserIds());
+
         return LearningContentDto.fromEntity(lc);
     }
 
@@ -187,4 +195,27 @@ public class LearningContentResource {
                 .map(LearningContentDto::fromEntity)
                 .toList();
     }
+
+    @GET
+    @Path("/assigned-to-me")
+    @RolesAllowed({"user", "admin"})
+    public List<LearningContentDto> getAssignedToMe() {
+        String userEmail = jwt.getSubject();
+
+        List<LearningContent> lessons = em.createQuery("""
+            SELECT lc FROM LearningContent lc
+            WHERE 
+                lc.assignType = 'all'
+                OR (lc.assignType = 'specific' AND :userId IN ELEMENTS(lc.assignedUserIds))
+            ORDER BY lc.createdAt DESC
+            """, LearningContent.class)
+                .setParameter("userId", userEmail)
+                .getResultList();
+
+        return lessons.stream()
+                .map(LearningContentDto::fromEntity)
+                .toList();
+
+    }
+
 }

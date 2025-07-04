@@ -4,6 +4,7 @@ import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "learning_content")
@@ -47,6 +48,29 @@ public class LearningContent {
 
     @Column(name = "click_count", nullable = false)
     private Long clickCount = 0L;
+
+    @ElementCollection
+    @Column(name = "assigned_user_ids")
+    private List<String> assignedUserIds;
+
+    @Column(name = "assign_type")
+    private String assignType;
+
+    public List<String> getAssignedUserIds() {
+        return assignedUserIds;
+    }
+
+    public void setAssignedUserIds(List<String> assignedUserIds) {
+        this.assignedUserIds = assignedUserIds;
+    }
+
+    public String getAssignType() {
+        return assignType;
+    }
+
+    public void setAssignType(String assignType) {
+        this.assignType = assignType;
+    }
 
     // --- Lifecycle Callback ---
     @PrePersist

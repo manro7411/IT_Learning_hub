@@ -12,12 +12,17 @@ public class ExtendedLearningContentDto {
     public Integer maxAttempts;
     public List<QuestionDTO> questions;
 
+    // ✅ เพิ่มสอง field นี้
+    public String assignType;
+    public List<String> assignedUserIds;
+
     public ExtendedLearningContentDto() {}
 
     public ExtendedLearningContentDto(String title, String description, String category,
                                       String thumbnailUrl, String authorName,
                                       String authorEmail, Integer maxAttempts,
-                                      List<QuestionDTO> questions) {
+                                      List<QuestionDTO> questions,
+                                      String assignType, List<String> assignedUserIds) {
         this.title = title;
         this.description = description;
         this.category = category;
@@ -26,5 +31,7 @@ public class ExtendedLearningContentDto {
         this.authorEmail = authorEmail;
         this.maxAttempts = maxAttempts;
         this.questions = questions;
+        this.assignType = assignType;
+        this.assignedUserIds = assignedUserIds;
     }
 }

@@ -4,7 +4,7 @@ import { AuthContext } from "../../Authentication/AuthContext";
 import SidebarWidget       from "../../widgets/SidebarWidget";
 import CalendarWidget      from "../../widgets/CalendarWidget";
 import ChatBubbleWidget    from "../../widgets/ChatBubbleWidget";
-import ScoreboardChart     from "../../components/ScoreboardChart";
+// import ScoreboardChart     from "../../components/ScoreboardChart";
 import StatisticsChart     from "../../components/StatisticsChart";
 import OnlineCourseBanner  from "../../components/OnlineCourseBanner";
 import TopViewedLessonsWidget from "./TopViewedLessonsWidget";
@@ -43,7 +43,7 @@ const UserDashboard = () => {
               <div className="order-1 xl:order-2">
                 <div className="space-y-6 mt-4 xl:mt-0">
                   <CalendarWidget />
-                  <ScoreboardChart />
+                  {/* <ScoreboardChart /> */}
                 </div>
               </div>
             </div>

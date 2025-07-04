@@ -10,6 +10,7 @@ interface LessonFormState {
   category: "AGILE" | "SCRUM" | "WATERFALL";
   thumbnailUrl: string;
   quizAttemptLimit: number;
+  assignType: "all" | "team" | "specific";
   questions: QuestionForm[];
 }
 
@@ -20,12 +21,18 @@ interface QuestionForm {
   correctAnswers: string[];
 }
 
+interface User {
+  id: string;
+  name: string;
+}
+
 const INITIAL_FORM: LessonFormState = {
   title: "",
   description: "",
   category: "AGILE",
   thumbnailUrl: "",
   quizAttemptLimit: 1,
+  assignType: "all",
   questions: [],
 };
 
@@ -34,10 +41,23 @@ const AdminAddLessonPage = () => {
   const navigate = useNavigate();
   const [form, setForm] = useState<LessonFormState>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
+  const [users, setUsers] = useState<User[]>([]);
+  const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [showUserModal, setShowUserModal] = useState(false);
 
   useEffect(() => {
     if (!token) navigate("/");
   }, [token, navigate]);
+
+  useEffect(() => {
+    if (!token) return;
+    axios
+      .get<User[]>("http://localhost:8080/profile/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => setUsers(res.data))
+      .catch(() => console.error("❌ Failed to load users"));
+  }, [token]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -45,6 +65,13 @@ const AdminAddLessonPage = () => {
       ...prev,
       [name]: name === "quizAttemptLimit" ? parseInt(value) : value,
     }));
+  };
+
+  const handleAssignTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value as LessonFormState["assignType"];
+    setForm((prev) => ({ ...prev, assignType: value }));
+    if (value === "specific") setShowUserModal(true);
+    else setSelectedUsers([]);
   };
 
   const handleQuestionChange = (index: number, field: keyof QuestionForm, value: string | string[]) => {
@@ -72,18 +99,60 @@ const AdminAddLessonPage = () => {
     setForm({ ...form, questions: updated });
   };
 
-  const resetForm = () => setForm(INITIAL_FORM);
+  const resetForm = () => {
+    setForm(INITIAL_FORM);
+    setSelectedUsers([]);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+
+    // ✅ Validate
+    if (!form.title.trim() || !form.description.trim()) {
+      alert("❗ Please fill in the title and description");
+      setLoading(false);
+      return;
+    }
+
+    if (form.assignType === "specific" && selectedUsers.length === 0) {
+      alert("❗ Please select at least one user for 'Specific Users'");
+      setLoading(false);
+      return;
+    }
+
+    // if (form.questions.length === 0) {
+    //   alert("❗ Please add at least one question");
+    //   setLoading(false);
+    //   return;
+    // }
+
+    // if (form.questions.some(q => !q.questionText.trim())) {
+    //   alert("❗ Some questions are missing text");
+    //   setLoading(false);
+    //   return;
+    // }
+
+    // if (form.questions.some(q => q.options.some(opt => !opt.trim()))) {
+    //   alert("❗ Some options are empty");
+    //   setLoading(false);
+    //   return;
+    // }
+
+    // if (!form.questions.every(q => q.correctAnswers.length > 0)) {
+    //   alert("❗ Please specify correct answers for all questions");
+    //   setLoading(false);
+    //   return;
+    // }
 
     const payload = {
       title: form.title,
       description: form.description,
       category: form.category,
       thumbnailUrl: form.thumbnailUrl,
-      maxAttempts: form.quizAttemptLimit, // <-- ส่งชื่อให้ตรงกับ DTO
+      maxAttempts: form.quizAttemptLimit,
+      assignType: form.assignType,
+      assignedUserIds: form.assignType === "specific" ? selectedUsers : [],
       questions: form.questions.map((q) => ({
         questionText: q.questionText,
         type: q.type,
@@ -117,7 +186,6 @@ const AdminAddLessonPage = () => {
 
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow space-y-6 max-w-3xl">
           <Field label="Lesson Thumbnail URL" name="thumbnailUrl" value={form.thumbnailUrl} onChange={handleChange} />
-
           <Field label="Lesson Title" name="title" value={form.title} onChange={handleChange} required />
 
           <div>
@@ -132,6 +200,25 @@ const AdminAddLessonPage = () => {
               <option value="SCRUM">Scrum</option>
               <option value="WATERFALL">Waterfall</option>
             </select>
+          </div>
+
+          <div>
+            <label className="text-sm font-medium text-gray-700">Assign To</label>
+            <select
+              name="assignType"
+              value={form.assignType}
+              onChange={handleAssignTypeChange}
+              className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
+            >
+              <option value="all">All Users</option>
+              <option value="team">Specific Team</option>
+              <option value="specific">Specific Users</option>
+            </select>
+            {form.assignType === "specific" && selectedUsers.length > 0 && (
+              <p className="text-sm text-gray-500 mt-1">
+                Selected users: {users.filter(u => selectedUsers.includes(u.id)).map(u => u.name).join(", ")}
+              </p>
+            )}
           </div>
 
           <Field
@@ -230,6 +317,30 @@ const AdminAddLessonPage = () => {
             </button>
           </div>
         </form>
+
+        {showUserModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+            <div className="bg-white p-6 rounded-xl shadow-xl w-[90%] max-w-md">
+              <h2 className="text-lg font-bold mb-4">Select Users</h2>
+              <select
+                multiple
+                value={selectedUsers}
+                onChange={(e) => {
+                  const selected = Array.from(e.currentTarget.selectedOptions, (o) => o.value);
+                  setSelectedUsers(selected);
+                }}
+                className="w-full h-40 border p-2 rounded-lg bg-gray-50"
+              >
+                {users.map((u) => (
+                  <option key={u.id} value={u.id}>{u.name}</option>
+                ))}
+              </select>
+              <div className="mt-4 flex justify-end gap-2">
+                <button onClick={() => setShowUserModal(false)} className="px-4 py-2 bg-gray-500 text-white rounded">Close</button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

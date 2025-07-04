@@ -28,9 +28,8 @@ const fallbackVideo = "https://www.w3schools.com/html/mov_bbb.mp4";
 const LessonDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = useContext(AuthContext);
-  const navigate = useNavigate();
   const videoRef = useRef<HTMLVideoElement>(null);
-  const allowedTime = useRef(0);
+  const navigate = useNavigate();
 
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [progressPercent, setProgressPercent] = useState(0);
@@ -39,7 +38,6 @@ const LessonDetailPage = () => {
   const [hasTakenQuiz, setHasTakenQuiz] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [maxAttempts, setMaxAttempts] = useState(1);
-  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     axios
@@ -63,7 +61,10 @@ const LessonDetailPage = () => {
         setAttempts(found.attempts);
         setMaxAttempts(found.maxAttempts);
 
-        if (found.attempts >= found.maxAttempts) {
+        // ✅ เช็คแบบละเอียด: ผ่าน quiz แล้ว หรือ ทำครบ maxAttempts → ห้ามทำ quiz
+        if (found.score > 0) {
+          setHasTakenQuiz(true);
+        } else if (found.attempts >= found.maxAttempts) {
           setHasTakenQuiz(true);
         } else {
           setHasTakenQuiz(false);
@@ -77,27 +78,6 @@ const LessonDetailPage = () => {
     if (!video || !video.duration) return;
     const pct = (video.currentTime / video.duration) * 100;
     setProgressPercent(pct);
-    allowedTime.current = Math.max(allowedTime.current, video.currentTime);
-  };
-
-  const handleSeeking = () => {
-    const video = videoRef.current;
-    if (!video) return;
-    if (video.currentTime > allowedTime.current + 1) {
-      video.currentTime = allowedTime.current;
-    }
-  };
-
-  const handlePlayPause = () => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    if (isPlaying) {
-      video.pause();
-    } else {
-      video.play().catch(() => {});
-    }
-    setIsPlaying(!isPlaying);
   };
 
   useEffect(() => {
@@ -137,28 +117,15 @@ const LessonDetailPage = () => {
       <main className="flex-1 p-8">
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           <div className="xl:col-span-2 space-y-8">
-            <div className="w-full rounded-xl overflow-hidden shadow relative">
+            <div className="w-full rounded-xl overflow-hidden shadow">
               <video
                 ref={videoRef}
+                controls
                 onTimeUpdate={handleTimeUpdate}
-                onSeeking={handleSeeking}
                 poster={lesson.thumbnailUrl}
                 className="w-full h-auto bg-black"
                 src={lesson.videoUrl || fallbackVideo}
-                onEnded={() => setShowQuiz(true)}
               />
-              <button
-                onClick={handlePlayPause}
-                className="absolute bottom-4 left-4 bg-white px-4 py-2 rounded-full shadow"
-              >
-                {isPlaying ? "Pause" : "Play"}
-              </button>
-              <div className="h-1 bg-gray-300">
-                {/* <div
-                  className="h-full bg-blue-600 transition-all"
-                  style={{ width: `${progressPercent}%` }}
-                /> */}
-              </div>
             </div>
 
             <section className="bg-white rounded-xl shadow p-6 space-y-4">
@@ -167,6 +134,12 @@ const LessonDetailPage = () => {
               <p className="text-gray-700">{lesson.description}</p>
               <p className="text-sm text-gray-500">Author: {lesson.authorName || "Unknown"}</p>
               {/* <p className="text-sm text-gray-500">Progress: {Math.floor(progressPercent)}%</p> */}
+              <div className="h-1 bg-gray-300">
+                <div
+                  className="h-full bg-blue-600 transition-all"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
               <p className="text-sm text-gray-500">
                 Attempts: {attempts}/{maxAttempts || lesson.quizAttemptLimit || "1"}
               </p>
@@ -197,7 +170,7 @@ const LessonDetailPage = () => {
               <>
                 <h2 className="text-xl font-bold text-red-600 mb-4">❌ Quiz unavailable</h2>
                 <p className="text-gray-700 mb-6">
-                  You have reached the maximum number of attempts ({attempts}/{maxAttempts}).
+                  You have already passed the quiz or reached the maximum number of attempts.
                 </p>
                 <button
                   onClick={() => {
@@ -213,9 +186,6 @@ const LessonDetailPage = () => {
               <>
                 <h2 className="text-xl font-bold mb-4">🎉 Lesson Completed!</h2>
                 <p className="text-gray-700 mb-2">Take a quiz to test your knowledge.</p>
-                <p className="text-gray-500 mb-4">
-                  Attempts used: {attempts}/{maxAttempts}
-                </p>
                 <button
                   onClick={() => {
                     setShowQuiz(false);
