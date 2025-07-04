@@ -1,3 +1,5 @@
+// Full file version with summary screen and delayed redirect
+
 import { useState, useEffect, useContext } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -46,7 +48,7 @@ const QuizPageStyled = () => {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
   const [timeLeft, setTimeLeft] = useState(20);
-  const [quizFinished, setQuizFinished] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const [score, setScore] = useState(0);
   const [attempts, setAttempts] = useState(0);
   const [maxAttempts, setMaxAttempts] = useState(1);
@@ -54,18 +56,15 @@ const QuizPageStyled = () => {
 
   const fetchProgress = async () => {
     try {
-      const res = await axios.get<Progress[]>(`http://localhost:8080/user/progress`, {
+      const res = await axios.get<Progress[]>("http://localhost:8080/user/progress", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const progress = res.data.find((p) => p.lessonId === learningContentId);
       if (!progress) return;
-
       setAttempts(progress.attempts || 0);
       setMaxAttempts(progress.maxAttempts || 1);
-      if (progress.attempts >= progress.maxAttempts) {
+      if ((progress.attempts || 0) >= (progress.maxAttempts || 1)) {
         setHasTakenQuiz(true);
-      } else {
-        setHasTakenQuiz(false);
       }
     } catch (err) {
       console.error("❌ Failed to check progress:", err);
@@ -91,17 +90,24 @@ const QuizPageStyled = () => {
     return () => clearInterval(timer);
   }, [timeLeft]);
 
+  useEffect(() => {
+    if (!showSummary) return;
+    const timeout = setTimeout(() => navigate("/lesson"), 5000);
+    return () => clearTimeout(timeout);
+  }, [showSummary, navigate]);
+
   const submitScore = async (finalScore: number) => {
     try {
-      await axios.put(`http://localhost:8080/user/progress/${learningContentId}/submit-score`,
-        { score: finalScore },
-        { headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" } }
-      );
+      await axios.put(`http://localhost:8080/user/progress/${learningContentId}/submit-score`, { score: finalScore }, {
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+      });
       console.log(`✅ Score submitted: ${finalScore}`);
     } catch (error) {
       console.error("❌ Error submitting score:", error);
     }
   };
+
+  const handleOptionSelect = (opt: string) => setSelectedOption(opt);
 
   const handleContinue = async () => {
     const current = questions[currentQuestionIndex];
@@ -114,16 +120,9 @@ const QuizPageStyled = () => {
       setTimeLeft(20);
     } else {
       await submitScore(score);
-      setQuizFinished(true);
-      await fetchProgress(); // 🔄 Refresh progress to update attempts
+      setShowSummary(true);
     }
   };
-
-  useEffect(() => {
-    if (!quizFinished) return;
-    const timeout = setTimeout(() => navigate("/lesson"), 4000);
-    return () => clearTimeout(timeout);
-  }, [quizFinished, navigate]);
 
   if (!token) return <Navigate to="/" replace />;
   if (loading) return <div className="p-10 text-gray-500">Loading questions...</div>;
@@ -133,7 +132,7 @@ const QuizPageStyled = () => {
       <div className="flex min-h-screen items-center justify-center bg-white text-center p-10">
         <div>
           <h2 className="text-2xl font-bold text-red-600 mb-4">⚠️ Quiz Unavailable</h2>
-          <p className="text-gray-600 mb-4">You have used {attempts}/{maxAttempts} attempts.</p>
+          <p className="text-gray-600 mb-4">You have used {attempts} / {maxAttempts} attempts.</p>
           <button onClick={() => navigate("/lesson")} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
             Back to Lessons
           </button>
@@ -146,7 +145,7 @@ const QuizPageStyled = () => {
 
   return (
     <div className="flex min-h-screen bg-white">
-      <div className={`w-64 hidden lg:block ${!quizFinished ? "pointer-events-none opacity-50" : ""}`}>
+      <div className={`w-64 hidden lg:block ${showSummary ? "" : "pointer-events-none opacity-50"}`}>
         <SidebarWidget />
       </div>
 
@@ -154,27 +153,26 @@ const QuizPageStyled = () => {
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome, {displayName}</h1>
         <p className="text-sm text-gray-400 mb-6">Let’s get started!</p>
 
-        {!quizFinished ? (
-          <>
-            <h2 className="text-xl font-bold mb-6">{currentQuestion.questionText}</h2>
-            <p className="text-sm text-gray-500 mb-4">ประเภท: {currentQuestion.type} | คะแนน: {currentQuestion.points}</p>
-
-            <QuestionWidget
-              type={currentQuestion.type}
-              choices={currentQuestion.choices}
-              selectedOption={selectedOption}
-              onSelect={setSelectedOption}
-            />
-          </>
-        ) : (
+        {showSummary ? (
           <div className="text-center mt-20">
             <h2 className="text-2xl font-bold text-green-600 mb-4">🎉 Quiz Completed!</h2>
             <p className="text-gray-600 mb-2">You scored: <strong>{score}</strong> point(s)</p>
             <p className="text-gray-500">Redirecting to lessons...</p>
           </div>
+        ) : (
+          <>
+            <h2 className="text-xl font-bold mb-6">{currentQuestion.questionText}</h2>
+            <p className="text-sm text-gray-500 mb-4">ประเภท: {currentQuestion.type} | คะแนน: {currentQuestion.points}</p>
+            <QuestionWidget
+              type={currentQuestion.type}
+              choices={currentQuestion.choices}
+              selectedOption={selectedOption}
+              onSelect={handleOptionSelect}
+            />
+          </>
         )}
 
-        {!quizFinished && (
+        {!showSummary && (
           <div className="absolute bottom-8 left-0 right-0 flex justify-between items-center px-16">
             <div className="flex items-center justify-center w-16 h-16 border-4 border-blue-400 rounded-full text-blue-600 text-lg font-bold">
               {timeLeft}

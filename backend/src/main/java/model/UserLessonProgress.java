@@ -32,7 +32,6 @@ public class UserLessonProgress {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    // --- Getter ---
     public Long getId() {
         return id;
     }

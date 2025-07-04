@@ -1,9 +1,11 @@
 package model;
 
+import QuizService.Entity.QuestionEntity;
 import com.aventrix.jnanoid.jnanoid.NanoIdUtils;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -48,6 +50,10 @@ public class LearningContent {
 
     @Column(name = "click_count", nullable = false)
     private Long clickCount = 0L;
+
+    @OneToMany(mappedBy = "learningContent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestionEntity> questions = new ArrayList<>();
+
 
     @ElementCollection
     @Column(name = "assigned_user_ids")

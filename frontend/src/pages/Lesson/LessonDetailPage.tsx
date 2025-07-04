@@ -38,6 +38,7 @@ const LessonDetailPage = () => {
   const [hasTakenQuiz, setHasTakenQuiz] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [maxAttempts, setMaxAttempts] = useState(1);
+  const [quizPassed, setQuizPassed] = useState(false);
 
   useEffect(() => {
     axios
@@ -61,10 +62,13 @@ const LessonDetailPage = () => {
         setAttempts(found.attempts);
         setMaxAttempts(found.maxAttempts);
 
-        // ✅ เช็คแบบละเอียด: ผ่าน quiz แล้ว หรือ ทำครบ maxAttempts → ห้ามทำ quiz
         if (found.score > 0) {
-          setHasTakenQuiz(true);
-        } else if (found.attempts >= found.maxAttempts) {
+          setQuizPassed(true); // user เคยทำผ่าน
+        } else {
+          setQuizPassed(false);
+        }
+
+        if (found.attempts >= found.maxAttempts) {
           setHasTakenQuiz(true);
         } else {
           setHasTakenQuiz(false);
@@ -98,7 +102,7 @@ const LessonDetailPage = () => {
           )
           .catch((err) => console.error("❌ PUT failed:", err));
       }
-    }, 3000);
+    },0);
 
     if (progressPercent >= 100 && !showQuiz) {
       setShowQuiz(true);
@@ -133,7 +137,6 @@ const LessonDetailPage = () => {
               <span className="text-xs font-semibold uppercase text-purple-600">{lesson.category}</span>
               <p className="text-gray-700">{lesson.description}</p>
               <p className="text-sm text-gray-500">Author: {lesson.authorName || "Unknown"}</p>
-              {/* <p className="text-sm text-gray-500">Progress: {Math.floor(progressPercent)}%</p> */}
               <div className="h-1 bg-gray-300">
                 <div
                   className="h-full bg-blue-600 transition-all"
@@ -170,7 +173,9 @@ const LessonDetailPage = () => {
               <>
                 <h2 className="text-xl font-bold text-red-600 mb-4">❌ Quiz unavailable</h2>
                 <p className="text-gray-700 mb-6">
-                  You have already passed the quiz or reached the maximum number of attempts.
+                  {quizPassed
+                    ? "You have already passed the quiz."
+                    : "You have reached the maximum number of attempts."}
                 </p>
                 <button
                   onClick={() => {

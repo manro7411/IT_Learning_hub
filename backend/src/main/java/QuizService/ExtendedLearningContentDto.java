@@ -12,7 +12,6 @@ public class ExtendedLearningContentDto {
     public Integer maxAttempts;
     public List<QuestionDTO> questions;
 
-    // ✅ เพิ่มสอง field นี้
     public String assignType;
     public List<String> assignedUserIds;
 
