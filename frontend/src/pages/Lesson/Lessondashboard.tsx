@@ -16,6 +16,8 @@ interface Lesson {
   thumbnailUrl?: string;
   authorName?: string;
   authorAvatarUrl?: string;
+  assignType: string;
+  assignedUserIds?: string[]; 
 }
 
 interface Progress {
@@ -26,9 +28,11 @@ interface Progress {
 const LessonPage = () => {
   const { token: ctxToken } = useContext(AuthContext);
   const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
-
+  
   const navigate = useNavigate();
   const location = useLocation();
+
+
 
   // State
   const [lessons, setLessons] = useState<Lesson[]>([]);
@@ -37,16 +41,41 @@ const LessonPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
+   useEffect(() => {
+  if (!token) return;
+
+  const fetchUserProfile = async () => {
+    try {
+      const res = await axios.get("http://localhost:8080/profile", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setUserId(res.data.id);
+      console.log("👤 User Profile:", res.data);
+    } catch (error) {
+      console.error("❌ Failed to fetch user profile:", error);
+    }
+  };
+
+  fetchUserProfile();
+}, [token]);
+
+
   const categories = Array.from(new Set(lessons.map((l) => l.category).filter(Boolean)));
 
-  const filteredLessons = lessons.filter((l) =>
-    [l.title, l.category, l.description ?? ""].some((v) =>
-      v.toLowerCase().includes(searchQuery.toLowerCase())
-    ) && (selectedCategories.length === 0 || selectedCategories.includes(l.category))
-  );
+const filteredLessons = lessons.filter((l) =>
+  (
+    l.assignType === "all" ||
+    (l.assignType === "specific" && userId && l.assignedUserIds?.includes(userId))
+  ) &&
+  [l.title, l.category, l.description ?? ""].some((v) =>
+    v.toLowerCase().includes(searchQuery.toLowerCase())
+  ) &&
+  (selectedCategories.length === 0 || selectedCategories.includes(l.category))
+);
 
   // Close category menu when clicking outside
   useEffect(() => {
@@ -59,6 +88,8 @@ const LessonPage = () => {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  
 
   // Fetch lessons & progress
   useEffect(() => {
@@ -74,7 +105,12 @@ const LessonPage = () => {
           axios.get("http://localhost:8080/user/progress", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
 
+      console.log("📥 Lessons Response:", lessonsRes.data); 
+      console.log("📥 Progress Response:", progressRes.data); 
+
+
         setLessons(lessonsRes.data);
+        
 
         const map: Record<string, Progress> = {};
         progressRes.data.forEach((item: { lessonId: string; percent: number; lastTimestamp?: number }) => {
@@ -92,6 +128,8 @@ const LessonPage = () => {
 
     fetchData();
   }, [token, location.pathname, navigate]);
+
+ 
 
   const handleLessonClick = async (id: string) => {
     const key = id?.toString().trim().toLowerCase();
