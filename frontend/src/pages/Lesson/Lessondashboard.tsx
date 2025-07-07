@@ -18,6 +18,7 @@ interface Lesson {
   authorAvatarUrl?: string;
   assignType: string;
   assignedUserIds?: string[];
+  assignedTeamIds?: string[]; 
 }
 
 interface Progress {
@@ -41,10 +42,27 @@ const LessonPage = () => {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedAssignType, setSelectedAssignType] = useState<string>("all");
   const [userId, setUserId] = useState<string | null>(null);
+  const [myTeamIds, setMyTeamIds] = useState<string[]>([]);
 
   const menuRef = useRef<HTMLDivElement>(null);
 
-  // Fetch user profile
+  useEffect(() => {
+  const fetchTeams = async () => {
+    try {
+      const res = await axios.get("http://localhost:8080/teams", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      console.log("👥 User's teams:", res.data);
+      setMyTeamIds(res.data.map((team: { id: string }) => team.id));
+    } catch (error) {
+      console.error("❌ Failed to fetch user teams:", error);
+    }
+  };
+
+  if (token) fetchTeams();
+}, [token]);
+
+
   useEffect(() => {
     if (!token) return;
 
@@ -54,6 +72,7 @@ const LessonPage = () => {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserId(res.data.id);
+        setMyTeamIds(res.data.teams || []);
         console.log("👤 User Profile:", res.data);
       } catch (error) {
         console.error("❌ Failed to fetch user profile:", error);
@@ -66,12 +85,14 @@ const LessonPage = () => {
   const categories = Array.from(new Set(lessons.map((l) => l.category).filter(Boolean)));
 
   const filteredLessons = lessons.filter((l) => {
-    const matchesAssignType =
-      selectedAssignType === "all"
-        ? l.assignType === "all"
-        : selectedAssignType === "specific"
-        ? l.assignType === "specific" && userId && l.assignedUserIds?.includes(userId)
-        : l.assignType === selectedAssignType;
+   const matchesAssignType =
+    selectedAssignType === "all"
+      ? l.assignType === "all"
+      : selectedAssignType === "specific"
+      ? l.assignType === "specific" && userId && l.assignedUserIds?.includes(userId)
+      : selectedAssignType === "team"
+      ? l.assignType === "team" && l.assignedTeamIds?.some((assignedTeamId) => myTeamIds.includes(assignedTeamId))
+      : false;
 
     const matchesSearch = [l.title, l.category, l.description ?? ""].some((v) =>
       v.toLowerCase().includes(searchQuery.toLowerCase())
