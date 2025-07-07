@@ -20,11 +20,10 @@
 
 .react-calendar__navigation__label {
   font-weight: 600;
-  font-size: 1rem; /* 👈 ลดจาก 1.2rem เหลือ 1rem */
+  font-size: 1rem;
   line-height: 1.2;
 }
 
-/* Navigation arrows (‹ ›) */
 .react-calendar__navigation button {
   background: none;
   border: none;
@@ -82,7 +81,22 @@
   font-weight: 700;
 }
 
-/* Weekend styling */
 .weekend {
   color: #e11d48;
 }
+
+.has-event {
+  background-color: #fef3c7;
+  color: #92400e;
+  font-weight: 600;
+}
+
+.has-event:hover {
+  background-color: #fde68a;
+}
+.event-day {
+  background-color: #f87171 !important; /* สีแดงอ่อน */
+  color: #fff;
+  font-weight: bold;
+}
+

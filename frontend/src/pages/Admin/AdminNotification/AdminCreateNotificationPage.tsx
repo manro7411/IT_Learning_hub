@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../Authentication/AuthContext";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
-import CalendarWidget from "../../../widgets/CalendarWidget";
+// import CalendarWidget from "../../../widgets/CalendarWidget";
 type User = { id: string; name: string };
 
 type FormState = {
@@ -177,7 +177,7 @@ const AdminCreateNotificationPage: React.FC = () => {
             </main>
             
             <div className="w-80 hidden lg:block p-6">
-                <CalendarWidget/>
+                {/* <CalendarWidget/> */}
             </div>
         </div>
     );

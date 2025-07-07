@@ -17,11 +17,8 @@ type Notification = {
     link?: string;     // optional URL destination
 };
 
-/* ──────────────────────────
- *  Component
- * ──────────────────────────*/
+
 const NotificationWidget = () => {
-    /* token (context → localStorage fallback) */
     const { token: ctxToken } = useContext(AuthContext);
     const token =
         ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");

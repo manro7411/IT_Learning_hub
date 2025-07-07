@@ -11,10 +11,10 @@ const menuItems = [
   { name: "Dashboard", icon: <Home size={20} />, path: "/dashboard" },
   { name: "Lesson",    icon: <BookOpen size={20} />, path: "/lesson"   },
   { name: "Task",      icon: <ClipboardList size={20} />, path: "/task" },
-  { name: "Group",     icon: <Users size={20} />, path: "/forum" },
+  { name: "Community",     icon: <Users size={20} />, path: "/forum" },
   { name: "Point",     icon: <Star size={20} />, path: "/point" },
   { name: "Game",      icon: <Gamepad2 size={20} />, path: "/game" },
-  { name: "Settings",  icon: <Settings size={20} />, path: "/settings" },
+  { name: "Profile",  icon: <Settings size={20} />, path: "/settings" },
 ];
 
 export default function SidebarWidget() {
@@ -67,14 +67,6 @@ export default function SidebarWidget() {
 
       <div className="text-sm space-y-2">
         <button
-          onClick={() => navigate("/settings")}
-          className="flex items-center space-x-2 text-gray-700 hover:text-blue-600"
-        >
-          <Settings size={18} />
-          <span>Settings</span>
-        </button>
-
-        <button
           onClick={() => setShowConfirm(true)}
           className="flex items-center space-x-2 text-red-500 hover:underline"
         >
@@ -82,8 +74,6 @@ export default function SidebarWidget() {
           <span>Logout</span>
         </button>
       </div>
-
-      {/* Confirm-logout modal */}
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full text-center space-y-4">

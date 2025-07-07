@@ -18,6 +18,7 @@ interface UserProgress {
   lessonId: string;
   lessonTitle: string;
   percent: number;
+  score: number;
   userEmail: string;
   updatedAt: string;
 }
@@ -36,7 +37,6 @@ const tabs = [
   { label: "User_Progress", value: "progress" },
   { label: "Notifications_activity", value: "notifications" },
 ];
-
 const Systemlogging = () => {
   const { token } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("chatlog");
@@ -140,34 +140,37 @@ const Systemlogging = () => {
       );
     }
 
-    if (activeTab === "progress") {
-      return (
-        <table className="min-w-full text-sm text-left border-collapse border">
-          <thead className="bg-gray-100 font-bold">
-            <tr>
-              <th className="border px-4 py-2">Lesson ID</th>
-              <th className="border px-4 py-2">Title</th>
-              <th className="border px-4 py-2">Email</th>
-              <th className="border px-4 py-2">Progress</th>
-              <th className="border px-4 py-2">Updated At</th>
-            </tr>
-          </thead>
-          <tbody>
-            {userProgress.map((item, index) => (
-              <tr key={index} className="border-t">
-                <td className="border px-4 py-2">{item.lessonId}</td>
-                <td className="border px-4 py-2">{item.lessonTitle}</td>
-                <td className="border px-4 py-2">{item.userEmail}</td>
-                <td className="border px-4 py-2">{item.percent}%</td>
-                <td className="border px-4 py-2">
-                  {new Date(item.updatedAt).toLocaleString("th-TH")}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      );
-    }
+  if (activeTab === "progress") {
+  return (
+    <table className="min-w-full text-sm text-left border-collapse border">
+      <thead className="bg-gray-100 font-bold">
+        <tr>
+          <th className="border px-4 py-2">Lesson ID</th>
+          <th className="border px-4 py-2">Title</th>
+          <th className="border px-4 py-2">Email</th>
+          <th className="border px-4 py-2">Progress</th>
+          <th className="border px-4 py-2">Score</th>
+          <th className="border px-4 py-2">Updated At</th>
+        </tr>
+      </thead>
+      <tbody>
+        {userProgress.map((item, index) => (
+          <tr key={index} className="border-t">
+            <td className="border px-4 py-2">{item.lessonId}</td>
+            <td className="border px-4 py-2">{item.lessonTitle}</td>
+            <td className="border px-4 py-2">{item.userEmail}</td>
+            <td className="border px-4 py-2">{item.percent}%</td>
+            <td className="border px-4 py-2">{item.score}</td>
+            <td className="border px-4 py-2">
+              {new Date(item.updatedAt).toLocaleString("th-TH")}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+}
+
 
     if (activeTab === "notifications") {
       return (

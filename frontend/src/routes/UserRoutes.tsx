@@ -13,14 +13,14 @@ import Question from "../pages/Game/Question.tsx";
 import AnswerTrue from "../pages/Game/Answer_true.tsx";
 import AnswerFalse from "../pages/Game/Answer_false.tsx";
 import Rule from "../pages/Game/Rule";
-import QuizPage from "../pages/quiz/QuizPage.tsx";
 import { Route } from "react-router-dom";
+import QuizPageStyled from "../pages/quiz/QuizPage.tsx";
 export const UserRoutes = () => (
     <>
         <Route path="/dashboard" element={<UserDashboard />} />
         <Route path="/lesson" element={<Lessondashboard />} />
         <Route path="/lesson/:id" element={<LessonDetailPage />} />
-            <Route path="/quiz/:id" element={<QuizPage/>} />
+            <Route path="/quiz/:id" element={<QuizPageStyled/>} />
         <Route path="/task" element={<TaskManagement />} />
         <Route path="/forum" element={<KnowledgeForumLayout />} />
         <Route path="/point" element={<PointDashboard />} />

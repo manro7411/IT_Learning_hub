@@ -91,7 +91,7 @@ const KnowledgeForumLayout = () => {
             </main>
 
             <aside className="w-80 p-6 hidden lg:block">
-                <CalendarWidget />
+                {/* <CalendarWidget /> */}
             </aside>
             <AddPostWidget onCreated={handlePostCreated} />
         </div>
