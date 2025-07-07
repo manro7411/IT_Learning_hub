@@ -1,8 +1,10 @@
 package QuizService;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class ExtendedLearningContentDto {
+
     public String title;
     public String description;
     public String category;
@@ -15,6 +17,7 @@ public class ExtendedLearningContentDto {
     public String assignType;
     public List<String> assignedUserIds;
     public List<String> assignedTeamIds;
+    public LocalDateTime dueDate;
 
     public ExtendedLearningContentDto() {}
 
@@ -29,7 +32,8 @@ public class ExtendedLearningContentDto {
             List<QuestionDTO> questions,
             String assignType,
             List<String> assignedUserIds,
-            List<String> assignedTeamIds
+            List<String> assignedTeamIds,
+            LocalDateTime dueDate
     ) {
         this.title = title;
         this.description = description;
@@ -42,6 +46,7 @@ public class ExtendedLearningContentDto {
         this.assignType = assignType;
         this.assignedUserIds = assignedUserIds;
         this.assignedTeamIds = assignedTeamIds;
+        this.dueDate = dueDate;
     }
 
     public void setAssignedTeamId(String teamId) {

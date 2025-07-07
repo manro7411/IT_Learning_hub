@@ -2,6 +2,7 @@ package dto;
 
 import model.LearningContent;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public record LearningContentDto(
@@ -16,7 +17,8 @@ public record LearningContentDto(
         Integer progressPercent,
         String assignType,
         List<String> assignedUserIds,
-        List<String> assignedTeamIds
+        List<String> assignedTeamIds,
+        LocalDateTime dueDate
 ) {
 
     public static LearningContentDto fromEntity(LearningContent e) {
@@ -32,7 +34,8 @@ public record LearningContentDto(
                 e.getProgressPercent() != null ? e.getProgressPercent() : 0,
                 e.getAssignType(),
                 e.getAssignedUserIds(),
-                e.getAssignedTeamIds()
+                e.getAssignedTeamIds(),
+                e.getDueDate()
         );
     }
 
@@ -50,6 +53,7 @@ public record LearningContentDto(
         e.setAssignType(assignType);
         e.setAssignedUserIds(assignedUserIds);
         e.setAssignedTeamIds(assignedTeamIds);
+        e.setDueDate(dueDate);
         return e;
     }
 }

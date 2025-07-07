@@ -67,6 +67,10 @@ public class LearningContent {
     @Column(name = "assign_type")
     private String assignType;
 
+    @Column(name = "due_date")
+    private LocalDateTime dueDate;
+
+
     @PrePersist
     private void prePersist() {
         if (id == null || id.isBlank()) {
@@ -111,5 +115,7 @@ public class LearningContent {
     public void setAssignedUserIds(List<String> assignedUserIds) { this.assignedUserIds = assignedUserIds; }
     public void setAssignedTeamIds(List<String> assignedTeamIds) { this.assignedTeamIds = assignedTeamIds; }
     public void setAssignType(String assignType) { this.assignType = assignType; }
+    public LocalDateTime getDueDate() { return dueDate; }
+    public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
 
 }

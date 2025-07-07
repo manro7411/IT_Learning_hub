@@ -75,6 +75,7 @@ public class LearningContentResource {
         lc.setAssignType(dto.assignType);
         lc.setAssignedUserIds(dto.assignedUserIds);
         lc.setAssignedTeamIds(dto.assignedTeamIds);
+        lc.setDueDate(dto.dueDate);
 
         em.persist(lc);
 
@@ -123,6 +124,10 @@ public class LearningContentResource {
         lc.setAssignType(dto.assignType());
         lc.setAssignedUserIds(dto.assignedUserIds());
         lc.setAssignedTeamIds(dto.assignedTeamIds());
+
+        if (dto.dueDate() != null) {
+            lc.setDueDate(dto.dueDate());
+        }
 
         return LearningContentDto.fromEntity(lc);
     }
@@ -233,4 +238,19 @@ public class LearningContentResource {
                 .map(LearningContentDto::fromEntity)
                 .toList();
     }
+    @GET
+    @Path("/upcoming-due")
+    @RolesAllowed({"user", "admin"})
+    public List<LearningContentDto> getUpcomingDue() {
+        return em.createQuery("""
+            SELECT lc FROM LearningContent lc
+            WHERE lc.dueDate IS NOT NULL
+            ORDER BY lc.dueDate ASC
+            """, LearningContent.class)
+                .setMaxResults(20)
+                .getResultStream()
+                .map(LearningContentDto::fromEntity)
+                .toList();
+    }
+
 }

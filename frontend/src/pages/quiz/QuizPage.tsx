@@ -189,7 +189,7 @@ const QuizPageStyled = () => {
       </div>
 
       <div className="w-64 hidden lg:block">
-        <CalendarWidget />
+        {/* <CalendarWidget /> */}
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ interface LessonFormState {
   quizAttemptLimit: number;
   assignType: "all" | "team" | "specific";
   assignTeamId?: string;
+  dueDate?: string;
   questions: QuestionForm[];
 }
 
@@ -41,6 +42,7 @@ const INITIAL_FORM: LessonFormState = {
   quizAttemptLimit: 1,
   assignType: "all",
   questions: [],
+  dueDate: ""
 };
 
 const AdminAddLessonPage = () => {
@@ -132,6 +134,7 @@ const AdminAddLessonPage = () => {
   assignType: form.assignType,
   assignedUserIds: form.assignType === "specific" ? selectedUsers : [],
   assignedTeamIds: form.assignType === "team" && form.assignTeamId ? [form.assignTeamId] : [],
+  dueDate: form.dueDate || null,
   questions: form.questions.map((q) => ({
     questionText: q.questionText,
     type: q.type,
@@ -157,7 +160,6 @@ const AdminAddLessonPage = () => {
       setLoading(false);
     }
   };
-
   
 
   return (
@@ -172,11 +174,20 @@ const AdminAddLessonPage = () => {
 
           <div>
             <label className="text-sm font-medium text-gray-700">Category</label>
-            <select name="category" value={form.category} onChange={handleChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50">
+            {/* <select name="category" value={form.category} onChange={handleChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50">
               <option value="AGILE">Agile</option>
               <option value="SCRUM">Scrum</option>
               <option value="WATERFALL">Waterfall</option>
-            </select>
+            </select> */}
+            <input
+  type="text"
+  name="category"
+  value={form.category}
+  onChange={handleChange}
+  placeholder="Enter category (e.g., Agile, Scrum)"
+  className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
+/>
+
           </div>
 
           <div>
@@ -207,9 +218,16 @@ const AdminAddLessonPage = () => {
               </p>
             )}
           </div>
-
-          <Field label="Max Quiz Attempts" name="quizAttemptLimit" type="number" min={1} max={3} value={form.quizAttemptLimit.toString()} onChange={handleChange} />
-
+          <div className="flex justify-between gap-4">
+              <Field label="Max Quiz Attempts" name="quizAttemptLimit" type="number" min={1} max={3} value={form.quizAttemptLimit.toString()} onChange={handleChange} />
+           <Field
+  label="Due Date & Time"
+  name="dueDate"
+  type="datetime-local"
+  value={form.dueDate || ""}
+  onChange={handleChange}
+/>
+          </div>
           <div>
             <label className="text-sm font-medium text-gray-700">Description</label>
             <textarea name="description" rows={4} value={form.description} onChange={handleChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50" />
