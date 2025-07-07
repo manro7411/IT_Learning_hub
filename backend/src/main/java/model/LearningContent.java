@@ -43,7 +43,7 @@ public class LearningContent {
     private Integer progressPercent = 0;
 
     @Column(name = "max_attempts", nullable = false)
-    private Integer maxAttempts = 1;  // ✅ Default 1 attempt allowed
+    private Integer maxAttempts = 1;
 
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -54,31 +54,19 @@ public class LearningContent {
     @OneToMany(mappedBy = "learningContent", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<QuestionEntity> questions = new ArrayList<>();
 
+    @ElementCollection
+    @CollectionTable(name = "learning_content_assigned_users", joinColumns = @JoinColumn(name = "learning_content_id"))
+    @Column(name = "user_id")
+    private List<String> assignedUserIds = new ArrayList<>();
 
     @ElementCollection
-    @Column(name = "assigned_user_ids")
-    private List<String> assignedUserIds;
+    @CollectionTable(name = "learning_content_assigned_teams", joinColumns = @JoinColumn(name = "learning_content_id"))
+    @Column(name = "team_id")
+    private List<String> assignedTeamIds = new ArrayList<>();
 
     @Column(name = "assign_type")
     private String assignType;
 
-    public List<String> getAssignedUserIds() {
-        return assignedUserIds;
-    }
-
-    public void setAssignedUserIds(List<String> assignedUserIds) {
-        this.assignedUserIds = assignedUserIds;
-    }
-
-    public String getAssignType() {
-        return assignType;
-    }
-
-    public void setAssignType(String assignType) {
-        this.assignType = assignType;
-    }
-
-    // --- Lifecycle Callback ---
     @PrePersist
     private void prePersist() {
         if (id == null || id.isBlank()) {
@@ -89,7 +77,6 @@ public class LearningContent {
         }
     }
 
-    // --- Getter ---
     public String getId() { return id; }
     public String getTitle() { return title; }
     public String getDescription() { return description; }
@@ -103,8 +90,11 @@ public class LearningContent {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public Long getClickCount() { return clickCount; }
     public Integer getMaxAttempts() { return maxAttempts; }
+    public List<String> getAssignedUserIds() { return assignedUserIds; }
+    public List<String> getAssignedTeamIds() { return assignedTeamIds; }
+    public String getAssignType() { return assignType; }
 
-    // --- Setter ---
+    // --- Setters ---
     public void setId(String id) { this.id = id; }
     public void setTitle(String title) { this.title = title; }
     public void setDescription(String description) { this.description = description; }
@@ -118,4 +108,8 @@ public class LearningContent {
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     public void setClickCount(Long clickCount) { this.clickCount = clickCount; }
     public void setMaxAttempts(Integer maxAttempts) { this.maxAttempts = maxAttempts; }
+    public void setAssignedUserIds(List<String> assignedUserIds) { this.assignedUserIds = assignedUserIds; }
+    public void setAssignedTeamIds(List<String> assignedTeamIds) { this.assignedTeamIds = assignedTeamIds; }
+    public void setAssignType(String assignType) { this.assignType = assignType; }
+
 }

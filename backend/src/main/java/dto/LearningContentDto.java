@@ -15,8 +15,10 @@ public record LearningContentDto(
         String authorAvatarUrl,
         Integer progressPercent,
         String assignType,
-        List<String> assignedUserIds
+        List<String> assignedUserIds,
+        List<String> assignedTeamIds
 ) {
+
     public static LearningContentDto fromEntity(LearningContent e) {
         return new LearningContentDto(
                 e.getId(),
@@ -29,7 +31,8 @@ public record LearningContentDto(
                 e.getAuthorAvatarUrl(),
                 e.getProgressPercent() != null ? e.getProgressPercent() : 0,
                 e.getAssignType(),
-                e.getAssignedUserIds()
+                e.getAssignedUserIds(),
+                e.getAssignedTeamIds()
         );
     }
 
@@ -46,6 +49,7 @@ public record LearningContentDto(
         e.setProgressPercent(progressPercent != null ? progressPercent : 0);
         e.setAssignType(assignType);
         e.setAssignedUserIds(assignedUserIds);
+        e.setAssignedTeamIds(assignedTeamIds);
         return e;
     }
 }
