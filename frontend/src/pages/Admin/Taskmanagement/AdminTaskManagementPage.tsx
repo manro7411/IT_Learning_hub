@@ -162,7 +162,6 @@ const AdminTaskManagementPage = () => {
                         ))}
                     </section>
 
-                    {/* Selected User Summary */}
                     <section className="col-span-1 bg-white p-6 rounded-xl shadow">
                         <h2 className="text-lg font-semibold mb-4 text-gray-700">
                             Quick overview of employee progress
@@ -210,5 +209,4 @@ const AdminTaskManagementPage = () => {
         </div>
     );
 };
-
 export default AdminTaskManagementPage;
