@@ -4,7 +4,18 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="" />
+    <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/LearningContentResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/LearningContentResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminNotification/AdminCreateNotificationPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminNotification/AdminCreateNotificationPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Dashboard/UserDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Dashboard/UserDashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Forum/KnowledgeForumLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Forum/KnowledgeForumLayout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Point/PointDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Point/PointDashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/CalendarWidget.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/CalendarWidget.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/CalendarWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/CalendarWidget.tsx" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -156,6 +167,8 @@
       <workItem from="1750918734880" duration="5055000" />
       <workItem from="1750924913671" duration="7032000" />
       <workItem from="1751264180474" duration="22971000" />
+      <workItem from="1751521704746" duration="46661000" />
+      <workItem from="1751879059343" duration="1309000" />
     </task>
     <servers />
   </component>

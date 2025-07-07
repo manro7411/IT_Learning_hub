@@ -1,4 +1,4 @@
-import CalendarWidget from '../../widgets/CalendarWidget';
+// import CalendarWidget from '../../widgets/CalendarWidget';
 import { Gift, Medal } from 'lucide-react';
 import Sidebar from '../../widgets/SidebarWidget';
 import ChatBubbleWidget from '../../widgets/ChatBubbleWidget';
@@ -68,7 +68,7 @@ const PointDashboard = () => {
 
           {/* Right: Calendar */}
           <div className="order-1 xl:order-2 space-y-6">
-            <CalendarWidget />
+            {/* <CalendarWidget /> */}
             <div className="bg-white p-4 rounded-xl shadow text-sm">
               <h3 className="font-semibold mb-2">Must-read posts</h3>
               <ul className="list-disc ml-4 space-y-1 text-blue-600">

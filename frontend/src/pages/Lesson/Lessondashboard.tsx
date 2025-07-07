@@ -2,7 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../Authentication/AuthContext";
-import CalendarWidget from "../../widgets/CalendarWidget";
+// import CalendarWidget from "../../widgets/CalendarWidget";
 import Sidebar from "../../widgets/SidebarWidget";
 import defaultUserAvatar from "../../assets/user.png";
 import ChatBubbleWidget from "../../widgets/ChatBubbleWidget";
@@ -315,7 +315,7 @@ const LessonPage = () => {
           </div>
 
           <div className="order-1 space-y-6 xl:order-2">
-            <CalendarWidget />
+            {/* <CalendarWidget events={[]} /> */}
           </div>
         </div>
       </main>

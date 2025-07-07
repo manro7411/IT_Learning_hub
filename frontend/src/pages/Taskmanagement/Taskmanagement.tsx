@@ -198,7 +198,7 @@ const TaskManagement = () => {
             {renderColumn('done', 'Done')}
           </div>
           <div className="xl:col-span-1 space-y-6">
-            <CalendarWidget />
+            {/* <CalendarWidget /> */}
           </div>
         </div>
       </main>

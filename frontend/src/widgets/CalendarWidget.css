@@ -94,3 +94,9 @@
 .has-event:hover {
   background-color: #fde68a;
 }
+.event-day {
+  background-color: #f87171 !important; /* สีแดงอ่อน */
+  color: #fff;
+  font-weight: bold;
+}
+
