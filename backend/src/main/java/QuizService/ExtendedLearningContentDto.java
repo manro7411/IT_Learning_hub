@@ -14,14 +14,23 @@ public class ExtendedLearningContentDto {
 
     public String assignType;
     public List<String> assignedUserIds;
+    public List<String> assignedTeamIds;
 
     public ExtendedLearningContentDto() {}
 
-    public ExtendedLearningContentDto(String title, String description, String category,
-                                      String thumbnailUrl, String authorName,
-                                      String authorEmail, Integer maxAttempts,
-                                      List<QuestionDTO> questions,
-                                      String assignType, List<String> assignedUserIds) {
+    public ExtendedLearningContentDto(
+            String title,
+            String description,
+            String category,
+            String thumbnailUrl,
+            String authorName,
+            String authorEmail,
+            Integer maxAttempts,
+            List<QuestionDTO> questions,
+            String assignType,
+            List<String> assignedUserIds,
+            List<String> assignedTeamIds
+    ) {
         this.title = title;
         this.description = description;
         this.category = category;
@@ -32,5 +41,10 @@ public class ExtendedLearningContentDto {
         this.questions = questions;
         this.assignType = assignType;
         this.assignedUserIds = assignedUserIds;
+        this.assignedTeamIds = assignedTeamIds;
+    }
+
+    public void setAssignedTeamId(String teamId) {
+        this.assignedTeamIds = teamId != null ? List.of(teamId) : List.of();
     }
 }

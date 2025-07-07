@@ -74,6 +74,7 @@ public class LearningContentResource {
 
         lc.setAssignType(dto.assignType);
         lc.setAssignedUserIds(dto.assignedUserIds);
+        lc.setAssignedTeamIds(dto.assignedTeamIds);
 
         em.persist(lc);
 
@@ -121,6 +122,7 @@ public class LearningContentResource {
         lc.setThumbnailUrl(dto.thumbnailUrl());
         lc.setAssignType(dto.assignType());
         lc.setAssignedUserIds(dto.assignedUserIds());
+        lc.setAssignedTeamIds(dto.assignedTeamIds());
 
         return LearningContentDto.fromEntity(lc);
     }
@@ -202,20 +204,33 @@ public class LearningContentResource {
     public List<LearningContentDto> getAssignedToMe() {
         String userEmail = jwt.getSubject();
 
-        List<LearningContent> lessons = em.createQuery("""
-            SELECT lc FROM LearningContent lc
-            WHERE 
-                lc.assignType = 'all'
-                OR (lc.assignType = 'specific' AND :userId IN ELEMENTS(lc.assignedUserIds))
-            ORDER BY lc.createdAt DESC
-            """, LearningContent.class)
+        List<String> myTeamIds = em.createQuery("""
+            SELECT DISTINCT m.team.id FROM MemberEntity m
+            WHERE m.userID = :userId
+        """, String.class)
                 .setParameter("userId", userEmail)
+                .getResultList();
+
+        List<LearningContent> lessons = em.createQuery("""
+    SELECT lc FROM LearningContent lc
+    WHERE
+        lc.assignType = 'all'
+        OR (lc.assignType = 'specific' AND :userId IN ELEMENTS(lc.assignedUserIds))
+        OR (lc.assignType = 'team' AND EXISTS (
+            SELECT 1 FROM LearningContent l2
+            WHERE l2.id = lc.id AND EXISTS (
+                SELECT teamId FROM LearningContent l3 JOIN l3.assignedTeamIds teamId
+                WHERE teamId IN :teamIds
+            )
+        ))
+    ORDER BY lc.createdAt DESC
+""", LearningContent.class)
+                .setParameter("userId", userEmail)
+                .setParameter("teamIds", myTeamIds)
                 .getResultList();
 
         return lessons.stream()
                 .map(LearningContentDto::fromEntity)
                 .toList();
-
     }
-
 }
