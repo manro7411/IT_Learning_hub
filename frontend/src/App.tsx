@@ -10,20 +10,25 @@ import AdminDashboard_overall from './pages/Admin/Dashboard/AdminDashboard_overa
 import { UserRoutes } from "./routes/UserRoutes";
 import { AdminRoutes } from "./routes/AdminRoutes";
 
+import LanguageSwitcher from './components/LanguageSwitcher';
+
 function App() {
-    return (
-        <AuthProvider>
-            <Router>
-                <Routes>
-                    <Route path="/" element={<LoginPage />} />
-                    <Route path="/register" element={<RegisterPage />} />
-                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
-                    <Route path="/admin-overall" element={<AdminDashboard_overall />} />
-                    {UserRoutes()}
-                    {AdminRoutes()}
-                </Routes>
-            </Router>
-        </AuthProvider>
-    );
+  return (
+      <AuthProvider>
+        <Router>
+          
+          <Routes>
+            <Route path="/" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage/>}/>
+            <Route path="/admin-dashboard" element={<AdminDashboard />} />
+            <Route path="/admin-overall" element={<AdminDashboard_overall />} />
+
+            {UserRoutes()}
+            {AdminRoutes()}
+          </Routes>
+          
+        </Router>
+      </AuthProvider>
+  );
 }
 export default App;

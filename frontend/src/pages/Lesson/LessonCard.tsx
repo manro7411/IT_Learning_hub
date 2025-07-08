@@ -21,7 +21,7 @@ export default function LessonCard({
         <div
             className="
                 w-64           /* FIXED WIDTH (256 px) */
-                h-[300px]      /* FIXED HEIGHT */
+                h-[350px]      /* FIXED HEIGHT */
                 bg-white rounded-xl shadow-md
                 flex flex-col overflow-hidden
             "

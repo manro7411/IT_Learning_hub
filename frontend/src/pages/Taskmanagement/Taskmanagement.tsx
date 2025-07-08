@@ -7,6 +7,9 @@ import {useNavigate} from "react-router-dom";
 import ChatBubbleWidget from '../../widgets/ChatBubbleWidget.tsx';
 import NotificationWidget from '../../widgets/NotificationWidget.tsx';
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
+
 interface Task {
   id: number;
   title: string;
@@ -14,6 +17,8 @@ interface Task {
 }
 
 const TaskManagement = () => {
+  const { t } = useTranslation("usertask");
+
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
 
@@ -56,17 +61,17 @@ const TaskManagement = () => {
             <div className="flex space-x-2 text-sm">
               {status !== 'todo' && (
                 <button onClick={() => updateTaskStatus(task.id, 'todo')} className="text-blue-500 hover:underline">
-                  To do
+                  {t('todo')}
                 </button>
               )}
               {status !== 'inprogress' && (
                 <button onClick={() => updateTaskStatus(task.id, 'inprogress')} className="text-yellow-500 hover:underline">
-                  In progress
+                  {t('inprogress')}
                 </button>
               )}
               {status !== 'done' && (
                 <button onClick={() => updateTaskStatus(task.id, 'done')} className="text-green-500 hover:underline">
-                  Done
+                  {t('done')}
                 </button>
               )}
             </div>
@@ -79,44 +84,47 @@ const TaskManagement = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
-
+      
       <main className="flex-1 p-6 overflow-x-auto">
-  <div className="flex items-center justify-between mb-6">
-   <form onSubmit={handleAddTask} className="flex w-full max-w-2xl space-x-4">
-  <input
-    type="text"
-    value={newTask}
-    onChange={(e) => setNewTask(e.target.value)}
-    className="w-1/2 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-    placeholder="Enter new task"
-  />
-  <button
-    type="submit"
-    className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-  >
-    Add Task
-  </button>
-</form>
+        <div className="flex items-center justify-between mb-6">
+          <form onSubmit={handleAddTask} className="flex w-full max-w-2xl space-x-4">
+            <input
+            type="text"
+            value={newTask}
+            onChange={(e) => setNewTask(e.target.value)}
+            className="w-1/2 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            placeholder={t('enter')}
+            />
+            <button
+            type="submit"
+            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+            >
+              {t('add')}
+              </button>
+              </form>
+              
+              <div className="flex items-center gap-4">
+                <NotificationWidget />
+                <LanguageSwitcher />
+              </div>
+              </div>
+              
+              {/* Grid layout */}
+              <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+                {/* Left: Task columns (แนวนอน) */}
+                <div className="xl:col-span-3 flex space-x-4">
+                  {renderColumn('todo', t('todo'))}
+                  {renderColumn('inprogress', t('inprogress'))}
+                  {renderColumn('done', t('done'))}
+                </div>
 
-    <NotificationWidget />
-  </div>
-
-  {/* Grid layout */}
-  <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-  {/* Left: Task columns (แนวนอน) */}
-  <div className="xl:col-span-3 flex space-x-4">
-    {renderColumn('todo', 'To do')}
-    {renderColumn('inprogress', 'In progress')}
-    {renderColumn('done', 'Done')}
-  </div>
-
-  {/* Right: Calendar & Scoreboard */}
-  <div className="xl:col-span-1 space-y-6">
-    <CalendarWidget />
-    <ScoreboardChart />
-  </div>
-</div>
-</main>
+              
+                <div className="xl:col-span-1 space-y-6">
+                  <CalendarWidget />
+                  <ScoreboardChart />
+                  </div>
+                </div>
+        </main>
 
        <ChatBubbleWidget />
     </div>

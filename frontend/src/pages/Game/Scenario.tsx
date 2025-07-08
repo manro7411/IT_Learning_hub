@@ -80,7 +80,7 @@ const Scenario = () => {
               >
                 💬 Background:
               </h2>
-              <p className="text-base text-gray-800 font-syne mb-24">
+              <p className="text-lg text-gray-800 font-syne mb-24">
                 {currentScenario.background}
               </p>
             </div>
@@ -102,7 +102,7 @@ const Scenario = () => {
               >
                 💥 Challenge:
               </h2>
-              <p className="text-base text-gray-800 font-syne">
+              <p className="text-xl text-gray-800 font-syne">
                 {currentScenario.challenge}
               </p>
             </div>

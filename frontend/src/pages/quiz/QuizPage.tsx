@@ -5,6 +5,9 @@ import CalendarWidget from "../../widgets/CalendarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
 import { Navigate } from "react-router-dom";
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
+
 const sampleQuestions = [
   {
     id: 1,
@@ -48,6 +51,8 @@ const sampleQuestions = [
 ];
 
 const QuizPageStyled = () => {
+  const { t } = useTranslation("userlesson");
+
   const { user, token: ctxToken } = useContext(AuthContext);
   const token =
     ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -93,8 +98,8 @@ const QuizPageStyled = () => {
 
       {/* Main Content */}
       <div className="flex-1 px-16 py-10 relative">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome, {displayName}</h1>
-        <p className="text-sm text-gray-400 mb-6">Have a good day!</p>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">{t('welcome', { name: displayName })}</h1>
+        <p className="text-sm text-gray-400 mb-6">{t('greeting')}</p>
 
         {!quizFinished ? (
           <div className="text-center">
@@ -126,9 +131,9 @@ const QuizPageStyled = () => {
           </div>
         ) : (
           <div className="text-center mt-20">
-            <h2 className="text-2xl font-bold text-green-600 mb-4">🎉 Quiz Completed!</h2>
-            <p className="text-gray-600">You may now explore the dashboard.</p>
-            <p className="text-gray-500 mt-2">Your score has been sending out to Admin</p>
+            <h2 className="text-3xl font-bold text-green-600 mb-4">🎉 {t('complete')}</h2>
+            <p className="text-gray-600">{t('message2')}</p>
+            <p className="text-gray-500 mt-2">{t('message3')}</p>
           </div>
         )}
             <div className="absolute bottom-8 left-0 right-0 flex justify-between items-center px-16">

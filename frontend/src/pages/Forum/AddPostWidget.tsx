@@ -1,8 +1,13 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
+
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
+
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 const AddPostWidget = ({ onCreated }: { onCreated?: () => void }) => {
+    const { t } = useTranslation("usergroup");
     const { user, token } = useContext(AuthContext);
 
     const [open, setOpen]       = useState(false);
@@ -58,20 +63,20 @@ const AddPostWidget = ({ onCreated }: { onCreated?: () => void }) => {
                 onClick={() => setOpen(true)}
                 aria-label="Create new post"
             >
-                + New Post
+                + {t('newPost')}
             </button>
             {open && (
                 <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
                     <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-md">
-                        <h2 className="text-lg font-semibold mb-4">Create new post</h2>
+                        <h2 className="text-lg font-semibold mb-4">{t('newPost')}</h2>
 
                         <p className="text-sm mb-2 text-gray-600">
-                            Author: <b>{user?.name ?? "Unknown"}</b>
+                            {t('author')}: <b>{user?.name ?? "Unknown"}</b>
                         </p>
 
                         <input
                             className="w-full border rounded px-3 py-2 mb-2"
-                            placeholder="Title"
+                            placeholder={t('title')}
                             maxLength={255}
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
@@ -79,7 +84,7 @@ const AddPostWidget = ({ onCreated }: { onCreated?: () => void }) => {
 
                         <textarea
                             className="w-full border rounded px-3 py-2 h-28 mb-4"
-                            placeholder="Message"
+                            placeholder={t('message')}
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                         />
@@ -93,7 +98,7 @@ const AddPostWidget = ({ onCreated }: { onCreated?: () => void }) => {
                                 onClick={() => setOpen(false)}
                                 className="px-4 py-2 border rounded hover:bg-gray-100"
                             >
-                                Cancel
+                                {t('cancel')}
                             </button>
 
                             <button
@@ -104,10 +109,10 @@ const AddPostWidget = ({ onCreated }: { onCreated?: () => void }) => {
                                 {loading ? (
                                     <>
                                         <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                                        Posting…
+                                        {t('posting')}
                                     </>
                                 ) : (
-                                    "Post"
+                                    t('post')
                                 )}
                             </button>
                         </div>

@@ -5,6 +5,9 @@ import { AuthContext } from "../../../Authentication/AuthContext";
 import { saveAs } from "file-saver";
 import Papa from "papaparse";
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../../components/LanguageSwitcher";
+
 interface ChatLog {
   id: string;
   inputMessage: string;
@@ -38,6 +41,8 @@ const tabs = [
 ];
 
 const Systemlogging = () => {
+  const { t } = useTranslation("adminsystemlog");
+
   const { token } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("chatlog");
 
@@ -111,7 +116,7 @@ const Systemlogging = () => {
   const renderTable = () => {
     if (activeTab === "chatlog") {
       return (
-        <table className="min-w-full text-sm text-left border-collapse border">
+        <table className="min-w-full text-base text-left border-collapse border">
           <thead className="bg-gray-100 font-bold">
             <tr>
               <th className="border px-4 py-2">ID</th>
@@ -142,7 +147,7 @@ const Systemlogging = () => {
 
     if (activeTab === "progress") {
       return (
-        <table className="min-w-full text-sm text-left border-collapse border">
+        <table className="min-w-full text-base text-left border-collapse border">
           <thead className="bg-gray-100 font-bold">
             <tr>
               <th className="border px-4 py-2">Lesson ID</th>
@@ -171,7 +176,7 @@ const Systemlogging = () => {
 
     if (activeTab === "notifications") {
       return (
-        <table className="min-w-full text-sm text-left border-collapse border">
+        <table className="min-w-full text-base text-left border-collapse border">
           <thead className="bg-gray-100 font-bold">
             <tr>
               <th className="border px-4 py-2">ID</th>
@@ -204,32 +209,41 @@ const Systemlogging = () => {
   return (
     <div className="flex h-screen bg-gray-50">
       <AdminSidebarWidget />
+
+      
       <div className="flex-1 overflow-y-auto p-6">
         {/* Header + Download Button */}
         <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold">System Logging</h1>
+          <h1 className="text-2xl font-bold">{t('title')}</h1>
+
+          
+
+          <div className="absolute top-6 right-10">
+                <LanguageSwitcher />
+          </div>
+          
           {activeTab === "chatlog" && (
             <button
               onClick={exportChatLogCSV}
-              className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded"
+              className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-4 py-2 rounded mr-40"
             >
-              Download Chat Log CSV
+              {t('download')} Chat Log CSV
             </button>
           )}
           {activeTab === "progress" && (
             <button
               onClick={exportProgressCSV}
-              className="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded"
+              className="bg-green-600 hover:bg-green-700 text-white text-sm px-4 py-2 rounded mr-40"
             >
-              Download Progress CSV
+              {t('download')} Progress CSV
             </button>
           )}
           {activeTab === "notifications" && (
             <button
               onClick={exportNotificationsCSV}
-              className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded"
+              className="bg-purple-600 hover:bg-purple-700 text-white text-sm px-4 py-2 rounded mr-40"
             >
-              Download Notifications CSV
+              {t('download')} Notifications CSV
             </button>
           )}
         </div>

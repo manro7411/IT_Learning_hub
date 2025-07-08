@@ -1,0 +1,13 @@
+{
+  "title":"Send Notification",
+  "sendTo": "Send To",
+  "allUsers": "All Users",
+  "team": "Team",
+  "specificUser": "Specific User",
+  "selectTeam": "Select Team",
+  "selectUser": "Select User",
+  "message": "Message",
+  "send": "Send",
+  "sending": "Sending...",
+  "type":"Type your message..."
+}

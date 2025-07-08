@@ -12,7 +12,12 @@ import NotificationWidget  from "../../widgets/NotificationWidget";
 import {Navigate} from "react-router-dom";
 // import { Navigate } from "react-router-dom"; // ← ถ้าอยาก redirect
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
+
 const UserDashboard = () => {
+  const { t } = useTranslation("dashboard");
+  
   const { user, token: ctxToken } = useContext(AuthContext);
   const token =
       ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -29,10 +34,15 @@ const UserDashboard = () => {
           <main className="flex-1 p-6">
             <div className="flex items-center justify-between mb-4">
               <h1 className="text-3xl font-bold text-gray-800">
-                👋 Welcome, {displayName}
+                👋 {t('welcome', { name: displayName })}
               </h1>
-              <NotificationWidget />
+              <div className="flex items-center gap-4">
+                <NotificationWidget />
+                <LanguageSwitcher />
+              </div>
             </div>
+
+          
 
             <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
               <div className="xl:col-span-3 space-y-6">

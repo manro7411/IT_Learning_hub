@@ -9,6 +9,9 @@ import { BellIcon, TrashIcon } from "lucide-react";
 import axios from "axios";
 import { AuthContext } from "../Authentication/AuthContext";
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+
 type Notification = {
     id: string;
     message: string;
@@ -21,6 +24,8 @@ type Notification = {
  *  Component
  * ──────────────────────────*/
 const NotificationWidget = () => {
+    const { t } = useTranslation("notiwidget");
+
     /* token (context → localStorage fallback) */
     const { token: ctxToken } = useContext(AuthContext);
     const token =
@@ -149,14 +154,14 @@ const NotificationWidget = () => {
                 <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-auto rounded-xl border border-gray-100 bg-white shadow-xl z-50">
                     {/* header */}
                     <div className="flex items-center justify-between border-b px-4 py-2">
-                        <span className="font-semibold text-gray-700">Notifications</span>
+                        <span className="font-semibold text-gray-700">{t('title')}</span>
                         <div className="flex gap-2">
                             {unread > 0 && (
                                 <button
                                     onClick={markAllRead}
                                     className="text-xs text-blue-600 hover:underline"
                                 >
-                                    Mark all read
+                                    {t('mark')}
                                 </button>
                             )}
                             {items.length > 0 && (
@@ -165,7 +170,7 @@ const NotificationWidget = () => {
                                     className="flex items-center gap-1 text-xs text-red-500 hover:underline"
                                 >
                                     <TrashIcon className="h-3 w-3" />
-                                    Clear all
+                                    {t('clear')}
                                 </button>
                             )}
                         </div>
@@ -178,7 +183,7 @@ const NotificationWidget = () => {
 
                     {!error && items.length === 0 && (
                         <p className="p-4 text-center text-sm text-gray-500">
-                            No notifications
+                            {t('noNoti')}
                         </p>
                     )}
 

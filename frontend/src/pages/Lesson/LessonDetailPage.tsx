@@ -3,6 +3,10 @@ import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
 import Sidebar from "../../widgets/SidebarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
+
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
+
 interface Lesson {
     id: string;
     title: string;
@@ -14,6 +18,7 @@ interface Lesson {
 }
 const fallbackVideo = "https://www.w3schools.com/html/mov_bbb.mp4";
 const LessonDetailPage = () => {
+    const { t } = useTranslation("userlesson");
     const { id } = useParams();
     const { token } = useContext(AuthContext);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -92,14 +97,14 @@ const LessonDetailPage = () => {
               </span>
 
                             <p className="text-gray-700">{lesson.description}</p>
-                            <p className="text-sm text-gray-500">Author: {lesson.authorName || "Unknown"}</p>
-                            <p className="text-sm text-gray-500">Progress: {Math.floor(progress)}%</p>
+                            <p className="text-base text-gray-500">{t('author')}: {lesson.authorName || "Unknown"}</p>
+                            <p className="text-base text-gray-500">{t('progress')}: {Math.floor(progress)}%</p>
                         </section>
                     </div>
 
                     <aside className="space-y-6 mt-4 xl:mt-0">
                         <div className="bg-white p-4 rounded-xl shadow">
-                            <h3 className="text-sm font-semibold mb-4 text-gray-700">Schedule</h3>
+                            <h3 className="text-sm font-semibold mb-4 text-gray-700">{t('schedule')}</h3>
                             {["What is Scrum?", "Scrum Events", "Scrum Artifacts", "Agile Estimation"].map(
                                 (item, i) => (
                                     <div key={i} className="flex items-start space-x-2 mb-4">
@@ -119,8 +124,8 @@ const LessonDetailPage = () => {
             {showQuiz && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div className="bg-white p-6 rounded-xl shadow-xl w-[90%] max-w-md text-center">
-                        <h2 className="text-xl font-bold mb-4">🎉 You finished the lesson!</h2>
-                        <p className="text-gray-700 mb-6">Take a short quiz to test your knowledge.</p>
+                        <h2 className="text-xl font-bold mb-4">🎉 {t('finish')}</h2>
+                        <p className="text-gray-700 mb-6">{t('message')}</p>
                         <button
                             onClick={() => {
                                 setShowQuiz(false);
@@ -128,7 +133,7 @@ const LessonDetailPage = () => {
                             }}
                             className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
                         >
-                            Start Quiz
+                            {t('startQuiz')}
                         </button>
                     </div>
                 </div>
