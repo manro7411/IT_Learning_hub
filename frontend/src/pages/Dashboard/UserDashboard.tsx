@@ -99,8 +99,6 @@ const UserDashboard = () => {
 
             <div className="order-1 xl:order-2">
               <div className="space-y-6 mt-4 xl:mt-0">
-                {/* <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow"> */}
-  {/* <div className="text-sm font-medium text-gray-700">Assignment Type:</div> */}
   <div className="flex space-x-2">
     {["all", "team", "specific"].map((type) => (
       <button
@@ -115,7 +113,6 @@ const UserDashboard = () => {
         {type === "all-types" ? "All Types" : type}
       </button>
     ))}
-  {/* </div> */}
 </div>
 
                 
