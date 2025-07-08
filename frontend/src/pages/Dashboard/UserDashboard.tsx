@@ -29,40 +29,41 @@ const UserDashboard = () => {
   const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
 
   const [lessons, setLessons] = useState<Lesson[]>([]);
-  const [assignTypeFilter, setAssignTypeFilter] = useState<string>("all-types"); // เพิ่มตัวเลือก filter
+  const [assignTypeFilter, setAssignTypeFilter] = useState<string>("all");
 
   useEffect(() => {
     if (!token) return;
 
-    const fetchAssignedLessons = async () => {
+    const fetchLessons = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/learning/assigned-to-me", {
+        const res = await axios.get("http://localhost:8080/learning/upcoming-due", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("📚 Assigned Lessons:", res.data);
+        console.log("📚 Lessons fetched:", res.data);
         setLessons(res.data);
       } catch (err) {
-        console.error("❌ Failed to fetch assigned lessons", err);
+        console.error("❌ Error fetching lessons", err);
       }
     };
 
-    fetchAssignedLessons();
+    fetchLessons();
   }, [token]);
 
   const filteredLessons = useMemo(() => {
-    return lessons.filter((lesson) => {
-      if (assignTypeFilter === "all-types") return true;
-      return lesson.assignType === assignTypeFilter;
-    });
+    return lessons.filter((lesson) =>
+      assignTypeFilter === "all-types" ? true : lesson.assignType === assignTypeFilter
+    );
   }, [lessons, assignTypeFilter]);
 
   const calendarEvents = useMemo(() => {
+    console.log("🔍 Filtered Lessons:", filteredLessons);
     return filteredLessons
       .filter((lesson) => lesson.dueDate)
       .map((lesson) => ({
         title: lesson.title,
         date: lesson.dueDate!,
         id: lesson.id,
+        assignType: lesson.assignType,
       }));
   }, [filteredLessons]);
 
@@ -74,9 +75,7 @@ const UserDashboard = () => {
       .slice(0, 5);
   }, [calendarEvents]);
 
-  if (!token) {
-    return <Navigate to="/" replace />;
-  }
+  if (!token) return <Navigate to="/" replace />;
 
   const displayName = user?.name || user?.upn || "User";
 
@@ -87,36 +86,43 @@ const UserDashboard = () => {
 
         <main className="flex-1 p-6">
           <div className="flex items-center justify-between mb-4">
-            <h1 className="text-3xl font-bold text-gray-800">
-              👋 Welcome, {displayName}
-            </h1>
+            <h1 className="text-3xl font-bold text-gray-800">👋 Welcome, {displayName}</h1>
             <NotificationWidget />
           </div>
 
-  
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
             <div className="xl:col-span-3 space-y-6">
               <OnlineCourseBanner />
               <StatisticsChart />
               <TopViewedLessonsWidget />
             </div>
+
             <div className="order-1 xl:order-2">
               <div className="space-y-6 mt-4 xl:mt-0">
-                <div className="flex items-center mb-6">
-            <label className="text-sm mr-2">Filter:</label>
-            <select
-              value={assignTypeFilter}
-              onChange={(e) => setAssignTypeFilter(e.target.value)}
-              className="border p-1 rounded"
-            >
-              <option value="all-types">All Types</option>
-              <option value="all">All</option>
-              <option value="team">Team</option>
-              <option value="specific">Specific</option>
-            </select>
-          </div>
+                {/* <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow"> */}
+  {/* <div className="text-sm font-medium text-gray-700">Assignment Type:</div> */}
+  <div className="flex space-x-2">
+    {["all", "team", "specific"].map((type) => (
+      <button
+        key={type}
+        onClick={() => setAssignTypeFilter(type)}
+        className={`px-3 py-1 rounded-md text-sm capitalize ${
+          assignTypeFilter === type
+            ? "bg-blue-500 text-white"
+            : "bg-gray-200 hover:bg-gray-300"
+        }`}
+      >
+        {type === "all-types" ? "All Types" : type}
+      </button>
+    ))}
+  {/* </div> */}
+</div>
+
+                
+
                 <CalendarWidget events={calendarEvents} />
                 <ReminderBox reminders={upcomingReminders} />
+
               </div>
             </div>
           </div>
