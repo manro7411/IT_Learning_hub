@@ -4,7 +4,7 @@ import Sidebar from "../../widgets/SidebarWidget";
 import PostCardWidget from "./PostCardWidget.tsx";
 import AddPostWidget from "./AddPostWidget.tsx";
 
-import { useTranslation } from "react-i18next";
+// import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../components/LanguageSwitcher";
 
 export type Comment = {
@@ -29,7 +29,7 @@ export type Post = {
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 const KnowledgeForumLayout = () => {
-    const { t } = useTranslation("usergroup");
+    // const { t } = useTranslation("usergroup");
 
     const { token } = useContext(AuthContext);
     const [posts, setPosts]   = useState<Post[]>([]);

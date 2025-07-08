@@ -227,5 +227,4 @@ const NotificationWidget = () => {
     </div>
   );
 };
-
 export default NotificationWidget;
