@@ -1,7 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "../../Authentication/AuthContext";
 import axios from "axios";
-
 import SidebarWidget from "../../widgets/SidebarWidget";
 import CalendarWidget from "../../widgets/CalendarWidget";
 import ChatBubbleWidget from "../../widgets/ChatBubbleWidget";
@@ -87,6 +86,10 @@ const UserDashboard = () => {
         <main className="flex-1 p-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl font-bold text-gray-800">👋 Welcome, {displayName}</h1>
+         {/* --- Update it here --- */}
+
+         {/* ------ */}
+
             <NotificationWidget />
           </div>
 
