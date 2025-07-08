@@ -3,7 +3,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../Authentication/AuthContext";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
-import CalendarWidget from "../../../widgets/CalendarWidget";
+// import CalendarWidget from "../../../widgets/CalendarWidget";
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../../components/LanguageSwitcher";
 
