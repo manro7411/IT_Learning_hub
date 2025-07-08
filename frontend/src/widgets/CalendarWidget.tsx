@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import Calendar, { type CalendarProps } from 'react-calendar';
 import './CalendarWidget.css';
 
@@ -7,8 +7,9 @@ type Value = ValuePiece | [ValuePiece, ValuePiece];
 
 interface Event {
   title: string;
-  date: string; // ISO string
+  date: string;
   id: string;
+  assignType: string; // เพิ่ม assignType
 }
 
 interface CalendarWidgetProps {
@@ -22,10 +23,10 @@ const CalendarWidget = ({ events }: CalendarWidgetProps) => {
     setValue(nextValue);
   };
 
-  // ✅ แปลงเป็น Set เพื่อ lookup เร็วขึ้น
-  const eventDates = useMemo(() => {
-    return new Set(events.map(e => new Date(e.date).toDateString()));
-  }, [events]);
+  const eventMap = events.reduce<Record<string, Event>>((acc, e) => {
+    acc[new Date(e.date).toDateString()] = e;
+    return acc;
+  }, {});
 
   return (
     <Calendar
@@ -37,9 +38,21 @@ const CalendarWidget = ({ events }: CalendarWidgetProps) => {
       formatShortWeekday={(locale, date) => date.toLocaleDateString(locale, { weekday: 'short' }).toUpperCase()}
       showNavigation={true}
       tileClassName={({ date }) => {
-        const isEvent = eventDates.has(date.toDateString());
+        const event = eventMap[date.toDateString()];
+        if (event) {
+          switch (event.assignType) {
+            case 'all':
+              return 'event-all';
+            case 'team':
+              return 'event-team';
+            case 'specific':
+              return 'event-specific';
+            default:
+              return 'event-day';
+          }
+        }
         const isWeekend = date.getDay() === 0 || date.getDay() === 6;
-        return isEvent ? 'event-day' : isWeekend ? 'weekend' : undefined;
+        return isWeekend ? 'weekend' : undefined;
       }}
     />
   );

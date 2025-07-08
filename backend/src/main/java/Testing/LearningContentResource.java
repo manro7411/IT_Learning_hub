@@ -242,15 +242,16 @@ public class LearningContentResource {
     @Path("/upcoming-due")
     @RolesAllowed({"user", "admin"})
     public List<LearningContentDto> getUpcomingDue() {
-        return em.createQuery("""
-            SELECT lc FROM LearningContent lc
-            WHERE lc.dueDate IS NOT NULL
-            ORDER BY lc.dueDate ASC
-            """, LearningContent.class)
+        List<LearningContent> lessons = em.createQuery("""
+        SELECT lc FROM LearningContent lc
+        WHERE lc.dueDate IS NOT NULL
+        ORDER BY lc.dueDate ASC
+    """, LearningContent.class)
                 .setMaxResults(20)
-                .getResultStream()
+                .getResultList();
+
+        return lessons.stream()
                 .map(LearningContentDto::fromEntity)
                 .toList();
     }
-
 }
