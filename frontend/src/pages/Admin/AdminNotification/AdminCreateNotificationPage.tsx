@@ -233,7 +233,7 @@ const AdminCreateNotificationPage: React.FC = () => {
           <LanguageSwitcher />
         </div>
         <div className="pt-16" />
-        <CalendarWidget />
+        {/* <CalendarWidget /> */}
       </div>
     </div>
   );
