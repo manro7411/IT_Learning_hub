@@ -8,6 +8,7 @@ public class NotificationDto {
     public LocalDateTime createdAt;
     public boolean       read;
     public String recipientName;
+    public String targetName;
 
     public static NotificationDto fromEntity(Notification n) {
         if (n == null) return null;
@@ -18,6 +19,7 @@ public class NotificationDto {
         dto.createdAt = n.getCreatedAt();
         dto.read      = n.isRead();
         dto.recipientName = n.getRecipient().getName();
+        dto.targetName = n.getTarget();
         return dto;
     }
 }
