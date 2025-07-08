@@ -19,6 +19,7 @@ interface UserProgress {
     userEmail: string;
     percent: number;
     lessonId: number;
+    score: number;
 }
 
 const AdminTaskManagementPage = () => {
@@ -31,7 +32,7 @@ const AdminTaskManagementPage = () => {
     const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
     const [progressList, setProgressList] = useState<UserProgress[]>([]);
     const [selectedUser, setSelectedUser] = useState<UserProgress | null>(null);
-    const [loading, setLoading] = useState<boolean>(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         if (!token) {
@@ -57,17 +58,15 @@ const AdminTaskManagementPage = () => {
         setSelectedUser(null);
 
         axios
-            .get<UserProgress[]>("http://localhost:8080/admin/progress", {
+            .get<UserProgress[]>("http://localhost:8080/user/progress/all", {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => {
-                const all = res.data.filter((p) => p.lessonId === lesson.id);
+                const lessonProgress = res.data.filter((p) => p.lessonId === lesson.id);
                 const latestByUser = new Map<string, UserProgress>();
-
-                all.forEach((entry) => {
-                    latestByUser.set(entry.userEmail, entry); // replace with latest
+                lessonProgress.forEach((entry) => {
+                    latestByUser.set(entry.userEmail, entry);
                 });
-
                 setProgressList(Array.from(latestByUser.values()));
             })
             .catch((err) => {
@@ -77,21 +76,18 @@ const AdminTaskManagementPage = () => {
     };
 
     const handleDeleteLesson = async (id: number) => {
-        const ok = window.confirm("Delete this lesson? This cannot be undone!");
-        if (!ok) return;
+        if (!window.confirm("Delete this lesson? This cannot be undone!")) return;
 
         try {
             await axios.delete(`http://localhost:8080/learning/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
-
             setLessons((prev) => prev.filter((l) => l.id !== id));
             if (selectedLesson?.id === id) {
                 setSelectedLesson(null);
                 setProgressList([]);
                 setSelectedUser(null);
             }
-
             alert("✅ Lesson deleted");
         } catch (err) {
             console.error("❌ Delete failed:", err);
@@ -123,10 +119,9 @@ const AdminTaskManagementPage = () => {
                                 <div
                                     key={lesson.id}
                                     className={`relative cursor-pointer p-4 rounded-xl shadow border transition-all
-                    ${
-                                        selectedLesson?.id === lesson.id
-                                            ? "bg-blue-50 border-blue-500"
-                                            : "bg-white hover:border-blue-500"
+                                    ${selectedLesson?.id === lesson.id
+                                        ? "bg-blue-50 border-blue-500"
+                                        : "bg-white hover:border-blue-500"
                                     }`}
                                 >
                                     <div onClick={() => handleSelectLesson(lesson)}>
@@ -202,9 +197,17 @@ const AdminTaskManagementPage = () => {
                                     <p className="text-right text-xs text-gray-500">
                                         {selectedUser.percent}%
                                     </p>
-                                </div>
-
-                                <p className="text-sm text-gray-500">{t('noquiz')}</p>
+                                </div>                            
+                                <p className="text-sm text-gray-500">
+                                    Quiz:{" "}
+                                    {selectedUser.score > 0 ? (
+                                        <span className="text-green-600 font-semibold">
+                                            Finished ({selectedUser.score} pts)
+                                        </span>
+                                    ) : (
+                                        <span className="text-red-500">Not yet</span>
+                                    )}
+                                </p>
                             </div>
                         ) : (
                             <p className="text-gray-400">← {t('selectUser')}</p>

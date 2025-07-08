@@ -20,13 +20,10 @@ type Notification = {
     link?: string;     // optional URL destination
 };
 
-/* ──────────────────────────
- *  Component
- * ──────────────────────────*/
-const NotificationWidget = () => {
-    const { t } = useTranslation("notiwidget");
 
-    /* token (context → localStorage fallback) */
+const NotificationWidget = () => {
+
+    const { t } = useTranslation("notiwidget");
     const { token: ctxToken } = useContext(AuthContext);
     const token =
         ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -65,8 +62,6 @@ const NotificationWidget = () => {
         document.addEventListener("mousedown", handle);
         return () => document.removeEventListener("mousedown", handle);
     }, []);
-
-    /* ───── helpers ───── */
     const markAllRead = async () => {
         try {
             await axios.put(
@@ -126,8 +121,6 @@ const NotificationWidget = () => {
             console.error("❌ delete notification:", err);
         }
     };
-
-    /* ───── UI ───── */
     if (!token) return null;
 
     return (

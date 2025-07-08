@@ -95,7 +95,6 @@ const KnowledgeForumLayout = () => {
                     </div>
                 )}
             </main>
-
             <aside className="w-80 p-6 hidden lg:block relative">
                 <div className="absolute top-6 right-6 z-10">
                     <LanguageSwitcher />
