@@ -38,6 +38,7 @@ const NotificationWidget = () => {
                 { headers: { Authorization: `Bearer ${token}` } }
             );
             setItems(data);
+            console.log("📬 Notifications fetched:", data);
             setUnread(data.filter((n) => !n.read).length);
         } catch (err) {
             console.error("❌ fetch notifications:", err);
@@ -58,7 +59,6 @@ const NotificationWidget = () => {
         return () => document.removeEventListener("mousedown", handle);
     }, []);
 
-    /* ───── helpers ───── */
     const markAllRead = async () => {
         try {
             await axios.put(
@@ -119,12 +119,10 @@ const NotificationWidget = () => {
         }
     };
 
-    /* ───── UI ───── */
     if (!token) return null;
 
     return (
         <div ref={dropdownRef} className="relative">
-            {/* bell icon */}
             <button
                 onClick={() => {
                     if (!open) fetchNotifications();
@@ -140,8 +138,6 @@ const NotificationWidget = () => {
           </span>
                 )}
             </button>
-
-            {/* dropdown */}
             {open && (
                 <div className="absolute right-0 mt-2 w-80 max-h-96 overflow-auto rounded-xl border border-gray-100 bg-white shadow-xl z-50">
                     {/* header */}
@@ -166,6 +162,14 @@ const NotificationWidget = () => {
                                 </button>
                             )}
                         </div>
+                    </div>
+                    <div className="p-4 text-sm text-gray-500">
+                            {["ALL","TEAM","USER"].map((type) => (
+                                <button  key={type} className="px-3 py-1 rounded-md text-sm capitalize bg-blue-500 text-white hover:bg-blue-600 mr-2 mb-2   ">
+                                    {type}
+                                </button>
+
+                            ))}
                     </div>
 
                     {/* content */}
