@@ -28,6 +28,17 @@ public class Notification {
     )
     private User recipient;
 
+    @Column(name="Target_users",nullable = true)
+    private String target;
+
+    public String getTarget() {
+        return target;
+    }
+
+    public void setTarget(String target) {
+        this.target = target;
+    }
+
     public String getId()                   { return id != null ? id.toString() : null; }
     public void   setId(UUID id)            { this.id = id; }
 
