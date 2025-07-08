@@ -1,7 +1,6 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { AuthContext } from "../../Authentication/AuthContext";
 import axios from "axios";
-
 import SidebarWidget from "../../widgets/SidebarWidget";
 import CalendarWidget from "../../widgets/CalendarWidget";
 import ChatBubbleWidget from "../../widgets/ChatBubbleWidget";
@@ -24,7 +23,12 @@ interface Reminder {
   dueDate: string;
 }
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
+
 const UserDashboard = () => {
+  const { t } = useTranslation("dashboard");
+  
   const { user, token: ctxToken } = useContext(AuthContext);
   const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
 
@@ -99,8 +103,6 @@ const UserDashboard = () => {
 
             <div className="order-1 xl:order-2">
               <div className="space-y-6 mt-4 xl:mt-0">
-                {/* <div className="flex items-center justify-between bg-white p-4 rounded-lg shadow"> */}
-  {/* <div className="text-sm font-medium text-gray-700">Assignment Type:</div> */}
   <div className="flex space-x-2">
     {["all", "team", "specific"].map((type) => (
       <button
@@ -115,11 +117,7 @@ const UserDashboard = () => {
         {type === "all-types" ? "All Types" : type}
       </button>
     ))}
-  {/* </div> */}
-</div>
-
-                
-
+</div>           
                 <CalendarWidget events={calendarEvents} />
                 <ReminderBox reminders={upcomingReminders} />
 

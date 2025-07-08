@@ -19,6 +19,9 @@ import {
   Cell,
 } from "recharts";
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../../components/LanguageSwitcher";
+
 /* ------- mock data ------- */
 const teamData = [
   { name: "Team A", value: 30 },
@@ -38,6 +41,8 @@ const donutData = [
 const COLORS = ["#C2CEFD", "#FF9736", "#0575E6", "#084590", "#055CC7"];
 
 const AdminDashboard = () => {
+  const { t } = useTranslation("dashboard");
+
   /* ---------- auth & navigation ---------- */
   const { user, token: ctxToken } = useContext(AuthContext);
   const token =
@@ -93,18 +98,19 @@ const AdminDashboard = () => {
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-1">
-              👋 Welcome, {displayName}
+              👋 {t('welcome', { name: displayName })}
             </h1>
-            <p className="text-gray-600 mb-4 ml-10">Have a good day!</p>
+            <p className="text-gray-600 mb-4 ml-10">{t('greeting')}</p>
           </div>
 
           {/* filter + overall button */}
           <div className="flex items-center gap-3 mb-6 relative">
+           
             <button
               onClick={() => navigate("/admin-overall")}
               className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition"
             >
-              See Overall
+              {t('seeOverall')}
             </button>
 
             <div className="relative">
@@ -112,16 +118,17 @@ const AdminDashboard = () => {
                 className="flex items-center gap-2 px-4 py-2 bg-white border shadow rounded-full hover:bg-gray-100"
                 onClick={() => setShowFilter(!showFilter)}
               >
-                <FaFilter /> Filter
+                <FaFilter /> {t('filter')}
               </button>
+              
 
               {showFilter && (
                 <div className="absolute right-0 mt-2 w-64 bg-white border shadow-lg rounded-xl z-10 p-4 space-y-2">
-                  <p className="font-semibold text-gray-700">Filter by :</p>
+                  <p className="font-semibold text-gray-700">{t('filterBy')}</p>
 
                   <input
                     type="text"
-                    placeholder="Team"
+                    placeholder={t('team')}
                     className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm"
                     value={filterText.team}
                     onChange={(e) =>
@@ -131,7 +138,7 @@ const AdminDashboard = () => {
 
                   <input
                     type="text"
-                    placeholder="Course"
+                    placeholder={t('course')}
                     className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm"
                     value={filterText.course}
                     onChange={(e) =>
@@ -144,18 +151,19 @@ const AdminDashboard = () => {
                       onClick={handleClear}
                       className="text-sm text-red-500 hover:underline"
                     >
-                      Clear
+                      {t('clear')}
                     </button>
-                  </div>
+                  </div>                                 
                 </div>
-              )}
+            )}             
             </div>
+            <LanguageSwitcher />
           </div>
         </div>
 
         {/* summary section */}
         <h2 className="text-xl font-semibold text-gray-700 mb-2 ml-2">
-          Summary
+          {t('summary')}
         </h2>
 
         <div className="flex flex-col xl:flex-row gap-6">
@@ -164,7 +172,7 @@ const AdminDashboard = () => {
             {/* Bar chart */}
             <div className="bg-white rounded-xl shadow p-4 border-t-8 border-blue-500">
               <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                By Team
+                {t('team')}
               </h2>
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={filteredTeamData} layout="vertical">
@@ -184,7 +192,7 @@ const AdminDashboard = () => {
             {/* Donut charts by course */}
             <div className="bg-white rounded-xl shadow p-4 border-t-8 border-blue-500">
               <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                By Course
+                {t('course')}
               </h2>
               <div className="flex flex-wrap justify-center gap-6">
                 {courseDataMap.map(({ course, data }, idx) => (
@@ -192,7 +200,7 @@ const AdminDashboard = () => {
                     key={idx}
                     className="flex flex-col items-center w-[280px] max-w-full"
                   >
-                    <h3 className="text-sm font-semibold mb-2 text-center">
+                    <h3 className="text-[16px] font-semibold mb-2 text-center">
                       {course}
                     </h3>
                     <ResponsiveContainer width="100%" height={200}>

@@ -4,6 +4,10 @@ import Sidebar from "../../widgets/SidebarWidget";
 import CalendarWidget from "../../widgets/CalendarWidget";
 import PostCardWidget from "./PostCardWidget.tsx";
 import AddPostWidget from "./AddPostWidget.tsx";
+
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
+
 export type Comment = {
     id: string;
     authorName: string;
@@ -26,6 +30,8 @@ export type Post = {
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 const KnowledgeForumLayout = () => {
+    const { t } = useTranslation("usergroup");
+
     const { token } = useContext(AuthContext);
     const [posts, setPosts]   = useState<Post[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -89,10 +95,15 @@ const KnowledgeForumLayout = () => {
                     </div>
                 )}
             </main>
-
-            <aside className="w-80 p-6 hidden lg:block">
-                {/* <CalendarWidget /> */}
+            <aside className="w-80 p-6 hidden lg:block relative">
+                <div className="absolute top-6 right-6 z-10">
+                    <LanguageSwitcher />
+                </div>
+                
+                <div className="pt-16" />
+                    <CalendarWidget />
             </aside>
+
             <AddPostWidget onCreated={handlePostCreated} />
         </div>
     );

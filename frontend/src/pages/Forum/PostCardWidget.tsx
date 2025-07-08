@@ -2,6 +2,9 @@ import { useContext, useState } from "react";
 import type { Post, Comment } from "./KnowledgeForumLayout.tsx";
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
+
 type Props = {
     post: Post;
 };
@@ -9,6 +12,8 @@ type Props = {
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 const PostCardWidget = ({ post }: Props) => {
+    const { t } = useTranslation("usergroup");
+
     const { token, user } = useContext(AuthContext);
     const [showComments, setShowComments] = useState(false);
     const [commentText, setCommentText] = useState("");
@@ -66,7 +71,7 @@ const PostCardWidget = ({ post }: Props) => {
             <header className="flex items-center mb-2">
                 <div className="w-10 h-10 bg-gray-300 rounded-full mr-3" />
                 <div>
-                    <p className="text-sm font-semibold">{post.authorName}</p>
+                    <p className="text-lg font-semibold">{post.authorName}</p>
                     <p className="text-xs text-gray-500">{post.authorEmail}</p>
                     <p className="text-xs text-gray-400">
                         {new Date(post.createdAt).toLocaleString()}
@@ -76,10 +81,10 @@ const PostCardWidget = ({ post }: Props) => {
 
             {/* Body */}
             <h2 className="text-base font-semibold text-gray-800">{post.title}</h2>
-            <p className="text-sm text-gray-700 mt-1 whitespace-pre-line">{post.message}</p>
+            <p className="text-lg text-gray-700 mt-1 whitespace-pre-line">{post.message}</p>
 
             {/* Stats */}
-            <div className="flex gap-4 text-xs text-gray-500 mt-3">
+            <div className="flex gap-4 text-sm text-gray-500 mt-3">
                 <span>👁 {post.views}</span>
                 <button
                     type="button"
@@ -95,12 +100,12 @@ const PostCardWidget = ({ post }: Props) => {
             {showComments && (
                 <section className="mt-3 space-y-2 border-t pt-3">
                     {comments.length === 0 ? (
-                        <p className="text-xs text-gray-400">No comments yet.</p>
+                        <p className="text-xs text-gray-400">{t('nocomment')}</p>
                     ) : (
                         comments.map((c) => (
                             <div key={c.id} className="text-xs">
-                                <p className="font-medium">{c.authorName}</p>
-                                <p className="text-gray-600 whitespace-pre-line">{c.message}</p>
+                                <p className="font-medium text-sm">{c.authorName}</p>
+                                <p className="text-gray-600 whitespace-pre-line text-base">{c.message}</p>
                                 <p className="text-[10px] text-gray-400">
                                     {new Date(c.createdAt).toLocaleString()}
                                 </p>
@@ -113,9 +118,9 @@ const PostCardWidget = ({ post }: Props) => {
                         <textarea
                             value={commentText}
                             onChange={(e) => setCommentText(e.target.value)}
-                            className="w-full border border-gray-300 rounded p-2 text-xs focus:outline-none focus:ring focus:ring-blue-200"
+                            className="w-full border border-gray-300 rounded p-2 text-sm focus:outline-none focus:ring focus:ring-blue-200"
                             rows={3}
-                            placeholder="Add a comment..."
+                            placeholder={t('addcomment')}
                         />
                         <div className="flex justify-end">
                             <button
@@ -124,7 +129,7 @@ const PostCardWidget = ({ post }: Props) => {
                                 disabled={!commentText.trim()}
                                 className="bg-blue-600 text-white rounded px-3 py-1 text-xs font-medium hover:bg-blue-700 disabled:opacity-40"
                             >
-                                Submit
+                                {t('submit')}
                             </button>
                         </div>
                     </div>

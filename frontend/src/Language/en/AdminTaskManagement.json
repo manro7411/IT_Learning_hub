@@ -1,0 +1,11 @@
+{
+  "title": "Task Management",
+  "loading": "Loading lessons...!",
+  "noprogress": "No progress yet…",
+  "lessonId": "Lesson ID:",
+  "view": "View",
+  "quick": "Quick overview of employee progress",
+  "progress": "Progress",
+  "noquiz": "Quiz: Not yet",
+  "selectUser": "Select a user to see details"
+}

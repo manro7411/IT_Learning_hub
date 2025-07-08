@@ -1,0 +1,24 @@
+{
+  "addnewlesson": "เพิ่มบทเรียน",
+  "lesson": "บทเรียน",
+  "title": "หัวข้อ",
+  "category": "ประเภท",
+  "thumbnail": "URL หน้าปกบทเรียน",
+  "description": "คำอธิบาย",
+  "question": "คำถาม",
+  "qtext": "Question text",
+  "option": "ตัวเลือก {{number}}",
+  "addoption": "เพิ่มตัวเลือก",
+  "addquestion": "เพิ่มคำถาม",
+  "create": "สร้าง",
+  "reset": "รีเซ็ท",
+  "single": "ตัวเลือกเดียว",
+  "multiple": "หลายตัวเลือก",
+  "fill": "เติมคำในช่องว่าง",
+  "order": "เรียงลำดับ",
+  "match": "จับคู่",
+  "questiontext":"คำถาม",
+  "briefOverview":"เขียนสรุปบทเรียนนี้โดยย่อ",
+  "saving":"กำลังบันทึก…"
+
+}

@@ -6,6 +6,10 @@ import { useNavigate } from "react-router-dom";
 import ChatBubbleWidget from '../../widgets/ChatBubbleWidget.tsx';
 import NotificationWidget from '../../widgets/NotificationWidget.tsx';
 import LessonCard from '../Lesson/LessonCard.tsx';
+import ScoreboardChart from '../../widgets/ScoreboardChart.tsx';
+
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
 
 interface Task {
   id: number | string;
@@ -30,6 +34,7 @@ interface LessonFromAPI {
 }
 
 const TaskManagement = () => {
+  const { t } = useTranslation("usertask");
   const [tasks, setTasks] = useState<Task[]>([]);
   const [newTask, setNewTask] = useState('');
   const { token: ctxToken } = useContext(AuthContext);
@@ -37,7 +42,6 @@ const TaskManagement = () => {
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
 
-  // Fetch user profile to get userId
   useEffect(() => {
     if (!token) {
       navigate("/");
@@ -60,7 +64,6 @@ const TaskManagement = () => {
     fetchUserProfile();
   }, [token, navigate]);
 
-  // Fetch learning content tasks
   useEffect(() => {
     if (!token || !userId) return;
 
@@ -146,17 +149,17 @@ const TaskManagement = () => {
                   <div className="flex space-x-2 text-sm mt-2">
                     {status !== 'todo' && (
                       <button onClick={() => updateTaskStatus(task.id, 'todo')} className="text-blue-500 hover:underline">
-                        To do
+                        {t('todo')}
                       </button>
                     )}
                     {status !== 'inprogress' && (
                       <button onClick={() => updateTaskStatus(task.id, 'inprogress')} className="text-yellow-500 hover:underline">
-                        In progress
+                        {t('inprogress')}
                       </button>
                     )}
                     {status !== 'done' && (
                       <button onClick={() => updateTaskStatus(task.id, 'done')} className="text-green-500 hover:underline">
-                        Done
+                        {t('done')}
                       </button>
                     )}
                   </div>
@@ -179,26 +182,32 @@ const TaskManagement = () => {
               value={newTask}
               onChange={(e) => setNewTask(e.target.value)}
               className="w-1/2 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter new task"
+              placeholder={t('enter')}
             />
             <button
               type="submit"
               className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
             >
-              Add Task
+              {t('add')}
             </button>
           </form>
-          <NotificationWidget />
+
+          <div className="flex items-center gap-4">
+            <NotificationWidget />
+            <LanguageSwitcher />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 flex space-x-4">
-            {renderColumn('todo', 'To do')}
-            {renderColumn('inprogress', 'In progress')}
-            {renderColumn('done', 'Done')}
+            {renderColumn('todo', t('todo'))}
+            {renderColumn('inprogress', t('inprogress'))}
+            {renderColumn('done', t('done'))}
           </div>
+
           <div className="xl:col-span-1 space-y-6">
-            {/* <CalendarWidget /> */}
+            <CalendarWidget />
+            <ScoreboardChart />
           </div>
         </div>
       </main>

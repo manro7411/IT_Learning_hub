@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
 interface TopLesson {
     id: string;
     title: string;
@@ -11,6 +14,8 @@ interface TopLesson {
 const API = "http://localhost:8080/learning";
 
 const TopViewedLessonsWidget = () => {
+    const { t } = useTranslation("dashboard");
+    
     const [topLessons, setTopLessons] = useState<TopLesson[]>([]);
     const navigate = useNavigate();
     useEffect(() => {
@@ -25,7 +30,7 @@ const TopViewedLessonsWidget = () => {
     };
     return (
         <section>
-            <h2 className="text-xl font-semibold mb-3">🔥 The most Effective courses</h2>
+            <h2 className="text-xl font-semibold mb-3">🔥 {t('most')}</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {topLessons.map((lesson, idx) => (
                     <div
@@ -51,10 +56,10 @@ const TopViewedLessonsWidget = () => {
                         )}
 
                         <div className="p-4 flex flex-col flex-1">
-              <span className="text-[10px] font-semibold text-purple-600 uppercase">
+              <span className="text-xs font-semibold text-purple-600 uppercase">
                 {lesson.category}
               </span>
-                            <h3 className="text-sm font-semibold mt-1 line-clamp-2">
+                            <h3 className="text-lg font-semibold mt-1 line-clamp-2">
                                 {lesson.title}
                             </h3>
                         </div>

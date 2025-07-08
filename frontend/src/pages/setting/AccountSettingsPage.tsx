@@ -5,6 +5,9 @@ import SidebarWidget from "../../widgets/SidebarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
 import {useNavigate} from "react-router-dom";
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
+
 interface FormState {
   fullName: string;
   username: string;
@@ -13,6 +16,8 @@ interface FormState {
 }
 
 const AccountSettingsPage = () => {
+  const { t } = useTranslation("setting");
+
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -82,39 +87,43 @@ const AccountSettingsPage = () => {
   return (
       <div className="min-h-screen bg-gray-100 flex">
         <SidebarWidget />
-        <main className="flex-1 p-8">
-          <div className="flex space-x-8 border-b text-sm font-medium text-gray-500 mb-8">
+        <main className="flex-1 p-10 space-y-6 relative">
+                <div className="absolute top-6 right-10">
+                    <LanguageSwitcher />
+                </div>
+
+          <div className="flex space-x-8 border-b text-xl font-medium text-gray-500 mb-8">
             <button className="text-blue-600 border-b-2 border-blue-600 pb-2">
-              Account Setting
+              {t('title')}
             </button>
           </div>
 
           <form onSubmit={submit} className="bg-white rounded-xl shadow p-8 space-y-8">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Your Profile Picture
+              <label className="block text-base  font-medium text-gray-700 mb-2">
+                {t('profilePic')}
               </label>
               <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-sm text-gray-400">
-                Upload your photo
+                {t('upload')}
               </div>
             </div>
 
             {/* Grid – 4 field */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Input label="Full name"  name="fullName" value={form.fullName}  onChange={handleChange}/>
-              <Input label="Email"      name="email"    value={form.email}     onChange={handleChange}/>
-              <Input label="Username"   name="username" value={form.username}  onChange={handleChange}/>
-              <Input label="Password"   name="password" value={form.password}  onChange={handleChange} type="password"/>
+              <Input label={t('fullname')}  name="fullName" value={form.fullName}  onChange={handleChange}/>
+              <Input label={t('email')}     name="email"    value={form.email}     onChange={handleChange}/>
+              <Input label={t('username')}  name="username" value={form.username}  onChange={handleChange}/>
+              <Input label={t('password')}  name="password" value={form.password}  onChange={handleChange} type="password"/>
             </div>
 
             <div className="flex space-x-4">
               <button type="submit"
                       className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
-                Update Profile
+                {t('update')}
               </button>
               <button type="button" onClick={reset}
                       className="px-6 py-2 text-gray-600 hover:underline">
-                Reset
+                {t('reset')}
               </button>
             </div>
           </form>

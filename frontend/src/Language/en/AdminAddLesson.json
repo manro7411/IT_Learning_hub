@@ -1,0 +1,24 @@
+{
+  "addnewlesson": "Add New Lesson",
+  "lesson": "Lesson",
+  "title": "Title",
+  "category": "Category",
+  "thumbnail": "Lesson Thumbnail URL",
+  "description": "Description",
+  "question": "Question",
+  "qtext": "Question text",
+  "option": "Option {{number}}",
+  "addoption": "Add Option",
+  "addquestion": "Add Question",
+  "create": "Create",
+  "reset": "Reset",
+  "single": "Single Choice",
+  "multiple": "Multiple Choice",
+  "fill": "Fill in the blank",
+  "order": "Ordering",
+  "match": "Matching",
+  "questiontext":"Question text",
+  "briefOverview":"Write a brief overview of this lesson",
+  "saving":"Saving…"
+
+}

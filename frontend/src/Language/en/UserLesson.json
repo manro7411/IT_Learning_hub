@@ -1,0 +1,19 @@
+{
+  "search": "Search lessons...",
+  "loading":"Loading lessons…",
+  "notfound":"No lessons found",
+  "progress":"Progress",
+
+  "author":"Author",
+  "schedule":"Schedule",
+
+  "finish":"You finished the lesson!",
+  "message":"Take a short quiz to test your knowledge.",
+  "startQuiz":"Start Quiz",
+  "complete":"Quiz Completed!",
+  "message2":"You may now explore the dashboard.",
+  "message3":"Your score has been sending out to Admin",
+  "welcome":"Welcome, {{name}}",
+  "greeting": "Have a good day!"
+  
+  }
