@@ -8,9 +8,13 @@ type User = { id: string; name: string };
 
 type FormState = {
     message: string;
-    target: "ALL" | "USER";
+    target: "ALL" | "TEAM" | "USER";
     selectedUsers: string[];
 };
+interface Team {
+    id: string;
+    name: string;
+}
 const INITIAL_STATE: FormState = {
     message: "",
     target: "ALL",
@@ -32,6 +36,7 @@ const AdminCreateNotificationPage: React.FC = () => {
     const [form, setForm] = useState<FormState>(INITIAL_STATE);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
+    const[teams, setTeams] = useState<string[]>([]);
     useEffect(() => {
         if (!token) {
             navigate("/");
@@ -47,11 +52,28 @@ const AdminCreateNotificationPage: React.FC = () => {
                 console.error("❌ Failed to load users:", err);
                 alert("Failed to load user list.");
             });
+
+        axios
+            .get<Team[]>("http://localhost:8080/teams", {
+                headers: { Authorization: `Bearer ${token}` },
+            })
+            .then((res) => {
+                console.log("Teams loaded:", res.data);
+                if (Array.isArray(res.data)) {
+                    setTeams(res.data.map((team) => team.name));
+                } else {
+                    console.error("Unexpected data format for teams:", res.data);
+                    alert("Failed to load team list.");
+                }
+            })
+            .catch((err) => {
+                console.error("❌ Failed to load teams:", err);
+                alert("Failed to load team list.");
+            });
     }, [token, navigate]);
 
     if (!token) return null;
 
-    /* ───── Handlers ───── */
     const handleChange = (
         e: React.ChangeEvent<
             HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -139,6 +161,7 @@ const AdminCreateNotificationPage: React.FC = () => {
                             className="w-full mt-1 p-2 border rounded-lg bg-gray-50"
                         >
                             <option value="ALL">All Users</option>
+                            <option value="TEAM">Team Members</option>
                             <option value="USER">Specific Users</option>
                         </select>
                     </div>
@@ -163,6 +186,23 @@ const AdminCreateNotificationPage: React.FC = () => {
                                 <p className="text-xs text-gray-400 mt-1">Loading users...</p>
                             )}
                         </div>
+                    )}
+                    {form.target === "TEAM" && (
+                        <select
+                        name="team"
+                        value={form.target}
+                        onChange={handleChange}
+                        className="w-full mt-1 p-2 border rounded-lg bg-gray-50">
+                            <option value="TEAM">Select a Team</option>
+                            {teams.map((team, index) => (
+                                <option key={index} value={team}>
+                                    {team}
+                                </option>
+                            ))}
+                            {teams.length === 0 && (
+                                <option disabled>Loading teams...</option>
+                            )}
+                        </select>
                     )}
                     <button
                         type="submit"
