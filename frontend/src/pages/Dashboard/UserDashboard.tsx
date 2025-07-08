@@ -10,6 +10,7 @@ import TopViewedLessonsWidget from "./TopViewedLessonsWidget";
 import NotificationWidget from "../../widgets/NotificationWidget";
 import ReminderBox from "../../widgets/ReminderBoxWidget";
 import { Navigate } from "react-router-dom";
+import JointeamWidget from "../../widgets/JointeamWidget";
 
 interface Lesson {
   id: string;
@@ -86,20 +87,15 @@ const UserDashboard = () => {
         <main className="flex-1 p-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl font-bold text-gray-800">👋 Welcome, {displayName}</h1>
-         {/* --- Update it here --- */}
-
-         {/* ------ */}
-
             <NotificationWidget />
           </div>
-
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
             <div className="xl:col-span-3 space-y-6">
               <OnlineCourseBanner />
               <StatisticsChart />
               <TopViewedLessonsWidget />
+              <JointeamWidget />
             </div>
-
             <div className="order-1 xl:order-2">
               <div className="space-y-6 mt-4 xl:mt-0">
   <div className="flex space-x-2">
