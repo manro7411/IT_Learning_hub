@@ -10,6 +10,7 @@ import TopViewedLessonsWidget from "./TopViewedLessonsWidget";
 import NotificationWidget from "../../widgets/NotificationWidget";
 import ReminderBox from "../../widgets/ReminderBoxWidget";
 import { Navigate } from "react-router-dom";
+import JointeamWidget from "../../widgets/JointeamWidget";
 
 interface Lesson {
   id: string;
@@ -23,12 +24,7 @@ interface Reminder {
   dueDate: string;
 }
 
-import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "../../components/LanguageSwitcher";
-
 const UserDashboard = () => {
-  const { t } = useTranslation("dashboard");
-  
   const { user, token: ctxToken } = useContext(AuthContext);
   const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
 
@@ -93,14 +89,13 @@ const UserDashboard = () => {
             <h1 className="text-3xl font-bold text-gray-800">👋 Welcome, {displayName}</h1>
             <NotificationWidget />
           </div>
-
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
             <div className="xl:col-span-3 space-y-6">
               <OnlineCourseBanner />
               <StatisticsChart />
               <TopViewedLessonsWidget />
+              <JointeamWidget />
             </div>
-
             <div className="order-1 xl:order-2">
               <div className="space-y-6 mt-4 xl:mt-0">
   <div className="flex space-x-2">
@@ -117,7 +112,10 @@ const UserDashboard = () => {
         {type === "all-types" ? "All Types" : type}
       </button>
     ))}
-</div>           
+</div>
+
+                
+
                 <CalendarWidget events={calendarEvents} />
                 <ReminderBox reminders={upcomingReminders} />
 
