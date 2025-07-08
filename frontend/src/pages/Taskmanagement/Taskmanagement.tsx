@@ -1,12 +1,12 @@
 import React, { useContext, useEffect, useState } from 'react';
-import CalendarWidget from '../../widgets/CalendarWidget';
+// import CalendarWidget from '../../widgets/CalendarWidget';
 import Sidebar from '../../widgets/SidebarWidget';
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
 import { useNavigate } from "react-router-dom";
 import ChatBubbleWidget from '../../widgets/ChatBubbleWidget.tsx';
 import NotificationWidget from '../../widgets/NotificationWidget.tsx';
 import LessonCard from '../Lesson/LessonCard.tsx';
-import ScoreboardChart from '../../widgets/ScoreboardChart.tsx';
+// import ScoreboardChart from '../../widgets/ScoreboardChart.tsx';
 
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../components/LanguageSwitcher";
@@ -206,8 +206,8 @@ const TaskManagement = () => {
           </div>
 
           <div className="xl:col-span-1 space-y-6">
-            <CalendarWidget />
-            <ScoreboardChart />
+            {/* <CalendarWidget /> */}
+            {/* <ScoreboardChart /> */}
           </div>
         </div>
       </main>

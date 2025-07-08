@@ -1,7 +1,7 @@
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
 import Sidebar from "../../widgets/SidebarWidget";
-import CalendarWidget from "../../widgets/CalendarWidget";
+// import CalendarWidget from "../../widgets/CalendarWidget";
 import PostCardWidget from "./PostCardWidget.tsx";
 import AddPostWidget from "./AddPostWidget.tsx";
 
@@ -101,7 +101,7 @@ const KnowledgeForumLayout = () => {
                 </div>
                 
                 <div className="pt-16" />
-                    <CalendarWidget />
+                    {/* <CalendarWidget /> */}
             </aside>
 
             <AddPostWidget onCreated={handlePostCreated} />
