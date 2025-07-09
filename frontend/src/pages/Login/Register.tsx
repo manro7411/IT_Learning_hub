@@ -8,7 +8,7 @@ const RegisterPage = () => {
         name: "",
         email: "",
         password: "",
-        role: "user", // 🆕 default = user
+        role: "user",
     });
     const [loading, setLoading] = useState(false);
 
@@ -76,7 +76,6 @@ const RegisterPage = () => {
                     required
                 />
 
-                {/* 🆕 ROLE SELECT */}
                 <select
                     name="role"
                     value={form.role}
@@ -86,6 +85,7 @@ const RegisterPage = () => {
                 >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
+                    <option value="supervisor">Supervisor</option>
                 </select>
 
                 <button

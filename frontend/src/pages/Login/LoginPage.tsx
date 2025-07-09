@@ -30,7 +30,10 @@ const LoginPage = () => {
 
       if (role === "admin") {
         navigate("/admin");
-      } else {
+      } else if (role === "supervisor") {
+        navigate("/supervisor");
+        
+      }else{
         navigate("/dashboard");
       }
       window.location.reload();
