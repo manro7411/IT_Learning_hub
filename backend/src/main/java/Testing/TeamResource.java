@@ -98,7 +98,7 @@ public class TeamResource {
     }
 
     @POST
-    @Path("/join")
+    @Path("/joining")
     @Transactional
     public Response joinTeamByCode(CreateMemberRequest request) {
         if (request.joinCode == null || request.userId == null || request.userName == null) {

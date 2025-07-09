@@ -8,15 +8,14 @@ const JoinTeamWidget = () => {
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const joinCode = digits.join("");
-  const userId = "john@example.com"; // TODO: replace with real user
-  const userName = "John Doe";
+  const userId = "ratchanon@gmail.com"; // TODO: replace with real user from auth context
+  const userName = "Ratchanon Traitiprat";
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d?$/.test(value)) return;
     const newDigits = [...digits];
     newDigits[index] = value;
     setDigits(newDigits);
-
     if (value && index < inputRefs.current.length - 1) {
       inputRefs.current[index + 1]?.focus();
     }
@@ -42,28 +41,29 @@ const JoinTeamWidget = () => {
     }
 
     setIsLoading(true);
+
     try {
-      const response = await fetch("http://localhost:8080/teams/join", {
+      const response = await fetch("http://localhost:8080/teams/joining", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ joinCode, userId, userName }),
       });
 
       const message = await response.text();
-      if (!response.ok) throw new Error(message);
+
+      if (!response.ok) {
+        throw new Error(message || "Unknown error");
+      }
 
       alert(`✅ Success: ${message}`);
       handleClose();
-   } catch (error: unknown) {
-  console.error(error);
 
-  if (error instanceof Error) {
-    alert(`❌ Error: ${error.message}`);
-  } else {
-    alert("❌ An unknown error occurred");
-  }
-}
-
+    } catch (error: unknown) {
+      console.error(error);
+      alert(`❌ Error: ${error instanceof Error ? error.message : "Unknown error occurred"}`);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -83,7 +83,6 @@ const JoinTeamWidget = () => {
   );
 };
 
-// ✅ Refactor ส่วน Card
 const JoinTeamCard = ({ onOpen }: { onOpen: () => void }) => (
   <div className="bg-white p-4 rounded-lg shadow">
     <h2 className="text-lg font-semibold mb-4">Join a Team</h2>
@@ -97,7 +96,6 @@ const JoinTeamCard = ({ onOpen }: { onOpen: () => void }) => (
   </div>
 );
 
-// ✅ Refactor ส่วน Dialog
 const JoinTeamDialog = ({
   isOpen,
   onClose,
