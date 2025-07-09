@@ -106,40 +106,45 @@ public class TeamResource {
     @Path("/joining")
     @Transactional
     public Response joinTeamByCode(CreateMemberRequest request) {
-        if (request.joinCode == null || request.userId == null || request.userName == null) {
-            throw new BadRequestException("Join code, user id, and user name are required");
-        }
-
-        List<TeamEntity> teams = em.createQuery(
-                        "SELECT t FROM TeamEntity t WHERE t.joinCode = :joinCode", TeamEntity.class)
-                .setParameter("joinCode", request.joinCode)
-                .getResultList();
-
-        if (teams.isEmpty()) {
-            throw new NotFoundException("Team not found with join code");
-        }
-
-        TeamEntity team = teams.get(0);
-
-        LOG.infof("✅ Found team: id=%s, name=%s", team.getId(), team.getName());
-
-        boolean alreadyExists = team.getMemberEntities().stream()
-                .anyMatch(member -> member.getUserEmail().equals(request.userId));
-
-        if (alreadyExists) {
-            throw new ClientErrorException("User already joined this team", 409);
-        }
-
-        MemberEntity member = new MemberEntity();
-        member.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
-        member.setUserEmail(request.userId);
-        member.setNameMembers(request.userName);
-        member.setRole("member");
-        member.setTeam(team);
-
-        em.persist(member);
-        team.getMemberEntities().add(member);
+//        if (request == null) {
+//            throw new BadRequestException("Missing request body");
+//        }
+//        if (request.joinCode == null || request.joinCode.isBlank()) {
+//            throw new BadRequestException("Join code is required");
+//        }
+//        if (request.userId == null || request.userId.isBlank() || request.userName == null || request.userName.isBlank()) {
+//            throw new BadRequestException("User ID and User Name are required");
+//        }
+//
+//        TeamEntity team = em.createQuery("""
+//        SELECT t FROM TeamEntity t
+//        WHERE t.joinCode = :code
+//    """, TeamEntity.class)
+//                .setParameter("code", request.joinCode)
+//                .getResultStream()
+//                .findFirst()
+//                .orElseThrow(() -> new NotFoundException("Invalid join code"));
+//
+//        boolean alreadyMember = team.getMemberEntities().stream()
+//                .anyMatch(m -> m.getUserEmail().equals(request.userId));
+//
+//        if (alreadyMember) {
+//            throw new BadRequestException("User is already a member of this team");
+//        }
+//
+//        MemberEntity member = new MemberEntity();
+//        member.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
+//        member.setUserEmail(request.userId);
+//        member.setNameMembers(request.userName);
+//        member.setRole("member");
+//        member.setTeam(team);
+//
+//        em.persist(member);
+//
+//        team.getMemberEntities().add(member);
 
         return Response.ok().entity("Joined team successfully!").build();
     }
+
+
 }

@@ -4,7 +4,7 @@ import { Dialog } from "@headlessui/react";
 const JoinTeamWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
-  const [userId, setUserId] = useState("test@example.com"); // สมมุติ user login แล้วมี email
+  const [userId, setUserId] = useState("test@example.com"); 
   const [userName, setUserName] = useState("John Doe");
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
@@ -60,6 +60,8 @@ try {
     const errorData = await res.json().catch(() => ({}));
     throw new Error(errorData.message || "Failed to join team");
   }
+
+  console.log("Join team response:", res);
 
   setSuccessMessage("✅ Joined team successfully!");
   resetForm();
