@@ -3,46 +3,38 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../Authentication/AuthContext";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
-import CalendarWidget from "../../../widgets/CalendarWidget";
 
-import { useTranslation } from "react-i18next";
-import LanguageSwitcher from "../../../components/LanguageSwitcher";
-
-// Define user type
-type User = { id: string; name: string; team: string };
+type User = { id: string; name: string };
+type Team = { id: string; name: string };
 
 type FormState = {
   message: string;
-  target: "ALL" | "USER" | "TEAM";
+  target: "ALL" | "TEAM" | "USER";
   selectedUsers: string[];
+  selectedTeamIds: string[];
 };
 
 const INITIAL_STATE: FormState = {
   message: "",
   target: "ALL",
   selectedUsers: [],
-};
-
-const getToken = (ctxToken: string | null | undefined): string | null => {
-  return (
-    ctxToken ||
-    localStorage.getItem("token") ||
-    sessionStorage.getItem("token")
-  );
+  selectedTeamIds: [],
 };
 
 const AdminCreateNotificationPage: React.FC = () => {
-  const { t } = useTranslation("adminnoti");
-
   const { token: ctxToken } = useContext(AuthContext);
-  const token = getToken(ctxToken);
+  const token =
+    ctxToken ||
+    localStorage.getItem("token") ||
+    sessionStorage.getItem("token");
+
   const navigate = useNavigate();
 
   const [form, setForm] = useState<FormState>(INITIAL_STATE);
-  const [selectedTeam, setSelectedTeam] = useState("");
   const [users, setUsers] = useState<User[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(false);
-  
+
   useEffect(() => {
     if (!token) {
       navigate("/");
@@ -58,14 +50,21 @@ const AdminCreateNotificationPage: React.FC = () => {
         console.error("❌ Failed to load users:", err);
         alert("Failed to load user list.");
       });
+
+    axios
+      .get<Team[]>("http://localhost:8080/teams", {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        console.log("Teams loaded:", res.data);
+        setTeams(res.data);
+      })
+      .catch((err) => {
+        console.error("❌ Failed to load teams:", err);
+        alert("Failed to load team list.");
+      });
   }, [token, navigate]);
 
-   if (!token) return null;
-
-  const teams = Array.from(new Set(users.map((u) => u.team))).filter(Boolean);
-  const filteredUsers = users.filter((u) => u.team === selectedTeam);
-    
-  /* ───── Handlers ───── */
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -75,8 +74,8 @@ const AdminCreateNotificationPage: React.FC = () => {
     setForm((prev) => ({
       ...prev,
       [name]: value as FormState[keyof FormState],
-      ...(name === "target" && value === "ALL"
-        ? { selectedUsers: [], message: prev.message }
+      ...(name === "target"
+        ? { selectedUsers: [], selectedTeamIds: [] }
         : {}),
     }));
   };
@@ -86,19 +85,30 @@ const AdminCreateNotificationPage: React.FC = () => {
     setForm((prev) => ({ ...prev, selectedUsers: selected }));
   };
 
+  const handleTeamSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selected = Array.from(e.currentTarget.selectedOptions, (o) => o.value);
+    setForm((prev) => ({ ...prev, selectedTeamIds: selected }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) return;
 
-    if (form.target !== "ALL" && form.selectedUsers.length === 0) {
+    if (form.target === "USER" && form.selectedUsers.length === 0) {
       alert("❗ Please select at least one user.");
+      return;
+    }
+    if (form.target === "TEAM" && form.selectedTeamIds.length === 0) {
+      alert("❗ Please select at least one team.");
       return;
     }
 
     const payload = {
       message: form.message,
       target: form.target,
-      userIds: form.target === "ALL" ? [] : form.selectedUsers,
+      userIds: form.target === "USER" ? form.selectedUsers : [],
+      teamIds: form.target === "TEAM" ? form.selectedTeamIds : [],
+      type : form.target === "ALL" ? "ALL" : form.target === "TEAM" ? "TEAM" : "USER",
     };
 
     console.log("📤 Sending payload:", payload);
@@ -109,94 +119,68 @@ const AdminCreateNotificationPage: React.FC = () => {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("✅ Notification sent!");
-            setForm(INITIAL_STATE);
-            navigate("/admin");
-        } catch (err: unknown) {
-            if (axios.isAxiosError(err)) {
-                console.error("❌ Axios Error:", err.response?.data || err.message);
-                alert('❌ ${err.response?.data || "Failed to send notification."}');
-            } else {
-                console.error("❌ Unknown Error:", err);
-                alert("❌ Unknown error occurred.");
-            }
-        } finally {
-            setLoading(false);
-        }
-    };
+      setForm(INITIAL_STATE);
+      navigate("/admin");
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err)) {
+        console.error("❌ Axios Error:", err.response?.data || err.message);
+        alert(`❌ ${err.response?.data || "Failed to send notification."}`);
+      } else {
+        console.error("❌ Unknown Error:", err);
+        alert("❌ Unknown error occurred.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!token) return null;
 
   return (
-    <div className="min-h-screen bg-white flex">
+    <div className="min-h-screen bg-gray-50 flex">
       <AdminSidebarWidget />
+      <main className="flex-1 p-6 overflow-y-auto">
+        <div className="max-w-2xl mx-auto bg-white shadow p-8 rounded-xl space-y-6">
+          <h1 className="text-2xl font-bold text-blue-800">📢 Send Notification</h1>
 
-      <main className="flex-1 p-10 space-y-6 relative">
-       
-        <h1 className="text-2xl font-bold text-blue-800 mb-6">📢 {t('title')}</h1>
-
-        <div className="bg-white shadow-md rounded-xl p-8 max-w-3xl">
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-base block font-medium text-gray-700">{t('sendTo')}</label>
+              <label className="font-medium text-sm text-gray-700">Message</label>
+              <textarea
+                name="message"
+                rows={4}
+                value={form.message}
+                onChange={handleChange}
+                required
+                className="w-full mt-1 p-2 border rounded-lg bg-gray-50"
+                placeholder="Type your announcement or message..."
+              />
+            </div>
+
+            <div>
+              <label className="font-medium text-sm text-gray-700">Send To</label>
               <select
                 name="target"
                 value={form.target}
                 onChange={handleChange}
-                className="mt-1 w-full p-2 border rounded-xl bg-gray-50"
+                className="w-full mt-1 p-2 border rounded-lg bg-gray-50"
               >
-                <option value="ALL">{t('allUsers')}</option>
-                <option value="TEAM">{t('team')}</option>
-                <option value="USER">{t('specificUser')}</option>
+                <option value="ALL">All Users</option>
+                <option value="TEAM">Select Team</option>
+                <option value="USER">Specific Users</option>
               </select>
             </div>
 
-            {form.target === "TEAM" && (
-              <>
-                <div>
-                  <label className="block text-base font-medium text-gray-700">{t('selectTeam')}</label>
-                  <select
-                    value={selectedTeam}
-                    onChange={(e) => {
-                      setSelectedTeam(e.target.value);
-                      setForm((prev) => ({ ...prev, selectedUsers: [] }));
-                    }}
-                    className="mt-1 w-full p-2 border rounded-xl bg-gray-50"
-                  >
-                    <option value="">-- {t('selectTeam')} --</option>
-                    {teams.map((team) => (
-                      <option key={team} value={team}>
-                        {team}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                {selectedTeam && (
-                  <div>
-                    <label className="block text-base font-medium text-gray-700">{t('selectUser')}</label>
-                    <select
-                      multiple
-                      value={form.selectedUsers}
-                      onChange={handleUserSelect}
-                      className="mt-1 w-full p-2 border rounded-xl bg-gray-50 h-32"
-                    >
-                      {filteredUsers.map((u) => (
-                        <option key={u.id} value={u.id}>
-                          {u.name}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                )}
-              </>
-            )}
-
             {form.target === "USER" && (
               <div>
-                <label className="block text-base font-medium text-gray-700">{t('selectUser')}</label>
+                <label className="font-medium text-sm text-gray-700">
+                  Select Users
+                </label>
                 <select
                   multiple
                   value={form.selectedUsers}
                   onChange={handleUserSelect}
-                  className="mt-1 w-full p-2 border rounded-xl bg-gray-50 h-32"
+                  className="w-full mt-1 p-2 border rounded-lg bg-gray-50 h-40"
                 >
                   {users.map((u) => (
                     <option key={u.id} value={u.id}>
@@ -204,43 +188,43 @@ const AdminCreateNotificationPage: React.FC = () => {
                     </option>
                   ))}
                 </select>
+                {users.length === 0 && (
+                  <p className="text-xs text-gray-400 mt-1">Loading users...</p>
+                )}
               </div>
             )}
 
-            <div>
-              <label className="block text-base font-medium text-gray-700">{t('message')}</label>
-              <textarea
-                name="message"
-                value={form.message}
-                onChange={handleChange}
-                required
-                className="mt-1 w-full p-2 border rounded-xl bg-gray-50"
-                rows={4}
-                placeholder={t('type')}
-              />
-            </div>
+            {form.target === "TEAM" && (
+              <div>
+                <label className="font-medium text-sm text-gray-700">Select Teams</label>
+                <select
+                  multiple
+                  value={form.selectedTeamIds}
+                  onChange={handleTeamSelect}
+                  className="w-full mt-1 p-2 border rounded-lg bg-gray-50 h-40"
+                >
+                  {teams.map((team) => (
+                    <option key={team.id} value={team.id}>
+                      {team.name}
+                    </option>
+                  ))}
+                </select>
+                {teams.length === 0 && (
+                  <p className="text-xs text-gray-400 mt-1">Loading teams...</p>
+                )}
+              </div>
+            )}
 
-            <div className="flex justify-end">
-              <button
-                type="submit"
-                disabled={loading}
-                className="bg-blue-600 text-white px-10 py-2 rounded-xl shadow-md hover:bg-blue-700 disabled:opacity-50"
-              >
-                {loading ? t('sending') : t('send')}
-              </button>
-            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              {loading ? "Sending..." : "Send Notification"}
+            </button>
           </form>
         </div>
       </main>
-
-      <div className="w-80 hidden lg:block p-6 relative">
-        <div className="absolute top-6 right-10 z-10">
-          <LanguageSwitcher />
-        </div>
-        <div className="pt-16" />
-          < CalendarWidget />
-        </div>
-
     </div>
   );
 };

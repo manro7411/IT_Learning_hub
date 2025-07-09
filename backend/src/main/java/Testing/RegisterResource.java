@@ -18,7 +18,7 @@ import java.util.Set;
 @Produces(MediaType.APPLICATION_JSON)
 public class RegisterResource {
 
-    private static final Set<String> ALLOWED_ROLES = Set.of("user", "admin");
+    private static final Set<String> ALLOWED_ROLES = Set.of("user", "admin","supervisor");
 
     @Inject
     EntityManager em;

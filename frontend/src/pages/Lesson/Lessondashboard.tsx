@@ -1,15 +1,11 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-
 import { AuthContext } from "../../Authentication/AuthContext";
-import CalendarWidget from "../../widgets/CalendarWidget";
-import ScoreboardChart from "../../components/ScoreboardChart";
 import Sidebar from "../../widgets/SidebarWidget";
 import defaultUserAvatar from "../../assets/user.png";
 import ChatBubbleWidget from "../../widgets/ChatBubbleWidget";
 import NotificationWidget from "../../widgets/NotificationWidget";
-
 import { useTranslation } from "react-i18next";
 import LanguageSwitcher from "../../components/LanguageSwitcher";
 
@@ -21,6 +17,9 @@ interface Lesson {
   thumbnailUrl?: string;
   authorName?: string;
   authorAvatarUrl?: string;
+  assignType: string;
+  assignedUserIds?: string[];
+  assignedTeamIds?: string[];
 }
 
 interface Progress {
@@ -30,10 +29,8 @@ interface Progress {
 
 const LessonPage = () => {
   const { t } = useTranslation("userlesson");
-
   const { token: ctxToken } = useContext(AuthContext);
   const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
-
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -41,33 +38,95 @@ const LessonPage = () => {
   const [progressMap, setProgressMap] = useState<Record<string, Progress>>({});
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+  const [selectedAssignType, setSelectedAssignType] = useState<string>("all");
+  const [userId, setUserId] = useState<string | null>(null);
+  const [myTeamIds, setMyTeamIds] = useState<string[]>([]);
+  const menuRef = useRef<HTMLDivElement>(null);
 
+  // Fetch teams
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/teams", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setMyTeamIds(res.data.map((team: { id: string }) => team.id));
+      } catch (error) {
+        console.error("❌ Failed to fetch user teams:", error);
+      }
+    };
+    if (token) fetchTeams();
+  }, [token]);
+
+  // Fetch user profile
+  useEffect(() => {
+    if (!token) return;
+    const fetchUserProfile = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setUserId(res.data.id);
+        setMyTeamIds(res.data.teams || []);
+      } catch (error) {
+        console.error("❌ Failed to fetch user profile:", error);
+      }
+    };
+    fetchUserProfile();
+  }, [token]);
+
+  const categories = Array.from(new Set(lessons.map((l) => l.category).filter(Boolean)));
+
+  const filteredLessons = lessons.filter((l) => {
+    const matchesAssignType =
+      selectedAssignType === "all"
+        ? l.assignType === "all"
+        : selectedAssignType === "specific"
+        ? l.assignType === "specific" && userId && l.assignedUserIds?.includes(userId)
+        : selectedAssignType === "team"
+        ? l.assignType === "team" && l.assignedTeamIds?.some((assignedTeamId) => myTeamIds.includes(assignedTeamId))
+        : false;
+
+    const matchesSearch = [l.title, l.category, l.description ?? ""].some((v) =>
+      v.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const matchesCategory = selectedCategories.length === 0 || selectedCategories.includes(l.category);
+
+    return matchesAssignType && matchesSearch && matchesCategory;
+  });
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setCategoryMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Fetch lessons & progress
   useEffect(() => {
     if (!token) {
       navigate("/");
       return;
     }
 
-    const fetchLessonsAndProgress = async () => {
+    const fetchData = async () => {
       try {
         const [lessonsRes, progressRes] = await Promise.all([
-          axios.get("http://localhost:8080/learning", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get("http://localhost:8080/user/progress", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+          axios.get("http://localhost:8080/learning", { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get("http://localhost:8080/user/progress", { headers: { Authorization: `Bearer ${token}` } }),
         ]);
-
         setLessons(lessonsRes.data);
 
         const map: Record<string, Progress> = {};
         progressRes.data.forEach((item: { lessonId: string; percent: number; lastTimestamp?: number }) => {
           const key = item.lessonId?.toString().trim().toLowerCase();
-          map[key] = {
-            percent: item.percent,
-            lastTimestamp: item.lastTimestamp || 0,
-          };
+          map[key] = { percent: item.percent, lastTimestamp: item.lastTimestamp || 0 };
         });
         setProgressMap(map);
       } catch (err) {
@@ -78,20 +137,15 @@ const LessonPage = () => {
       }
     };
 
-    fetchLessonsAndProgress();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, location.pathname]);
+    fetchData();
+  }, [token, location.pathname, navigate]);
 
   const handleLessonClick = async (id: string) => {
     const key = id?.toString().trim().toLowerCase();
     const lastTimestamp = progressMap[key]?.lastTimestamp || 0;
-
     try {
       await axios.post(`http://localhost:8080/learning/${id}/click`, {}, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
     } catch (err) {
       console.error("Failed to log click:", err);
@@ -99,12 +153,6 @@ const LessonPage = () => {
       navigate(`/lesson/${id}`, { state: { lastTimestamp } });
     }
   };
-
-  const filtered = lessons.filter((l) =>
-    [l.title, l.category, l.description ?? ""].some((v) =>
-      v.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-  );
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -118,10 +166,69 @@ const LessonPage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full xl:w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
-          
-          <div className="flex items-center gap-4">
-                <NotificationWidget />
-                <LanguageSwitcher />
+
+          <div className="flex items-center space-x-4">
+            {/* Category Filter */}
+            <div className="relative" ref={menuRef}>
+              <button
+                onClick={() => setCategoryMenuOpen(!categoryMenuOpen)}
+                className="px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-100 text-sm"
+              >
+                {selectedCategories.length > 0
+                  ? `${t('category')} (${selectedCategories.length})`
+                  : t('filterCategory')}
+              </button>
+
+              {categoryMenuOpen && (
+                <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
+                  <div className="p-2 space-y-1">
+                    {categories.map((category) => (
+                      <label key={category} className="flex items-center space-x-2 cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          checked={selectedCategories.includes(category)}
+                          onChange={() => {
+                            setSelectedCategories((prev) =>
+                              prev.includes(category)
+                                ? prev.filter((c) => c !== category)
+                                : [...prev, category]
+                            );
+                          }}
+                          className="accent-purple-500"
+                        />
+                        <span>{category}</span>
+                      </label>
+                    ))}
+                    <button
+                      className="mt-2 text-xs text-blue-500 hover:underline"
+                      onClick={() => setSelectedCategories([])}
+                    >
+                      {t('clearAll')}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Assign Type Filter */}
+            <div className="flex space-x-2">
+              {["all", "team", "specific"].map((type) => (
+                <button
+                  key={type}
+                  onClick={() => setSelectedAssignType(type)}
+                  className={`px-3 py-1 rounded-md text-sm ${
+                    selectedAssignType === type
+                      ? "bg-purple-500 text-white"
+                      : "bg-gray-200 hover:bg-gray-300"
+                  }`}
+                >
+                  {t(type)}
+                </button>
+              ))}
+            </div>
+
+            <NotificationWidget />
+            <LanguageSwitcher />
           </div>
         </div>
 
@@ -129,10 +236,10 @@ const LessonPage = () => {
           <div className="xl:col-span-3 grid gap-6 grid-cols-[repeat(auto-fill,minmax(256px,1fr))]">
             {loading ? (
               <div className="text-gray-500">{t('loading')}</div>
-            ) : filtered.length === 0 ? (
+            ) : filteredLessons.length === 0 ? (
               <div className="text-gray-500">{t('notfound')}</div>
             ) : (
-              filtered.map((lesson) => {
+              filteredLessons.map((lesson) => {
                 const key = lesson.id?.toString().trim().toLowerCase();
                 const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };
 
@@ -147,9 +254,7 @@ const LessonPage = () => {
                         <img
                           src={lesson.thumbnailUrl || "/placeholder.png"}
                           alt={lesson.title}
-                          onError={(e) => {
-                            e.currentTarget.src = "/placeholder.png";
-                          }}
+                          onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
                           className="h-full w-full object-cover"
                         />
                       </div>
@@ -179,16 +284,14 @@ const LessonPage = () => {
                           <img
                             src={lesson.authorAvatarUrl || defaultUserAvatar}
                             alt="Author"
-                            onError={(e) => {
-                              e.currentTarget.src = defaultUserAvatar;
-                            }}
+                            onError={(e) => { e.currentTarget.src = defaultUserAvatar; }}
                             className="h-7 w-7 rounded-full object-cover"
                           />
                           <div>
                             <div className="text-xs font-medium">
-                              {lesson.authorName || "Unknown Author"}
+                              {lesson.authorName || t('unknownAuthor')}
                             </div>
-                            <div className="text-[10px] text-gray-500">Learning Content</div>
+                            <div className="text-[10px] text-gray-500">{t('learningContent')}</div>
                           </div>
                         </div>
                       </div>
@@ -200,8 +303,7 @@ const LessonPage = () => {
           </div>
 
           <div className="order-1 space-y-6 xl:order-2">
-            <CalendarWidget />
-            <ScoreboardChart />
+            {/* Future widgets like Calendar can go here */}
           </div>
         </div>
       </main>

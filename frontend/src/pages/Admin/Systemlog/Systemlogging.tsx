@@ -21,6 +21,7 @@ interface UserProgress {
   lessonId: string;
   lessonTitle: string;
   percent: number;
+  score: number;
   userEmail: string;
   updatedAt: string;
 }
@@ -39,7 +40,6 @@ const tabs = [
   { label: "User_Progress", value: "progress" },
   { label: "Notifications_activity", value: "notifications" },
 ];
-
 const Systemlogging = () => {
   const { t } = useTranslation("adminsystemlog");
 
@@ -176,7 +176,6 @@ const Systemlogging = () => {
         </table>
       );
     }
-
     if (activeTab === "progress") {
       return (
         <table className="min-w-full text-base text-left border-collapse border">
@@ -205,7 +204,6 @@ const Systemlogging = () => {
         </table>
       );
     }
-
     if (activeTab === "notifications") {
       return (
         <table className="min-w-full text-base text-left border-collapse border">

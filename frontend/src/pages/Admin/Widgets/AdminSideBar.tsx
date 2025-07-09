@@ -15,7 +15,8 @@ const adminMenuItems = [
   { name: "Dashboard", icon: <Home size={20} />, path: "/admin" },
   { name: "Task management", icon: <Users size={20} />, path: "/admin/lesson/management" },
   { name: "Courses", icon: <BookOpen size={20} />, path: "/admin/lesson/create" },
-  { name: "Notifications", icon: <Bell size={20} />, path: "/admin/notifications" }, // 🆕
+  { name: "Team management", icon: <Users size={20} />, path: "/admin/team" },
+  { name: "Notifications", icon: <Bell size={20} />, path: "/admin/notifications" }, 
   { name: "System Logs", icon: <FileText size={20} />, path: "/admin/logs" },
   { name: "Settings", icon: <Settings size={20} />, path: "/admin/setting" },
 ];
