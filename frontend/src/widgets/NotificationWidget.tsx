@@ -56,8 +56,18 @@ const NotificationWidget = () => {
   }, []);
 
   const filteredItems = items.filter((n) => {
-  if (assignTypeFilter === "ALL") return true;
-  return (n.targetName || "").toLowerCase() === assignTypeFilter.toLowerCase();
+    switch (assignTypeFilter)  {
+      case "ALL":
+        return n.targetName === "ALL" || !n.targetName;
+
+      case "TEAM":
+        return n.targetName === "TEAM";
+
+      case "USER":
+        return n.targetName === "USER";
+      default:
+        return false;
+    }
 });
 
 
