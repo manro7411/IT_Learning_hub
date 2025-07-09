@@ -9,6 +9,7 @@ import AdminDashboard_overall from './pages/Admin/Dashboard/AdminDashboard_overa
 
 import { UserRoutes } from "./routes/UserRoutes";
 import { AdminRoutes } from "./routes/AdminRoutes";
+import { SupervisorRoutes } from "./routes/SupervisorRoutes.tsx";
 
 function App() {
     return (
@@ -21,6 +22,7 @@ function App() {
                     <Route path="/admin-overall" element={<AdminDashboard_overall />} />
                     {UserRoutes()}
                     {AdminRoutes()}
+                    {SupervisorRoutes()}
                 </Routes>
             </Router>
         </AuthProvider>

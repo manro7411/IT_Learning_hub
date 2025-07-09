@@ -76,7 +76,7 @@ const RegisterPage = () => {
                     required
                 />
 
-                {/* 🆕 ROLE SELECT */}
+
                 <select
                     name="role"
                     value={form.role}
@@ -86,6 +86,7 @@ const RegisterPage = () => {
                 >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
+                    <option value="supervisor">Supervisor</option>
                 </select>
 
                 <button
