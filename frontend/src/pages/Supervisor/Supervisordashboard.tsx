@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
 import SupervisorSidebarWidget from "./Widgets/SupervisorSideBar";
 import UserListWidget from "./Widgets/UserListWidget";
 
@@ -14,7 +13,6 @@ type User = {
 const SupervisorDashboard = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const navigate = useNavigate();
 
   const fetchUsers = async () => {
     try {
