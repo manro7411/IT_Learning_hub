@@ -16,7 +16,7 @@ public class MemberEntity {
     private TeamEntity team;
 
     @Column(name = "name_menbers")
-    private String nameMenbers;
+    private String nameMembers;
 
     @Column(name = "member_ID", nullable = false)
     private String userID;
@@ -52,11 +52,11 @@ public class MemberEntity {
     public LocalDateTime getJoinedAt() { return joinedAt; }
     public void setJoinedAt(LocalDateTime joinedAt) { this.joinedAt = joinedAt; }
 
-    public String getNameMenbers() {
-        return nameMenbers;
+    public String getNameMembers() {
+        return nameMembers;
     }
 
-    public void setNameMenbers(String nameMenbers) {
-        this.nameMenbers = nameMenbers;
+    public void setNameMembers(String nameMembers) {
+        this.nameMembers = nameMembers;
     }
 }

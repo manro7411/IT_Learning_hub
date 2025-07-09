@@ -1,15 +1,21 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Dialog } from "@headlessui/react";
 
 const JoinTeamWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [digits, setDigits] = useState<string[]>(Array(6).fill(""));
-  const [isLoading, setIsLoading] = useState(false);
+  const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
+  const [userId, setUserId] = useState("test@example.com"); // สมมุติ user login แล้วมี email
+  const [userName, setUserName] = useState("John Doe");
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  const joinCode = digits.join("");
-  const userId = "ratchanon@gmail.com"; // TODO: replace with real user from auth context
-  const userName = "Ratchanon Traitiprat";
+  const resetForm = () => {
+    setDigits(["", "", "", "", "", ""]);
+    setErrorMessage("");
+  };
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d?$/.test(value)) return;
@@ -22,137 +28,123 @@ const JoinTeamWidget = () => {
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Backspace" && !digits[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
+    if (e.key === "Backspace") {
+      if (digits[index]) {
+        const newDigits = [...digits];
+        newDigits[index] = "";
+        setDigits(newDigits);
+      } else if (index > 0) {
+        inputRefs.current[index - 1]?.focus();
+      }
     }
   };
 
-  const resetForm = () => setDigits(Array(6).fill(""));
+  const handleSubmit = async () => {
+    const joinCode = digits.join("");
+    setLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+
+try {
+  const res = await fetch("http://localhost:8080/teams/joining", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      joinCode,
+      userId,
+      userName,
+    }),
+  });
+
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({}));
+    throw new Error(errorData.message || "Failed to join team");
+  }
+
+  setSuccessMessage("✅ Joined team successfully!");
+  resetForm();
+  setIsOpen(false);
+} catch (err: unknown) {
+  if (err instanceof Error) {
+    setErrorMessage(err.message);
+  } else {
+    setErrorMessage("An unknown error occurred");
+  }
+} finally {
+  setLoading(false);
+}
+
+  };
 
   const handleClose = () => {
     resetForm();
     setIsOpen(false);
   };
 
-  const handleSubmit = async () => {
-    if (!/^\d{6}$/.test(joinCode)) {
-      alert("Please enter a valid 6-digit code");
-      return;
+  useEffect(() => {
+    if (isOpen) {
+      inputRefs.current[0]?.focus();
     }
-
-    setIsLoading(true);
-
-    try {
-      const response = await fetch("http://localhost:8080/teams/joining", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ joinCode, userId, userName }),
-      });
-
-      const message = await response.text();
-
-      if (!response.ok) {
-        throw new Error(message || "Unknown error");
-      }
-
-      alert(`✅ Success: ${message}`);
-      handleClose();
-
-    } catch (error: unknown) {
-      console.error(error);
-      alert(`❌ Error: ${error instanceof Error ? error.message : "Unknown error occurred"}`);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [isOpen]);
 
   return (
     <>
-      <JoinTeamCard onOpen={() => setIsOpen(true)} />
-      <JoinTeamDialog
-        isOpen={isOpen}
-        onClose={handleClose}
-        digits={digits}
-        isLoading={isLoading}
-        onDigitChange={handleChange}
-        onKeyDown={handleKeyDown}
-        onSubmit={handleSubmit}
-        inputRefs={inputRefs}
-      />
+      <div className="bg-white p-4 rounded-lg shadow">
+        <h2 className="text-lg font-semibold mb-4">Join a Team</h2>
+        <p className="text-gray-600 mb-4">Join a team to collaborate on projects and assignments.</p>
+        <button
+          onClick={() => setIsOpen(true)}
+          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+        >
+          Join Team
+        </button>
+
+        {successMessage && <p className="mt-2 text-green-600">{successMessage}</p>}
+      </div>
+
+      <Dialog open={isOpen} onClose={handleClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
+        <Dialog.Panel className="bg-white rounded-lg p-6 w-full max-w-sm space-y-4 shadow-xl">
+          <Dialog.Title className="text-xl font-bold text-center">Enter Join Code</Dialog.Title>
+          <p className="text-sm text-gray-500 text-center">Enter the 6-digit team code</p>
+
+          <div className="flex justify-center space-x-2">
+            {digits.map((digit, index) => (
+              <input
+                key={index}
+                type="text"
+                inputMode="numeric"
+                maxLength={1}
+                value={digit}
+                ref={(el) => { inputRefs.current[index] = el; }}
+                onChange={(e) => handleChange(index, e.target.value)}
+                onKeyDown={(e) => handleKeyDown(index, e)}
+                className="w-12 h-14 text-center text-2xl border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            ))}
+          </div>
+
+          {errorMessage && <p className="text-sm text-red-500 text-center">{errorMessage}</p>}
+
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={handleClose}
+              className="px-4 py-2 rounded-md text-sm bg-gray-200 hover:bg-gray-300"
+              disabled={loading}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleSubmit}
+              disabled={digits.some(d => d === "") || loading}
+              className="px-4 py-2 rounded-md text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300"
+            >
+              {loading ? "Joining..." : "Join"}
+            </button>
+          </div>
+        </Dialog.Panel>
+      </Dialog>
     </>
   );
 };
-
-const JoinTeamCard = ({ onOpen }: { onOpen: () => void }) => (
-  <div className="bg-white p-4 rounded-lg shadow">
-    <h2 className="text-lg font-semibold mb-4">Join a Team</h2>
-    <p className="text-gray-600 mb-4">Join a team to collaborate on projects and assignments.</p>
-    <button
-      onClick={onOpen}
-      className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-    >
-      Join Team
-    </button>
-  </div>
-);
-
-const JoinTeamDialog = ({
-  isOpen,
-  onClose,
-  digits,
-  isLoading,
-  onDigitChange,
-  onKeyDown,
-  onSubmit,
-  inputRefs,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  digits: string[];
-  isLoading: boolean;
-  onDigitChange: (index: number, value: string) => void;
-  onKeyDown: (index: number, e: React.KeyboardEvent<HTMLInputElement>) => void;
-  onSubmit: () => void;
-  inputRefs: React.MutableRefObject<(HTMLInputElement | null)[]>;
-}) => (
-  <Dialog open={isOpen} onClose={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
-    <Dialog.Panel className="bg-white rounded-lg p-6 w-full max-w-sm space-y-4 shadow-xl">
-      <Dialog.Title className="text-xl font-bold text-center">Enter Join Code</Dialog.Title>
-      <p className="text-sm text-gray-500 text-center">Enter the 6-digit team code</p>
-
-      <div className="flex justify-center space-x-2">
-        {digits.map((digit, index) => (
-          <input
-            key={index}
-            type="text"
-            maxLength={1}
-            value={digit}
-            ref={(el) => { inputRefs.current[index] = el; }}
-            onChange={(e) => onDigitChange(index, e.target.value)}
-            onKeyDown={(e) => onKeyDown(index, e)}
-            className="w-10 h-12 text-center text-xl border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        ))}
-      </div>
-
-      <div className="flex justify-end space-x-2">
-        <button
-          onClick={onClose}
-          className="px-3 py-1 rounded-md text-sm bg-gray-200 hover:bg-gray-300"
-          disabled={isLoading}
-        >
-          Cancel
-        </button>
-        <button
-          onClick={onSubmit}
-          className="px-3 py-1 rounded-md text-sm bg-blue-500 text-white hover:bg-blue-600"
-          disabled={isLoading}
-        >
-          {isLoading ? "Joining..." : "Join"}
-        </button>
-      </div>
-    </Dialog.Panel>
-  </Dialog>
-);
 
 export default JoinTeamWidget;

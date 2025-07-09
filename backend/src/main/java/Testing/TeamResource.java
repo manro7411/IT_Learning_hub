@@ -15,6 +15,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.UUID;
 
+import static io.quarkus.arc.ComponentsProvider.LOG;
+
 @Path("/teams")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
@@ -34,7 +36,7 @@ public class TeamResource {
     public TeamEntity getTeam(@PathParam("id") String id) {
         TeamEntity team = em.find(TeamEntity.class, id);
         if (team == null) {
-            throw new WebApplicationException("Team not found", 404);
+            throw new NotFoundException("Team not found");
         }
         return team;
     }
@@ -43,7 +45,7 @@ public class TeamResource {
     @Transactional
     public Response createTeam(CreateTeamRequest request) {
         if (request.name == null || request.name.trim().isEmpty()) {
-            throw new WebApplicationException("Team name is required", 400);
+            throw new BadRequestException("Team name is required");
         }
 
         TeamEntity team = new TeamEntity();
@@ -51,12 +53,15 @@ public class TeamResource {
         team.setName(request.name);
         team.setDescription(request.description);
         team.setCreateBy(request.createBy);
+        // ✅ สร้าง joinCode
+        team.setJoinCode(UUID.randomUUID().toString().replace("-", "").substring(0, 8));
 
+        // ✅ สร้าง members
         List<MemberEntity> members = request.members.stream().map(dto -> {
             MemberEntity member = new MemberEntity();
             member.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
             member.setUserEmail(dto.userId);
-            member.setNameMenbers(dto.userName);
+            member.setNameMembers(dto.userName);  // แก้ชื่อฟิลด์
             member.setRole("member");
             member.setTeam(team);
             return member;
@@ -102,34 +107,39 @@ public class TeamResource {
     @Transactional
     public Response joinTeamByCode(CreateMemberRequest request) {
         if (request.joinCode == null || request.userId == null || request.userName == null) {
-            throw new WebApplicationException("Join code, user id, and user name are required", 400);
+            throw new BadRequestException("Join code, user id, and user name are required");
         }
+
         List<TeamEntity> teams = em.createQuery(
                         "SELECT t FROM TeamEntity t WHERE t.joinCode = :joinCode", TeamEntity.class)
                 .setParameter("joinCode", request.joinCode)
                 .getResultList();
 
         if (teams.isEmpty()) {
-            throw new WebApplicationException("Team not found with join code", 404);
+            throw new NotFoundException("Team not found with join code");
         }
 
         TeamEntity team = teams.get(0);
+
+        LOG.infof("✅ Found team: id=%s, name=%s", team.getId(), team.getName());
+
         boolean alreadyExists = team.getMemberEntities().stream()
                 .anyMatch(member -> member.getUserEmail().equals(request.userId));
 
         if (alreadyExists) {
-            throw new WebApplicationException("User already joined this team", 409);
+            throw new ClientErrorException("User already joined this team", 409);
         }
+
         MemberEntity member = new MemberEntity();
         member.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
         member.setUserEmail(request.userId);
-        member.setNameMenbers(request.userName);
+        member.setNameMembers(request.userName);
         member.setRole("member");
         member.setTeam(team);
 
         em.persist(member);
         team.getMemberEntities().add(member);
 
-        return Response.ok("Joined team successfully!").build();
+        return Response.ok().entity("Joined team successfully!").build();
     }
 }
