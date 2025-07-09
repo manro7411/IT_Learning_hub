@@ -1,9 +1,99 @@
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  role: string;
+};
+
 const SupervisorDashboard = () => {
-    return (
-        <div className="flex flex-col items-center justify-center h-screen">
-        <h1 className="text-4xl font-bold mb-4">Supervisor Dashboard</h1>
-        <p className="text-lg">This is the supervisor dashboard.</p>
-        </div>
-    );
+  const [users, setUsers] = useState<User[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate(); // ใช้สำหรับ redirect
+
+  const fetchUsers = async () => {
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      const { data } = await axios.get<User[]>("http://localhost:8080/profile/users", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const filtered = data.filter((user) => user.role !== "Supervisor");
+      console.log("✅ Users fetched:", filtered);
+      setUsers(filtered);
+    } catch (err) {
+      console.error(err);
+      setError("Error fetching users");
     }
+  };
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  const assignRole = async (userId: string, role: string) => {
+    try {
+      const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+      await axios.put(
+        `http://localhost:8080/profile/users/${userId}/role`,
+        { role },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      alert(`Role updated to ${role}`);
+      fetchUsers();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to update role");
+    }
+  };
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+    navigate("/"); 
+  };
+
+  return (
+    <div className="p-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Supervisor Dashboard</h1>
+        <button
+          onClick={logout}
+          className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600"
+        >
+          Logout
+        </button>
+      </div>
+
+      <p className="mb-6">Manage user roles.</p>
+
+      {error && <p className="text-red-500">{error}</p>}
+
+      <div className="space-y-4">
+        {users.map((user) => (
+          <div key={user.id} className="flex justify-between items-center p-4 border rounded-lg">
+            <div>
+              <p className="font-semibold">{user.name || user.email}</p>
+              <p className="text-sm text-gray-500">Role: {user.role}</p>
+            </div>
+
+            {user.role !== "Admin" ? (
+              <button
+                onClick={() => assignRole(user.id, "Admin")}
+                className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Assign Admin
+              </button>
+            ) : (
+              <span className="text-green-600 font-medium">Already Admin</span>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
+
 export default SupervisorDashboard;

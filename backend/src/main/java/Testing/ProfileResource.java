@@ -64,7 +64,7 @@ public class ProfileResource {
     }
     @GET
     @Path("/users")
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin","supervisor"})
     public List<ProfileDto> getAllUsers() {
         return em.createQuery("SELECT u FROM User u", User.class)
                 .getResultList()
@@ -75,6 +75,8 @@ public class ProfileResource {
                         u.getEmail()))
                 .toList();
     }
+
+
     public static class UpdateDto {
         public String name;
         public String email;
