@@ -52,6 +52,8 @@ const Systemlogging = () => {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
+
 
   const exportChatLogCSV = () => {
     const csv = Papa.unparse(chatLogs);
@@ -113,6 +115,36 @@ const Systemlogging = () => {
     }
   }, [token, activeTab]);
 
+  const filteredData = (() => {
+    const lowerQuery = searchQuery.toLowerCase();
+    if (activeTab === "chatlog") {
+      return chatLogs.filter((log) =>
+        log.userEmail.toLowerCase().includes(lowerQuery)
+      );
+    }
+    if (activeTab === "progress") {
+      return userProgress.filter((item) =>
+        item.lessonTitle.toLowerCase().includes(lowerQuery)
+      );
+    }
+    if (activeTab === "notifications") {
+      return notifications.filter((item) =>
+        item.recipientName.toLowerCase().includes(lowerQuery)
+      );
+    }
+    return [];
+  })();
+
+  const placeholderText =
+  activeTab === "chatlog"
+    ? "Search Email..."
+    : activeTab === "progress"
+    ? "Search Title..."
+    : activeTab === "notifications"
+    ? "Search User..."
+    : "";
+
+
   const renderTable = () => {
     if (activeTab === "chatlog") {
       return (
@@ -128,7 +160,7 @@ const Systemlogging = () => {
             </tr>
           </thead>
           <tbody>
-            {chatLogs.map((log) => (
+            {filteredData.map((log) => (
               <tr key={log.id} className="border-t">
                 <td className="border px-4 py-2">{log.id}</td>
                 <td className="border px-4 py-2">{log.inputMessage}</td>
@@ -144,36 +176,34 @@ const Systemlogging = () => {
         </table>
       );
     }
-  if (activeTab === "progress") {
-  return (
-    <table className="min-w-full text-sm text-left border-collapse border">
-      <thead className="bg-gray-100 font-bold">
-        <tr>
-          <th className="border px-4 py-2">Lesson ID</th>
-          <th className="border px-4 py-2">Title</th>
-          <th className="border px-4 py-2">Email</th>
-          <th className="border px-4 py-2">Progress</th>
-          <th className="border px-4 py-2">Score</th>
-          <th className="border px-4 py-2">Updated At</th>
-        </tr>
-      </thead>
-      <tbody>
-        {userProgress.map((item, index) => (
-          <tr key={index} className="border-t">
-            <td className="border px-4 py-2">{item.lessonId}</td>
-            <td className="border px-4 py-2">{item.lessonTitle}</td>
-            <td className="border px-4 py-2">{item.userEmail}</td>
-            <td className="border px-4 py-2">{item.percent}%</td>
-            <td className="border px-4 py-2">{item.score}</td>
-            <td className="border px-4 py-2">
-              {new Date(item.updatedAt).toLocaleString("th-TH")}
-            </td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
-  );
-}
+    if (activeTab === "progress") {
+      return (
+        <table className="min-w-full text-base text-left border-collapse border">
+          <thead className="bg-gray-100 font-bold">
+            <tr>
+              <th className="border px-4 py-2">Lesson ID</th>
+              <th className="border px-4 py-2">Title</th>
+              <th className="border px-4 py-2">Email</th>
+              <th className="border px-4 py-2">Progress</th>
+              <th className="border px-4 py-2">Updated At</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredData.map((item, index) => (
+              <tr key={index} className="border-t">
+                <td className="border px-4 py-2">{item.lessonId}</td>
+                <td className="border px-4 py-2">{item.lessonTitle}</td>
+                <td className="border px-4 py-2">{item.userEmail}</td>
+                <td className="border px-4 py-2">{item.percent}%</td>
+                <td className="border px-4 py-2">
+                  {new Date(item.updatedAt).toLocaleString("th-TH")}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      );
+    }
     if (activeTab === "notifications") {
       return (
         <table className="min-w-full text-base text-left border-collapse border">
@@ -187,7 +217,7 @@ const Systemlogging = () => {
             </tr>
           </thead>
           <tbody>
-            {notifications.map((item) => (
+            {filteredData.map((item) => (
               <tr key={item.id} className="border-t">
                 <td className="border px-4 py-2">{item.id}</td>
                 <td className="border px-4 py-2">{item.message}</td>
@@ -211,13 +241,10 @@ const Systemlogging = () => {
       <AdminSidebarWidget />
 
       
-      <div className="flex-1 overflow-y-auto p-6">
+      <main className="flex-1 overflow-y-auto p-6">
         {/* Header + Download Button */}
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold">{t('title')}</h1>
-
-          
-
           <div className="absolute top-6 right-10">
                 <LanguageSwitcher />
           </div>
@@ -248,6 +275,8 @@ const Systemlogging = () => {
           )}
         </div>
 
+        
+
         <div className="flex space-x-6 border-b mb-6 text-sm font-semibold">
           {tabs.map((tab) => (
             <button
@@ -264,6 +293,17 @@ const Systemlogging = () => {
           ))}
         </div>
 
+        {/* Search Input */}
+        <div className="flex items-center justify-between mb-4">
+          <input
+            type="text"
+            placeholder={placeholderText}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full xl:w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
+          />
+        </div>
+
         {loading ? (
           <p>กำลังโหลดข้อมูล...</p>
         ) : error ? (
@@ -271,9 +311,10 @@ const Systemlogging = () => {
         ) : (
           <div className="overflow-x-auto">{renderTable()}</div>
         )}
-      </div>
+      </main>
     </div>
   );
 };
 
 export default Systemlogging;
+
