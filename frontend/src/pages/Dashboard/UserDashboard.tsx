@@ -39,7 +39,7 @@ const UserDashboard = () => {
         const res = await axios.get("http://localhost:8080/learning/upcoming-due", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        console.log("📚 Lessons fetched:", res.data);
+        // console.log("📚 Lessons fetched:", res.data);
         setLessons(res.data);
       } catch (err) {
         console.error("❌ Error fetching lessons", err);
@@ -56,7 +56,7 @@ const UserDashboard = () => {
   }, [lessons, assignTypeFilter]);
 
   const calendarEvents = useMemo(() => {
-    console.log("🔍 Filtered Lessons:", filteredLessons);
+    // console.log("🔍 Filtered Lessons:", filteredLessons);
     return filteredLessons
       .filter((lesson) => lesson.dueDate)
       .map((lesson) => ({

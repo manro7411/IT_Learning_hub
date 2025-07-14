@@ -75,7 +75,6 @@ const RegisterPage = () => {
                     className="border w-full px-4 py-2 rounded-lg"
                     required
                 />
-
                 <select
                     name="role"
                     value={form.role}

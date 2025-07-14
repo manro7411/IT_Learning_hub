@@ -56,15 +56,13 @@ const NotificationWidget = () => {
   }, []);
 
   const filteredItems = items.filter((n) => {
-    switch (assignTypeFilter)  {
+    switch (assignTypeFilter) {
       case "ALL":
-        return n.targetName === "ALL" || !n.targetName;
-
+        return n.targetName === "ALL";
       case "TEAM":
         return n.targetName === "TEAM";
-
       case "USER":
-        return n.targetName === "USER";
+        return n.targetName === "USER" ;
       default:
         return false;
     }

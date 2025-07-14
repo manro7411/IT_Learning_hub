@@ -43,7 +43,7 @@ public class TeamMemberResource {
         member.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
         member.setTeam(team);
         member.setUserEmail(request.userId);
-        member.setNameMenbers(request.userName != null ? request.userName : "Unknown");
+//        member.setNameMenbers(request.userName != null ? request.userName : "Unknown");
         member.setRole(request.role != null ? request.role : "member");
 
         em.persist(member);

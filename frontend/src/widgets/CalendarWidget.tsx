@@ -9,7 +9,7 @@ interface Event {
   title: string;
   date: string;
   id: string;
-  assignType: string; // เพิ่ม assignType
+  assignType: string; 
 }
 
 interface CalendarWidgetProps {

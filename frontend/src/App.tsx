@@ -12,23 +12,20 @@ import { AdminRoutes } from "./routes/AdminRoutes";
 import { SupervisorRoutes } from "./routes/SupervisorRoutes.tsx";
 
 function App() {
-  return (
-      <AuthProvider>
-        <Router>
-          
-          <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage/>}/>
-            <Route path="/admin-dashboard" element={<AdminDashboard />} />
-            <Route path="/admin-overall" element={<AdminDashboard_overall />} />
-
-            {UserRoutes()}
-            {AdminRoutes()}
-            {SupervisorRoutes()}
-          </Routes>
-          
-        </Router>
-      </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <Router>
+                <Routes>
+                    <Route path="/" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/admin-dashboard" element={<AdminDashboard />} />
+                    <Route path="/admin-overall" element={<AdminDashboard_overall />} />
+                    {UserRoutes()}
+                    {AdminRoutes()}
+                    {SupervisorRoutes()}
+                </Routes>
+            </Router>
+        </AuthProvider>
+    );
 }
 export default App;

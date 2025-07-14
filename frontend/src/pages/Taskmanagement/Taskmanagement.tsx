@@ -1,5 +1,4 @@
 import React, { useContext, useEffect, useState } from 'react';
-// import CalendarWidget from '../../widgets/CalendarWidget';
 import Sidebar from '../../widgets/SidebarWidget';
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
 import { useNavigate } from "react-router-dom";
@@ -126,6 +125,23 @@ const TaskManagement = () => {
     );
   };
 
+  const updateLessonProgress = (lessonId: string, progress: number) => {
+    setTasks((prevTasks) =>
+      prevTasks.map((task) => {
+        if (task.lessonId !== lessonId) return task;
+
+        const newStatus: Task['status'] =
+          progress >= 100 ? 'done' : 'inprogress';
+
+        return {
+          ...task,
+          progress,
+          status: newStatus,
+        };
+      })
+    );
+  };
+
   const renderColumn = (status: Task['status'], title: string) => (
     <div className="bg-gray-100 rounded-xl p-4 w-full min-h-[400px] space-y-4">
       <h3 className="text-lg font-semibold mb-4">{title}</h3>
@@ -141,7 +157,9 @@ const TaskManagement = () => {
                   thumbnailUrl={task.thumbnailUrl || "/placeholder.png"}
                   author={task.author || "Unknown"}
                   role={task.role || "Instructor"}
-                  progress={task.progress || 100}
+                  progress={task.progress || 0}
+                  onStart={() => updateLessonProgress(task.lessonId!, 10)} // เริ่มต้นสมมุติ progress เป็น 10
+                  onComplete={() => updateLessonProgress(task.lessonId!, 100)}
                 />
               ) : (
                 <div className="bg-white p-4 rounded shadow">
