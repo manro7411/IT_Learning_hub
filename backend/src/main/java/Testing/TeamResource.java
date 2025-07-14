@@ -40,6 +40,15 @@ public class TeamResource {
         }
         return team;
     }
+    @GET
+    @Path("/my-teams/{userId}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<TeamEntity> getTeamsByUserId(@PathParam("userId") String userId) {
+        return em.createQuery(
+                        "SELECT m.team FROM MemberEntity m WHERE m.userID = :userId", TeamEntity.class)
+                .setParameter("userId", userId)
+                .getResultList();
+    }
 
     @POST
     @Transactional
@@ -47,16 +56,13 @@ public class TeamResource {
         if (request.name == null || request.name.trim().isEmpty()) {
             throw new BadRequestException("Team name is required");
         }
-
         TeamEntity team = new TeamEntity();
         team.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
         team.setName(request.name);
         team.setDescription(request.description);
         team.setCreateBy(request.createBy);
-        // ✅ สร้าง joinCode
         team.setJoinCode(UUID.randomUUID().toString().replace("-", "").substring(0, 8));
 
-        // ✅ สร้าง members
         List<MemberEntity> members = request.members.stream().map(dto -> {
             MemberEntity member = new MemberEntity();
             member.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
@@ -106,45 +112,44 @@ public class TeamResource {
     @Path("/joining")
     @Transactional
     public Response joinTeamByCode(CreateMemberRequest request) {
-//        if (request == null) {
-//            throw new BadRequestException("Missing request body");
-//        }
-//        if (request.joinCode == null || request.joinCode.isBlank()) {
-//            throw new BadRequestException("Join code is required");
-//        }
-//        if (request.userId == null || request.userId.isBlank() || request.userName == null || request.userName.isBlank()) {
-//            throw new BadRequestException("User ID and User Name are required");
-//        }
-//
-//        TeamEntity team = em.createQuery("""
-//        SELECT t FROM TeamEntity t
-//        WHERE t.joinCode = :code
-//    """, TeamEntity.class)
-//                .setParameter("code", request.joinCode)
-//                .getResultStream()
-//                .findFirst()
-//                .orElseThrow(() -> new NotFoundException("Invalid join code"));
-//
-//        boolean alreadyMember = team.getMemberEntities().stream()
-//                .anyMatch(m -> m.getUserEmail().equals(request.userId));
-//
-//        if (alreadyMember) {
-//            throw new BadRequestException("User is already a member of this team");
-//        }
-//
-//        MemberEntity member = new MemberEntity();
-//        member.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
-//        member.setUserEmail(request.userId);
-//        member.setNameMembers(request.userName);
-//        member.setRole("member");
-//        member.setTeam(team);
-//
-//        em.persist(member);
-//
-//        team.getMemberEntities().add(member);
+
+      if (request == null || request.joinCode.trim().length() != 6) {
+          System.out.println("Join code is invalid");
+          throw new WebApplicationException(Response.Status.BAD_REQUEST);
+
+      }
+        List<TeamEntity> teams = em.createQuery(
+                        "SELECT t FROM TeamEntity t WHERE t.joinCode = :joinCode", TeamEntity.class)
+                .setParameter("joinCode", request.joinCode)
+                .getResultList();
+
+      if (teams == null || teams.isEmpty()) {
+          System.out.println("Join code is invalid");
+          throw new WebApplicationException(Response.Status.BAD_REQUEST);
+      }
+
+      TeamEntity team = teams.getFirst();
+      boolean alreadyExists = team.getMemberEntities().stream() .anyMatch(member -> member.getUserEmail().equalsIgnoreCase(request.userId));
+
+      if (alreadyExists) {
+          System.out.println("Team already exists");
+          throw new WebApplicationException("User already in the team", 409);
+      }
+
+        System.out.println("Backend receiving code : "+request.joinCode);
+        System.out.println("Joined teams: " + teams);
+        System.out.println("Join code : "+request.getJoinCode()+" UserID : "+request.getUserId()+" Username : "+request.getUserName()+" Role " +request.getRole());
+        System.out.println("Team ID: "+team);
+
+        MemberEntity member = new MemberEntity();
+        member.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
+        member.setTeam(team);
+        member.setUserEmail(request.userId);
+        member.setRole("member");
+        member.setNameMembers(request.userName);
+        team.getMemberEntities().add(member);
+        em.persist(member);
 
         return Response.ok().entity("Joined team successfully!").build();
     }
-
-
 }

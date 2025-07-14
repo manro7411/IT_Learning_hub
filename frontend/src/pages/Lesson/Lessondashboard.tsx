@@ -244,7 +244,7 @@ const LessonPage = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           <div className="xl:col-span-3 grid gap-6 grid-cols-[repeat(auto-fill,minmax(256px,1fr))]">
             {loading ? (
               <div className="text-gray-500">Loading lessons…</div>
@@ -314,9 +314,9 @@ const LessonPage = () => {
             )}
           </div>
 
-          <div className="order-1 space-y-6 xl:order-2">
+          {/* <div className="order-1 space-y-6 xl:order-2"> */}
             {/* <CalendarWidget events={[]} /> */}
-          </div>
+          {/* </div> */}
         </div>
       </main>
       <ChatBubbleWidget />

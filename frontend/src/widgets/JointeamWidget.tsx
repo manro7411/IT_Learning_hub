@@ -1,14 +1,27 @@
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { Dialog } from "@headlessui/react";
+import { AuthContext } from "../Authentication/AuthContext";
+import axios from "axios";
+
+interface Team {
+  id: string;
+  name: string;
+  description: string;
+  joinCode: string;
+}
 
 const JoinTeamWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [digits, setDigits] = useState<string[]>(["", "", "", "", "", ""]);
-  const [userId, setUserId] = useState("test@example.com"); 
-  const [userName, setUserName] = useState("John Doe");
+  const [userId, setUserId] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [joinedTeams, setJoinedTeams] = useState<Team[]>([]);
+
+  const { token: ctxToken } = useContext(AuthContext);
+  const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
 
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -39,43 +52,76 @@ const JoinTeamWidget = () => {
     }
   };
 
+  useEffect(() => {
+    if (!token) return;
+
+    const fetchUserData = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/profile", {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (res.status === 200) {
+          const id = res.data.id;
+          const name = res.data.name;
+          setUserId(id);
+          setUserName(name);
+
+          const teamRes = await axios.get(`http://localhost:8080/teams/my-teams/${id}`);
+          setJoinedTeams(teamRes.data || []);
+        }
+      } catch (error) {
+        console.error("Error fetching user or team data:", error);
+      }
+    };
+
+    fetchUserData();
+    if (isOpen) {
+      inputRefs.current[0]?.focus();
+    }
+  }, [token, isOpen]);
+
   const handleSubmit = async () => {
     const joinCode = digits.join("");
     setLoading(true);
     setErrorMessage("");
     setSuccessMessage("");
 
-try {
-  const res = await fetch("http://localhost:8080/teams/joining", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      joinCode,
-      userId,
-      userName,
-    }),
-  });
+    try {
+      const res = await fetch("http://localhost:8080/teams/joining", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          joinCode,
+          userId,
+          userName,
+        }),
+      });
 
-  if (!res.ok) {
-    const errorData = await res.json().catch(() => ({}));
-    throw new Error(errorData.message || "Failed to join team");
-  }
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.message || "You have already joined this team!");
+      }
 
-  console.log("Join team response:", res);
+      setSuccessMessage("✅ Joined team successfully!");
+      resetForm();
+      setIsOpen(false);
 
-  setSuccessMessage("✅ Joined team successfully!");
-  resetForm();
-  setIsOpen(false);
-} catch (err: unknown) {
-  if (err instanceof Error) {
-    setErrorMessage(err.message);
-  } else {
-    setErrorMessage("An unknown error occurred");
-  }
-} finally {
-  setLoading(false);
-}
-
+      // Refetch joined teams
+      const updated = await axios.get(`http://localhost:8080/teams/my-teams/${userId}`);
+      setJoinedTeams(updated.data || []);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setErrorMessage(err.message);
+      } else {
+        setErrorMessage("An unknown error occurred");
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleClose = () => {
@@ -83,23 +129,33 @@ try {
     setIsOpen(false);
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      inputRefs.current[0]?.focus();
-    }
-  }, [isOpen]);
-
   return (
     <>
       <div className="bg-white p-4 rounded-lg shadow">
-        <h2 className="text-lg font-semibold mb-4">Join a Team</h2>
-        <p className="text-gray-600 mb-4">Join a team to collaborate on projects and assignments.</p>
-        <button
-          onClick={() => setIsOpen(true)}
-          className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-        >
-          Join Team
-        </button>
+        {joinedTeams.length > 0 ? (
+          <>
+           
+            {joinedTeams.map((team) => (
+               <h2 className="text-lg font-semibold mb-2">Team Joined : {team.name}</h2>
+              // <div key={team.id} className="border p-4 rounded mb-2">
+              //   <p><strong>Name:</strong> {team.name}</p>
+              //   <p><strong>Description:</strong> {team.description}</p>
+              // </div>
+            )
+            )}
+          </>
+        ) : (
+          <>
+            <h2 className="text-lg font-semibold mb-4">Join a Team</h2>
+            <p className="text-gray-600 mb-4">Join a team to collaborate on projects and assignments.</p>
+            <button
+              onClick={() => setIsOpen(true)}
+              className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+            >
+              Join Team
+            </button>
+          </>
+        )}
 
         {successMessage && <p className="mt-2 text-green-600">{successMessage}</p>}
       </div>
@@ -137,7 +193,7 @@ try {
             </button>
             <button
               onClick={handleSubmit}
-              disabled={digits.some(d => d === "") || loading}
+              disabled={digits.some((d) => d === "") || loading}
               className="px-4 py-2 rounded-md text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300"
             >
               {loading ? "Joining..." : "Join"}
