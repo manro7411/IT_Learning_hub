@@ -12,6 +12,7 @@ public record LearningContentDto(
         String category,
         String thumbnailUrl,
         String authorName,
+        String contentType,
         String authorEmail,
         String authorAvatarUrl,
         Integer progressPercent,
@@ -29,6 +30,7 @@ public record LearningContentDto(
                 e.getCategory(),
                 e.getThumbnailUrl(),
                 e.getAuthorName(),
+                e.getContentType(),
                 e.getAuthorEmail(),
                 e.getAuthorAvatarUrl(),
                 e.getProgressPercent() != null ? e.getProgressPercent() : 0,
@@ -36,6 +38,7 @@ public record LearningContentDto(
                 e.getAssignedUserIds(),
                 e.getAssignedTeamIds(),
                 e.getDueDate()
+
         );
     }
 
@@ -54,6 +57,7 @@ public record LearningContentDto(
         e.setAssignedUserIds(assignedUserIds);
         e.setAssignedTeamIds(assignedTeamIds);
         e.setDueDate(dueDate);
+        e.setContentType(contentType);
         return e;
     }
 }

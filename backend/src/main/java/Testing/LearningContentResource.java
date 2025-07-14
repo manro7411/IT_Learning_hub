@@ -71,7 +71,7 @@ public class LearningContentResource {
         lc.setClickCount(0L);
         lc.setCreatedAt(LocalDateTime.now());
         lc.setMaxAttempts(Optional.ofNullable(dto.maxAttempts).orElse(1));
-
+        lc.setContentType(dto.contentType);
         lc.setAssignType(dto.assignType);
         lc.setAssignedUserIds(dto.assignedUserIds);
         lc.setAssignedTeamIds(dto.assignedTeamIds);

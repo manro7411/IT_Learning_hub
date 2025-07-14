@@ -10,6 +10,7 @@ public class ExtendedLearningContentDto {
     public String category;
     public String thumbnailUrl;
     public String authorName;
+    public String contentType;
     public String authorEmail;
     public Integer maxAttempts;
     public List<QuestionDTO> questions;
@@ -27,6 +28,7 @@ public class ExtendedLearningContentDto {
             String category,
             String thumbnailUrl,
             String authorName,
+            String contentType,
             String authorEmail,
             Integer maxAttempts,
             List<QuestionDTO> questions,
@@ -40,6 +42,7 @@ public class ExtendedLearningContentDto {
         this.category = category;
         this.thumbnailUrl = thumbnailUrl;
         this.authorName = authorName;
+        this.contentType = contentType;
         this.authorEmail = authorEmail;
         this.maxAttempts = maxAttempts;
         this.questions = questions;

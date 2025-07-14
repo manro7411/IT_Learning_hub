@@ -30,6 +30,9 @@ public class LearningContent {
     @Column(name = "author_name")
     private String authorName;
 
+    @Column(name = "content_type")
+    private String contentType;
+
     @Column(name = "author_email")
     private String authorEmail;
 
@@ -118,4 +121,11 @@ public class LearningContent {
     public LocalDateTime getDueDate() { return dueDate; }
     public void setDueDate(LocalDateTime dueDate) { this.dueDate = dueDate; }
 
+    public String getContentType() {
+        return contentType;
+    }
+
+    public void setContentType(String contentType) {
+        this.contentType = contentType;
+    }
 }
