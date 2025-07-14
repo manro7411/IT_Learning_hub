@@ -1,9 +1,10 @@
-// AdminAddLessonPage.tsx
 import { useState, useEffect, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
 import { AuthContext } from "../../../Authentication/AuthContext";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../../components/LanguageSwitcher";
 
 interface LessonFormState {
   title: string;
@@ -46,8 +47,10 @@ const INITIAL_FORM: LessonFormState = {
 };
 
 const AdminAddLessonPage = () => {
-  const { token } = useContext(AuthContext);
+  const { t } = useTranslation("adminaddlesson");
+  const { token, user } = useContext(AuthContext);
   const navigate = useNavigate();
+
   const [form, setForm] = useState<LessonFormState>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
@@ -67,10 +70,7 @@ const AdminAddLessonPage = () => {
       .catch(() => console.error("❌ Failed to load users"));
 
     axios.get<Team[]>("http://localhost:8080/teams", { headers: { Authorization: `Bearer ${token}` } })
-      .then(res => {
-        console.log("📂 Loaded Teams:", res.data);
-        setTeams(res.data);
-      })
+      .then(res => setTeams(res.data))
       .catch(() => console.error("❌ Failed to load teams"));
   }, [token]);
 
@@ -99,21 +99,32 @@ const AdminAddLessonPage = () => {
     setForm({ ...form, questions: updatedQuestions });
   };
 
-  const addQuestion = () => setForm((prev) => ({
-    ...prev,
-    questions: [...prev.questions, { questionText: "", type: "single", options: [""], correctAnswers: [""] }],
-  }));
-
-  const addOption = (qIdx: number) => {
-    const updated = [...form.questions];
-    updated[qIdx].options.push("");
-    setForm({ ...form, questions: updated });
+  const handleOptionChange = (qIdx: number, optIdx: number, value: string) => {
+    const updatedQuestions = [...form.questions];
+    updatedQuestions[qIdx].options[optIdx] = value;
+    setForm({ ...form, questions: updatedQuestions });
   };
 
-  const addCorrectAnswer = (qIdx: number) => {
-    const updated = [...form.questions];
-    updated[qIdx].correctAnswers.push("");
-    setForm({ ...form, questions: updated });
+  const handleAddOption = (qIdx: number) => {
+    const updatedQuestions = [...form.questions];
+    updatedQuestions[qIdx].options.push("");
+    setForm({ ...form, questions: updatedQuestions });
+  };
+
+  const handleAddCorrectAnswer = (qIdx: number) => {
+    const updatedQuestions = [...form.questions];
+    updatedQuestions[qIdx].correctAnswers.push("");
+    setForm({ ...form, questions: updatedQuestions });
+  };
+
+  const handleAddQuestion = () => {
+    setForm((prev) => ({
+      ...prev,
+      questions: [
+        ...prev.questions,
+        { questionText: "", type: "single", options: [""], correctAnswers: [""] },
+      ],
+    }));
   };
 
   const resetForm = () => {
@@ -126,25 +137,24 @@ const AdminAddLessonPage = () => {
     setLoading(true);
 
     const payload = {
-  title: form.title,
-  description: form.description,
-  category: form.category,
-  thumbnailUrl: form.thumbnailUrl,
-  maxAttempts: form.quizAttemptLimit,
-  assignType: form.assignType,
-  assignedUserIds: form.assignType === "specific" ? selectedUsers : [],
-  assignedTeamIds: form.assignType === "team" && form.assignTeamId ? [form.assignTeamId] : [],
-  dueDate: form.dueDate || null,
-  questions: form.questions.map((q) => ({
-    questionText: q.questionText,
-    type: q.type,
-    choices: q.options.map((text) => ({
-      text,
-      isCorrect: q.correctAnswers.includes(text),
-    })),
-  })),
-};
-
+      title: form.title,
+      description: form.description,
+      category: form.category,
+      thumbnailUrl: form.thumbnailUrl,
+      maxAttempts: form.quizAttemptLimit,
+      assignType: form.assignType,
+      assignedUserIds: form.assignType === "specific" ? selectedUsers : [],
+      assignedTeamIds: form.assignType === "team" && form.assignTeamId ? [form.assignTeamId] : [],
+      dueDate: form.dueDate || null,
+      questions: form.questions.map((q) => ({
+        questionText: q.questionText,
+        type: q.type,
+        choices: q.options.map((text) => ({
+          text,
+          isCorrect: q.correctAnswers.includes(text),
+        })),
+      })),
+    };
 
     console.log("📤 Submitting Lesson:", payload);
 
@@ -160,52 +170,55 @@ const AdminAddLessonPage = () => {
       setLoading(false);
     }
   };
-  
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex">
       <AdminSidebarWidget />
-      <main className="flex-1 p-10 space-y-6 max-w-3xl">
-        <h1 className="text-2xl font-bold text-blue-800 border-b pb-2">📚 Add New Lesson</h1>
+      <main className="flex-1 p-10 space-y-6 relative">
+        <div className="absolute top-6 right-10">
+          <LanguageSwitcher />
+        </div>
 
-        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow space-y-6">
-          <Field label="Lesson Thumbnail URL" name="thumbnailUrl" value={form.thumbnailUrl} onChange={handleChange} />
-          <Field label="Lesson Title" name="title" value={form.title} onChange={handleChange} required />
+        <h1 className="text-2xl font-bold text-blue-800">📚 {t('addnewlesson')}</h1>
 
+        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-xl shadow space-y-4 max-w-3xl">
           <div>
-            <label className="text-sm font-medium text-gray-700">Category</label>
-            {/* <select name="category" value={form.category} onChange={handleChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50">
-              <option value="AGILE">Agile</option>
-              <option value="SCRUM">Scrum</option>
-              <option value="WATERFALL">Waterfall</option>
-            </select> */}
-            <input
-  type="text"
-  name="category"
-  value={form.category}
-  onChange={handleChange}
-  placeholder="Enter category (e.g., Agile, Scrum)"
-  className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
-/>
+            <label className="text-base font-medium text-gray-700">{t('title')}</label>
+            <input name="title" value={form.title} onChange={handleChange} required className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50" />
+          </div>
 
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-base font-medium text-gray-700">{t('category')}</label>
+              <select name="category" value={form.category} onChange={handleChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50">
+                <option value="AGILE">Agile</option>
+                <option value="SCRUM">Scrum</option>
+                <option value="WATERFALL">Waterfall</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="text-base font-medium text-gray-700">{t('thumbnail')}</label>
+              <input name="thumbnailUrl" value={form.thumbnailUrl} onChange={handleChange} required className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50" />
+            </div>
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-700">Assign To</label>
+            <label className="text-base font-medium text-gray-700">{t('description')}</label>
+            <textarea name="description" rows={4} value={form.description} onChange={handleChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50" placeholder={t('briefOverview')} />
+          </div>
+
+          <div>
+            <label className="text-base font-medium text-gray-700">{t('assignto')}</label>
             <select name="assignType" value={form.assignType} onChange={handleAssignTypeChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50">
-              <option value="all">All Users</option>
-              <option value="team">Specific Team</option>
-              <option value="specific">Specific Users</option>
+              <option value="all">{t('allusers')}</option>
+              <option value="team">{t('specificteam')}</option>
+              <option value="specific">{t('specificusers')}</option>
             </select>
 
             {form.assignType === "team" && (
-              <select
-                name="assignTeamId"
-                value={form.assignTeamId || ""}
-                onChange={(e) => setForm({ ...form, assignTeamId: e.target.value })}
-                className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
-              >
-                <option value="">-- Select a team --</option>
+              <select name="assignTeamId" value={form.assignTeamId || ""} onChange={(e) => setForm({ ...form, assignTeamId: e.target.value })} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50">
+                <option value="">{t('selectteam')}</option>
                 {teams.map((team) => (
                   <option key={team.id} value={team.id}>{team.name}</option>
                 ))}
@@ -214,69 +227,47 @@ const AdminAddLessonPage = () => {
 
             {form.assignType === "specific" && selectedUsers.length > 0 && (
               <p className="text-sm text-gray-500 mt-1">
-                Selected users: {users.filter(u => selectedUsers.includes(u.id)).map(u => u.name).join(", ")}
+                {t('selectedusers')}: {users.filter(u => selectedUsers.includes(u.id)).map(u => u.name).join(", ")}
               </p>
             )}
           </div>
-          <div className="flex justify-between gap-4">
-              <Field label="Max Quiz Attempts" name="quizAttemptLimit" type="number" min={1} max={3} value={form.quizAttemptLimit.toString()} onChange={handleChange} />
-           <Field
-  label="Due Date & Time"
-  name="dueDate"
-  type="datetime-local"
-  value={form.dueDate || ""}
-  onChange={handleChange}
-/>
-          </div>
-          <div>
-            <label className="text-sm font-medium text-gray-700">Description</label>
-            <textarea name="description" rows={4} value={form.description} onChange={handleChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50" />
+
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-base font-medium text-gray-700">{t('quizattemptlimit')}</label>
+              <input type="number" name="quizAttemptLimit" min={1} max={3} value={form.quizAttemptLimit.toString()} onChange={handleChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50" />
+            </div>
+            <div>
+              <label className="text-base font-medium text-gray-700">{t('duedate')}</label>
+              <input type="datetime-local" name="dueDate" value={form.dueDate || ""} onChange={handleChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50" />
+            </div>
           </div>
 
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold">Questions</h2>
-            {form.questions.map((q, idx) => (
-              <div key={idx} className="border rounded-lg p-4 space-y-2">
-                <input className="w-full border px-2 py-1 rounded" placeholder="Question text" value={q.questionText} onChange={(e) => handleQuestionChange(idx, "questionText", e.target.value)} />
-                <select value={q.type} onChange={(e) => handleQuestionChange(idx, "type", e.target.value as QuestionForm["type"])} className="w-full border px-2 py-1 rounded">
-                  <option value="single">Single Choice</option>
-                  <option value="multiple">Multiple Choice</option>
-                  <option value="fill">Fill in the Blank</option>
-                  <option value="ordering">Ordering</option>
-                  <option value="matching">Matching</option>
+            <h2 className="text-lg font-semibold">{t('question')}</h2>
+            {form.questions.map((q, qIdx) => (
+              <div key={qIdx} className="border shadow p-4 rounded-xl space-y-2">
+                <input className="w-full px-4 py-2 border rounded-lg bg-gray-50" placeholder={t('questiontext')} value={q.questionText} onChange={(e) => handleQuestionChange(qIdx, "questionText", e.target.value)} />
+                <select value={q.type} onChange={(e) => handleQuestionChange(qIdx, "type", e.target.value as QuestionForm["type"])} className="w-full px-4 py-2 border rounded-lg bg-gray-50">
+                  <option value="single">{t('single')}</option>
+                  <option value="multiple">{t('multiple')}</option>
+                  <option value="fill">{t('fill')}</option>
+                  <option value="ordering">{t('order')}</option>
+                  <option value="matching">{t('match')}</option>
                 </select>
-
-                <div className="space-y-1">
-                  <h4 className="text-sm font-medium">Options</h4>
-                  {q.options.map((opt, oIdx) => (
-                    <input key={oIdx} className="w-full border px-2 py-1 rounded" placeholder={`Option ${oIdx + 1}`} value={opt} onChange={(e) => {
-                      const opts = [...q.options];
-                      opts[oIdx] = e.target.value;
-                      handleQuestionChange(idx, "options", opts);
-                    }} />
-                  ))}
-                  <button type="button" onClick={() => addOption(idx)} className="text-blue-600 text-sm underline">+ Add Option</button>
-                </div>
-
-                <div className="space-y-1">
-                  <h4 className="text-sm font-medium">Correct Answers</h4>
-                  {q.correctAnswers.map((ans, aIdx) => (
-                    <input key={aIdx} className="w-full border px-2 py-1 rounded" placeholder={`Correct Answer ${aIdx + 1}`} value={ans} onChange={(e) => {
-                      const answers = [...q.correctAnswers];
-                      answers[aIdx] = e.target.value;
-                      handleQuestionChange(idx, "correctAnswers", answers);
-                    }} />
-                  ))}
-                  <button type="button" onClick={() => addCorrectAnswer(idx)} className="text-green-600 text-sm underline">+ Add Correct Answer</button>
-                </div>
+                {q.options.map((opt, oIdx) => (
+                  <input key={oIdx} className="w-full px-4 py-2 border rounded-lg bg-gray-50" placeholder={t('option', { number: oIdx + 1 })} value={opt} onChange={(e) => handleOptionChange(qIdx, oIdx, e.target.value)} />
+                ))}
+                <button type="button" onClick={() => handleAddOption(qIdx)} className="text-blue-600 text-sm underline">{t('addoption')}</button>
+                <button type="button" onClick={() => handleAddCorrectAnswer(qIdx)} className="text-green-600 text-sm underline ml-4">{t('addcorrectanswer')}</button>
               </div>
             ))}
-            <button type="button" onClick={addQuestion} className="text-blue-700 font-semibold">+ Add Question</button>
+            <button type="button" onClick={handleAddQuestion} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg">{t('addquestion')}</button>
           </div>
 
-          <div className="flex gap-4">
-            <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50">{loading ? "Saving…" : "Create Lesson"}</button>
-            <button type="button" onClick={resetForm} className="text-gray-600 hover:underline">Reset</button>
+          <div className="flex justify-end gap-4 pt-4">
+            <button type="submit" disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-2 rounded-lg disabled:opacity-50">{loading ? t('saving') : t('create')}</button>
+            <button type="button" onClick={resetForm} className="bg-red-400 hover:bg-red-500 text-white px-8 py-2 rounded-lg">{t('reset')}</button>
           </div>
         </form>
 
@@ -297,15 +288,5 @@ const AdminAddLessonPage = () => {
     </div>
   );
 };
-
-function Field(props: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
-  const { label, ...inputProps } = props;
-  return (
-    <div>
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-      <input {...inputProps} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50" />
-    </div>
-  );
-}
 
 export default AdminAddLessonPage;

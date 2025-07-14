@@ -1,0 +1,36 @@
+{
+  "welcome": "ยินดีต้อนรับ, {{name}}",
+  "greeting": "ขอให้เป็นวันที่ดี!",
+  "seeOverall": "ภาพรวม",
+  "filter": "ตัวกรอง",
+  "filterBy": "กรองตาม :",
+  "team": "ทีม",
+  "course": "หลักสูตร",
+  "clear": "ล้าง",
+  "summary": "สรุป",
+  "byTeam": "ตามทีม",
+  "byCourse": "ตามหลักสูตร",
+
+  "seeSummary": "สรุป",
+  "namedate": "ชื่อ&วันที่",
+  "type": "ประเภทหลักสูตร",
+  "title": "หัวข้อ",
+  "action": "ACTION",
+  "detail": "รายละเอียด",
+  "name": "ชื่อ",
+  "position": "ตำแหน่ง",
+  "date": "วันที่",
+  "status": "สถานะ",
+  "level": "ระดับ",
+  "statistic":"สถิติ",
+  "day":"วัน",
+  "week":"สัปดาห์",
+  "month":"เดือน",
+  "year":"ปี",
+  "nameSubmit":"รายชื่อ",
+  "seeAll":"ทั้งหมด",
+
+  "most":"คอร์สยอดนิยม"
+
+  
+}

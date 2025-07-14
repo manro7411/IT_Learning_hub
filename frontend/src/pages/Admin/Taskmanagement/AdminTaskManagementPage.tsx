@@ -4,6 +4,10 @@ import { AuthContext } from "../../../Authentication/AuthContext";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
 import { useNavigate } from "react-router-dom";
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../../components/LanguageSwitcher";
+
+
 interface Lesson {
     id: number;
     title: string;
@@ -19,6 +23,8 @@ interface UserProgress {
 }
 
 const AdminTaskManagementPage = () => {
+    const { t } = useTranslation("admintaskmanage");
+
     const { token } = useContext(AuthContext);
     const navigate = useNavigate();
 
@@ -94,17 +100,20 @@ const AdminTaskManagementPage = () => {
     return (
         <div className="min-h-screen bg-gray-50 flex">
             <AdminSidebarWidget />
+            
+            <main className="flex-1 p-10 space-y-6 relative">
+            {/* language switcher */}
+            <div className="absolute top-6 right-10">
+                <LanguageSwitcher />
+            </div>
 
-            <main className="flex-1 p-10 space-y-6">
-                <h1 className="text-2xl font-bold text-blue-800 border-b pb-2">
-                    🧙 Task Management
-                </h1>
+            <h1 className="text-2xl font-bold text-blue-800">{t('title')}</h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Lesson List */}
                     <section className="col-span-1 space-y-4">
                         {loading ? (
-                            <p className="text-gray-500">Loading lessons...</p>
+                            <p className="text-gray-500">{t('loading')}</p>
                         ) : (
                             lessons.map((lesson) => (
                                 <div
@@ -139,7 +148,7 @@ const AdminTaskManagementPage = () => {
                     {/* User Progress List */}
                     <section className="col-span-1 space-y-4">
                         {progressList.length === 0 && selectedLesson && (
-                            <p className="text-gray-400">No progress yet…</p>
+                            <p className="text-gray-400">{t('noprogress')}</p>
                         )}
                         {progressList.map((user) => (
                             <div
@@ -149,22 +158,21 @@ const AdminTaskManagementPage = () => {
                                 <div>
                                     <p className="font-medium text-gray-800">{user.userEmail}</p>
                                     <p className="text-sm text-gray-400">
-                                        Lesson ID: {user.lessonId}
+                                        {t('lessonId')} {user.lessonId}
                                     </p>
                                 </div>
                                 <button
                                     className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1 rounded shadow"
                                     onClick={() => setSelectedUser(user)}
                                 >
-                                    View
+                                    {t('view')}
                                 </button>
                             </div>
                         ))}
                     </section>
-
                     <section className="col-span-1 bg-white p-6 rounded-xl shadow">
                         <h2 className="text-lg font-semibold mb-4 text-gray-700">
-                            Quick overview of employee progress
+                            {t('quick')}
                         </h2>
 
                         {selectedUser ? (
@@ -173,12 +181,12 @@ const AdminTaskManagementPage = () => {
                                     <div className="w-10 h-10 bg-gray-200 rounded-full" />
                                     <div>
                                         <p className="font-medium text-gray-800">{selectedUser.userEmail}</p>
-                                        <p className="text-sm text-gray-500">Lesson ID: {selectedUser.lessonId}</p>
+                                        <p className="text-sm text-gray-500">{t('lessonId')} {selectedUser.lessonId}</p>
                                     </div>
                                 </div>
 
                                 <div>
-                                    <p className="text-sm text-gray-500">Progress</p>
+                                    <p className="text-sm text-gray-500">{t('progress')}</p>
                                     <progress
                                         value={selectedUser.percent}
                                         max={100}
@@ -187,8 +195,7 @@ const AdminTaskManagementPage = () => {
                                     <p className="text-right text-xs text-gray-500">
                                         {selectedUser.percent}%
                                     </p>
-                                </div>
-
+                                </div>                            
                                 <p className="text-sm text-gray-500">
                                     Quiz:{" "}
                                     {selectedUser.score > 0 ? (
@@ -201,7 +208,7 @@ const AdminTaskManagementPage = () => {
                                 </p>
                             </div>
                         ) : (
-                            <p className="text-gray-400">← Select a user to see details</p>
+                            <p className="text-gray-400">← {t('selectUser')}</p>
                         )}
                     </section>
                 </div>

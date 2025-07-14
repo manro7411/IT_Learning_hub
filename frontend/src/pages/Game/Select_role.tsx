@@ -3,6 +3,9 @@ import SidebarWidget from '../../widgets/SidebarWidget';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
+
 const roles = [
   { label: '👩🏻‍💼 Product Owner', value: 'po' },
   { label: '👨🏻‍💻 Developer', value: 'dev' },
@@ -10,6 +13,8 @@ const roles = [
 ];
 
 const SelectRole = () => {
+  const { t } = useTranslation("game");
+
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string | null>(null);
 
@@ -79,7 +84,7 @@ const SelectRole = () => {
                       visible: { x: 0, opacity: 1 }
                     }}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                    className={`w-full px-8 py-4 text-white text-lg rounded-xl shadow-md ${
+                    className={`w-full px-8 py-4 text-white text-xl rounded-xl shadow-md ${
                       isSelected ? 'bg-blue-700' : 'bg-blue-500'
                     }`}
                   >
@@ -90,11 +95,11 @@ const SelectRole = () => {
             </motion.div>
           </div>
 
-          <div className="font-syne text-sm max-w-md text-left text-gray-700">
+          <div className="font-syne text-base max-w-md text-left text-gray-700">
             <span className="text-blue-600 font-bold block mb-2">RESPONSIBILITIES:</span>
-            <p><strong>PO:</strong> Defines the product vision, manages stakeholders, and prioritizes the backlog</p>
-            <p><strong>Dev:</strong> Build, test, and refine the product in each sprint</p>
-            <p><strong>SM:</strong> Facilitates sprints, removes roadblocks, and ensures Agile principles are followed</p>
+            <p><strong>PO:</strong> {t('poRole')}</p>
+            <p><strong>Dev:</strong> {t('devRole')}</p>
+            <p><strong>SM:</strong> {t('smRole')}</p>
           </div>
         </div>
       </main>
