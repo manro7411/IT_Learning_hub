@@ -27,10 +27,8 @@ interface LessonFromAPI {
   authorName?: string;
   authorRole?: string;
 }
-
 const TaskManagement = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [newTask, setNewTask] = useState('');
   const { token: ctxToken } = useContext(AuthContext);
   const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
   const navigate = useNavigate();
@@ -101,19 +99,6 @@ const TaskManagement = () => {
     fetchLearningTasks();
   }, [token, userId]);
 
-  const handleAddTask = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!newTask.trim()) return;
-    const newTaskObj: Task = {
-      id: Date.now(),
-      title: newTask,
-      status: 'todo',
-      type: 'task',
-    };
-    setTasks((prevTasks) => [...prevTasks, newTaskObj]);
-    setNewTask('');
-  };
-
   const updateTaskStatus = (id: number | string, status: Task['status']) => {
     setTasks((prevTasks) =>
       prevTasks.map((task) => (task.id === id ? { ...task, status } : task))
@@ -153,7 +138,7 @@ const TaskManagement = () => {
                   author={task.author || "Unknown"}
                   role={task.role || "Instructor"}
                   progress={task.progress || 0}
-                  onStart={() => updateLessonProgress(task.lessonId!, 10)} // เริ่มต้นสมมุติ progress เป็น 10
+                  onStart={() => updateLessonProgress(task.lessonId!, 10)}
                   onComplete={() => updateLessonProgress(task.lessonId!, 100)}
                 />
               ) : (
@@ -189,23 +174,12 @@ const TaskManagement = () => {
       <Sidebar />
       <main className="flex-1 p-6 overflow-x-auto">
         <div className="flex items-center justify-between mb-6">
-          <form onSubmit={handleAddTask} className="flex w-full max-w-2xl space-x-4">
-            <input
-              type="text"
-              value={newTask}
-              onChange={(e) => setNewTask(e.target.value)}
-              className="w-1/2 border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Enter new task"
-            />
-            <button
-              type="submit"
-              className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-            >
-              Add Task
-            </button>
-          </form>
-          <NotificationWidget />
+    
+     
         </div>
+          <div className="fixed top-4 right-4 z-50">
+      <NotificationWidget />
+    </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 flex space-x-4">
@@ -214,7 +188,6 @@ const TaskManagement = () => {
             {renderColumn('done', 'Done')}
           </div>
           <div className="xl:col-span-1 space-y-6">
-            {/* <CalendarWidget /> */}
           </div>
         </div>
       </main>

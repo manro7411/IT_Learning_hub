@@ -117,7 +117,7 @@ public class ProfileResource {
         public String email;
         public String role;
 
-        public UserWithRoleDto() {} // สำหรับ deserialization
+        public UserWithRoleDto() {}
         public UserWithRoleDto(String id, String name, String email, String role) {
             this.id = id;
             this.name = name;
