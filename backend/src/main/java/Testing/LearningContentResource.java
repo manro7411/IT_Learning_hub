@@ -18,7 +18,10 @@ import model.LearningContent;
 import model.UserLessonProgress;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
+import java.io.IOException;
 import java.net.URI;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +72,7 @@ public class LearningContentResource {
         lc.setAuthorEmail(jwt.getSubject());
         lc.setAuthorRole("admin");
         lc.setClickCount(0L);
+        lc.setAuthorAvatarUrl(dto.authorAvatarUrl);
         lc.setCreatedAt(LocalDateTime.now());
         lc.setMaxAttempts(Optional.ofNullable(dto.maxAttempts).orElse(1));
         lc.setContentType(dto.contentType);
@@ -124,6 +128,7 @@ public class LearningContentResource {
         lc.setAssignType(dto.assignType());
         lc.setAssignedUserIds(dto.assignedUserIds());
         lc.setAssignedTeamIds(dto.assignedTeamIds());
+        lc.setAuthorAvatarUrl(dto.authorAvatarUrl());
 
         if (dto.dueDate() != null) {
             lc.setDueDate(dto.dueDate());

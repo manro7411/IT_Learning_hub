@@ -2,7 +2,6 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../Authentication/AuthContext";
-// import CalendarWidget from "../../widgets/CalendarWidget";
 import Sidebar from "../../widgets/SidebarWidget";
 import defaultUserAvatar from "../../assets/user.png";
 import ChatBubbleWidget from "../../widgets/ChatBubbleWidget";
@@ -18,7 +17,7 @@ interface Lesson {
   authorAvatarUrl?: string;
   assignType: string;
   assignedUserIds?: string[];
-  assignedTeamIds?: string[]; 
+  assignedTeamIds?: string[];
 }
 
 interface Progress {
@@ -32,8 +31,8 @@ const LessonPage = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  // State
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, Progress>>({});
   const [loading, setLoading] = useState(true);
@@ -44,28 +43,21 @@ const LessonPage = () => {
   const [userId, setUserId] = useState<string | null>(null);
   const [myTeamIds, setMyTeamIds] = useState<string[]>([]);
 
-  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const fetchTeams = async () => {
+      try {
+        const res = await axios.get("http://localhost:8080/teams", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setMyTeamIds(res.data.map((team: { id: string }) => team.id));
+      } catch (error) {
+        console.error("❌ Failed to fetch user teams:", error);
+      }
+    };
+    if (token) fetchTeams();
+  }, [token]);
 
   useEffect(() => {
-  const fetchTeams = async () => {
-    try {
-      const res = await axios.get("http://localhost:8080/teams", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      console.log("👥 User's teams:", res.data);
-      setMyTeamIds(res.data.map((team: { id: string }) => team.id));
-    } catch (error) {
-      console.error("❌ Failed to fetch user teams:", error);
-    }
-  };
-
-  if (token) fetchTeams();
-}, [token]);
-
-
-  useEffect(() => {
-    if (!token) return;
-
     const fetchUserProfile = async () => {
       try {
         const res = await axios.get("http://localhost:8080/profile", {
@@ -73,50 +65,13 @@ const LessonPage = () => {
         });
         setUserId(res.data.id);
         setMyTeamIds(res.data.teams || []);
-        console.log("👤 User Profile:", res.data);
       } catch (error) {
         console.error("❌ Failed to fetch user profile:", error);
       }
     };
-
-    fetchUserProfile();
+    if (token) fetchUserProfile();
   }, [token]);
 
-  const categories = Array.from(new Set(lessons.map((l) => l.category).filter(Boolean)));
-
-  const filteredLessons = lessons.filter((l) => {
-   const matchesAssignType =
-    selectedAssignType === "all"
-      ? l.assignType === "all"
-      : selectedAssignType === "specific"
-      ? l.assignType === "specific" && userId && l.assignedUserIds?.includes(userId)
-      : selectedAssignType === "team"
-      ? l.assignType === "team" && l.assignedTeamIds?.some((assignedTeamId) => myTeamIds.includes(assignedTeamId))
-      : false;
-
-    const matchesSearch = [l.title, l.category, l.description ?? ""].some((v) =>
-      v.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-
-    const matchesCategory =
-      selectedCategories.length === 0 || selectedCategories.includes(l.category);
-
-    return matchesAssignType && matchesSearch && matchesCategory;
-  });
-
-  // Close category menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setCategoryMenuOpen(false);
-      }
-    };
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Fetch lessons & progress
   useEffect(() => {
     if (!token) {
       navigate("/");
@@ -126,24 +81,27 @@ const LessonPage = () => {
     const fetchData = async () => {
       try {
         const [lessonsRes, progressRes] = await Promise.all([
-          axios.get("http://localhost:8080/learning", { headers: { Authorization: `Bearer ${token}` } }),
-          axios.get("http://localhost:8080/user/progress", { headers: { Authorization: `Bearer ${token}` } }),
+          axios.get("http://localhost:8080/learning", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          axios.get("http://localhost:8080/user/progress", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
-
-        console.log("📥 Lessons Response:", lessonsRes.data);
-        console.log("📥 Progress Response:", progressRes.data);
 
         setLessons(lessonsRes.data);
 
         const map: Record<string, Progress> = {};
         progressRes.data.forEach((item: { lessonId: string; percent: number; lastTimestamp?: number }) => {
-          const key = item.lessonId?.toString().trim().toLowerCase();
-          map[key] = { percent: item.percent, lastTimestamp: item.lastTimestamp || 0 };
+          const key = item.lessonId.toLowerCase();
+          map[key] = {
+            percent: item.percent,
+            lastTimestamp: item.lastTimestamp || 0,
+          };
         });
         setProgressMap(map);
       } catch (err) {
-        console.error("❌ Failed to fetch data:", err);
-        alert("Failed to load lessons or progress.");
+        console.error("❌ Failed to fetch lessons or progress:", err);
       } finally {
         setLoading(false);
       }
@@ -152,13 +110,46 @@ const LessonPage = () => {
     fetchData();
   }, [token, location.pathname, navigate]);
 
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setCategoryMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const categories = Array.from(new Set(lessons.map((l) => l.category).filter(Boolean)));
+
+  const filteredLessons = lessons.filter((lesson) => {
+    
+    const matchesAssignType =
+      selectedAssignType === "all"
+        ? lesson.assignType === "all"
+        : selectedAssignType === "specific"
+        ? lesson.assignType === "specific" && userId && lesson.assignedUserIds?.includes(userId)
+        : selectedAssignType === "team"
+        ? lesson.assignType === "team" && lesson.assignedTeamIds?.some((id) => myTeamIds.includes(id))
+        : false;
+
+    const matchesSearch = [lesson.title, lesson.category, lesson.description ?? ""].some((v) =>
+      v.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
+    const matchesCategory =
+      selectedCategories.length === 0 || selectedCategories.includes(lesson.category);
+
+    return matchesAssignType && matchesSearch && matchesCategory;
+  });
+
   const handleLessonClick = async (id: string) => {
-    const key = id?.toString().trim().toLowerCase();
+    const key = id.toLowerCase();
     const lastTimestamp = progressMap[key]?.lastTimestamp || 0;
 
     try {
       await axios.post(`http://localhost:8080/learning/${id}/click`, {}, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+        headers: { Authorization: `Bearer ${token}` },
       });
     } catch (err) {
       console.error("Failed to log click:", err);
@@ -179,7 +170,6 @@ const LessonPage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="w-full xl:w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
-
           <div className="flex items-center space-x-4">
             {/* Category Filter */}
             <div className="relative" ref={menuRef}>
@@ -196,17 +186,17 @@ const LessonPage = () => {
                 <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
                   <div className="p-2 space-y-1">
                     {categories.map((category) => (
-                      <label key={category} className="flex items-center space-x-2 cursor-pointer text-sm">
+                      <label key={category} className="flex items-center space-x-2 text-sm cursor-pointer">
                         <input
                           type="checkbox"
                           checked={selectedCategories.includes(category)}
-                          onChange={() => {
+                          onChange={() =>
                             setSelectedCategories((prev) =>
                               prev.includes(category)
                                 ? prev.filter((c) => c !== category)
                                 : [...prev, category]
-                            );
-                          }}
+                            )
+                          }
                           className="accent-purple-500"
                         />
                         <span>{category}</span>
@@ -244,6 +234,7 @@ const LessonPage = () => {
           </div>
         </div>
 
+        {/* Lessons List */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           <div className="xl:col-span-3 grid gap-6 grid-cols-[repeat(auto-fill,minmax(256px,1fr))]">
             {loading ? (
@@ -252,21 +243,39 @@ const LessonPage = () => {
               <div className="text-gray-500">No lessons found</div>
             ) : (
               filteredLessons.map((lesson) => {
-                const key = lesson.id?.toString().trim().toLowerCase();
+                const key = lesson.id.toLowerCase();
                 const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };
+
+             const avatarFilename = lesson.authorAvatarUrl?.split("/").pop();
+const avatarUrl = avatarFilename
+  ? `http://localhost:8080/profile/avatars/${avatarFilename}`
+  : defaultUserAvatar;
+
+console.log("Avatar URL:", avatarUrl);
+
+
+  
+
+
+                  
+
+                  console.log(avatarUrl);
 
                 return (
                   <button
                     key={lesson.id}
                     onClick={() => handleLessonClick(lesson.id)}
-                    className="block cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
+                    className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-purple-500"
                   >
                     <div className="w-64 h-[300px] bg-white rounded-xl shadow-md flex flex-col overflow-hidden">
                       <div className="w-full h-32 bg-gray-100">
                         <img
                           src={lesson.thumbnailUrl || "/placeholder.png"}
                           alt={lesson.title}
-                          onError={(e) => { e.currentTarget.src = "/placeholder.png"; }}
+                          onError={(e) => {
+                            e.currentTarget.onerror = null;
+                            e.currentTarget.src = "/placeholder.png";
+                          }}
                           className="h-full w-full object-cover"
                         />
                       </div>
@@ -275,9 +284,7 @@ const LessonPage = () => {
                         <span className="text-[10px] font-semibold uppercase text-purple-600">
                           {lesson.category}
                         </span>
-                        <h3 className="mt-1 line-clamp-2 text-sm font-semibold">
-                          {lesson.title}
-                        </h3>
+                        <h3 className="mt-1 line-clamp-2 text-sm font-semibold">{lesson.title}</h3>
 
                         <div className="mb-2 mt-3 h-1 rounded-full bg-gray-200">
                           <div
@@ -294,9 +301,12 @@ const LessonPage = () => {
 
                         <div className="mt-auto flex items-center space-x-2">
                           <img
-                            src={lesson.authorAvatarUrl || defaultUserAvatar}
+                            src={avatarUrl}
                             alt="Author"
-                            onError={(e) => { e.currentTarget.src = defaultUserAvatar; }}
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = defaultUserAvatar;
+                            }}
                             className="h-7 w-7 rounded-full object-cover"
                           />
                           <div>
@@ -313,10 +323,6 @@ const LessonPage = () => {
               })
             )}
           </div>
-
-          {/* <div className="order-1 space-y-6 xl:order-2"> */}
-            {/* <CalendarWidget events={[]} /> */}
-          {/* </div> */}
         </div>
       </main>
       <ChatBubbleWidget />

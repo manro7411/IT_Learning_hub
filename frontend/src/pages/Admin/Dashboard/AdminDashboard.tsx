@@ -91,59 +91,61 @@ const AdminDashboard = () => {
             </h1>
             <p className="text-gray-600 mb-4 ml-10">Have a good day!</p>
           </div>
-          <div className="flex items-center justify-end space-x-4">
-            <button
-              onClick={() => navigate("/admin-overall")}
-              className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition"
-            >
-              See Overall
-            </button>
+         <div className="flex items-center justify-end space-x-4">
+  <button
+    onClick={() => navigate("/admin-overall")}
+    className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition"
+  >
+    See Overall
+  </button>
 
-            <div className="relative">
-              <button
-                className="flex items-center gap-2 px-4 py-2 bg-white border shadow rounded-full hover:bg-gray-100"
-                onClick={() => setShowFilter(!showFilter)}
-              >
-                <FaFilter /> Filter
-              </button>
-              <AdminAvatarWidget/>
+  <div className="relative flex items-center space-x-3">
+    <button
+      className="flex items-center gap-2 px-4 py-2 bg-white border shadow rounded-full hover:bg-gray-100"
+      onClick={() => setShowFilter(!showFilter)}
+    >
+      <FaFilter /> Filter
+    </button>
 
-              {showFilter && (
-                <div className="absolute right-0 mt-2 w-64 bg-white border shadow-lg rounded-xl z-10 p-4 space-y-2">
-                  <p className="font-semibold text-gray-700">Filter by :</p>
+    <AdminAvatarWidget />
 
-                  <input
-                    type="text"
-                    placeholder="Team"
-                    className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm"
-                    value={filterText.team}
-                    onChange={(e) =>
-                      setFilterText({ ...filterText, team: e.target.value })
-                    }
-                  />
+    {showFilter && (
+      <div className="absolute right-0 mt-2 w-64 bg-white border shadow-lg rounded-xl z-10 p-4 space-y-2">
+        <p className="font-semibold text-gray-700">Filter by :</p>
 
-                  <input
-                    type="text"
-                    placeholder="Course"
-                    className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm"
-                    value={filterText.course}
-                    onChange={(e) =>
-                      setFilterText({ ...filterText, course: e.target.value })
-                    }
-                  />
+        <input
+          type="text"
+          placeholder="Team"
+          className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm"
+          value={filterText.team}
+          onChange={(e) =>
+            setFilterText({ ...filterText, team: e.target.value })
+          }
+        />
 
-                  <div className="flex justify-between pt-2">
-                    <button
-                      onClick={handleClear}
-                      className="text-sm text-red-500 hover:underline"
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+        <input
+          type="text"
+          placeholder="Course"
+          className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm"
+          value={filterText.course}
+          onChange={(e) =>
+            setFilterText({ ...filterText, course: e.target.value })
+          }
+        />
+
+        <div className="flex justify-between pt-2">
+          <button
+            onClick={handleClear}
+            className="text-sm text-red-500 hover:underline"
+          >
+            Clear
+          </button>
+        </div>
+      </div>
+    )}
+  </div>
+</div>
+
         </div>
 
         {/* summary section */}

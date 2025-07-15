@@ -75,6 +75,7 @@ const PostCardWidget = ({ post }: Props) => {
       await fetchComments();
     }
   };
+  
 
   const handleToggleLike = async () => {
     if (!userEmail || liking) return;
@@ -111,8 +112,10 @@ const PostCardWidget = ({ post }: Props) => {
       const isFullUrl = post.avatarUrl.startsWith("http");
       const filename = post.avatarUrl.split("/").pop();
       const avatarUrl = isFullUrl
-        ? post.avatarUrl
-        : `${API_URL}/posts/avatars/${filename}`;
+        ? `${API_URL}/profile/avatars/${filename}`
+        : "";
+
+        console.log(avatarUrl)
 
       return (
         <img

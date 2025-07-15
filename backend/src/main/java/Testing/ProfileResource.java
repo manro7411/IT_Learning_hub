@@ -94,9 +94,6 @@ public class ProfileResource {
                     .entity("Failed to load avatar: " + e.getMessage())
                     .build();
         }
-
-//        System.out.println("Fetching avatar from file: " + filename);
-//        return Response.ok("Get avatar successfully").build();
     }
 
     @GET

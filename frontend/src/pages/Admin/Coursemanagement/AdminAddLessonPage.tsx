@@ -26,6 +26,7 @@ interface QuestionForm {
 interface User {
   id: string;
   name: string;
+  userPicture?:string;
 }
 
 interface Team {
@@ -50,7 +51,7 @@ const tabs = [
 ];
 
 const AdminAddLessonPage = () => {
-  const { token } = useContext(AuthContext);
+  const { token, user  } = useContext(AuthContext);
   const navigate = useNavigate();
   const [form, setForm] = useState<LessonFormState>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
@@ -59,10 +60,35 @@ const AdminAddLessonPage = () => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [showUserModal, setShowUserModal] = useState(false);
   const [activeTab, setActiveTab] = useState("video");
+   const [authorAvatarUrl, setAuthorAvatarUrl] = useState<User | null>(null);
+
+// user should have: id, name, userPicture
+
 
   useEffect(() => {
     if (!token) navigate("/");
   }, [token, navigate]);
+
+ 
+ useEffect(() => {
+    if (token) {
+      axios
+        .get("http://localhost:8080/profile", {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        .then((res) => {
+          // console.log("👤 Retrieved user profile:", res.data);
+          setAuthorAvatarUrl({
+            id: res.data.id,
+            name: res.data.name,
+            userPicture: `${res.data.avatarUrl}`, 
+            });
+        })
+        .catch((err) => {
+          console.error("❌ Failed to fetch user profile", err);
+        });
+    }
+  }, [token]);
 
   useEffect(() => {
     if (!token) return;
@@ -126,6 +152,7 @@ const AdminAddLessonPage = () => {
   const handleVideoSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    
 
     const payload = {
       contentType: "video",
@@ -138,6 +165,7 @@ const AdminAddLessonPage = () => {
       assignedUserIds: form.assignType === "specific" ? selectedUsers : [],
       assignedTeamIds: form.assignType === "team" && form.assignTeamId ? [form.assignTeamId] : [],
       dueDate: form.dueDate || null,
+      authorAvatarUrl: authorAvatarUrl?.userPicture ?? "",
       questions: form.questions.map((q) => ({
         questionText: q.questionText,
         type: q.type,
@@ -172,6 +200,7 @@ const AdminAddLessonPage = () => {
       title: form.title,
       description: form.description,
       documentBase64: form.thumbnailUrl,
+      avatarUrl: user?.userPicture ?? "",
     };
 
     try {
@@ -292,7 +321,6 @@ const AdminAddLessonPage = () => {
           </form>
         )}
 
-        {/* DOCUMENT CONTENT */}
         {activeTab === "document" && (
           <div className="bg-white p-8 rounded-xl shadow space-y-6">
             <h2 className="text-lg font-semibold text-blue-800">📄 Upload Document</h2>

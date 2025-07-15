@@ -40,24 +40,6 @@ public class PostResource {
 
         return posts;
     }
-
-    @GET
-    @Path("/avatars/{filename}")
-    @Produces({"image/jpeg", "image/png", "image/webp"})
-    public Response getAvatar(@PathParam("filename") String filename) {
-        java.nio.file.Path path = Paths.get("uploads/avatars/" + filename);
-        if (!Files.exists(path)) {
-            return Response.status(Response.Status.NOT_FOUND).entity("Avatar not found: " + filename).build();
-        }
-
-        try {
-            return Response.ok(Files.newInputStream(path)).build();
-        } catch (IOException e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Failed to load avatar: " + e.getMessage()).build();
-        }
-    }
-
     @GET
     @Path("/{id}")
     public PostEntity getOne(@PathParam("id") String id) {

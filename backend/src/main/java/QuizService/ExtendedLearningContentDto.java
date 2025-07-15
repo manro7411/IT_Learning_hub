@@ -12,6 +12,7 @@ public class ExtendedLearningContentDto {
     public String authorName;
     public String contentType;
     public String authorEmail;
+    public String authorAvatarUrl;
     public Integer maxAttempts;
     public List<QuestionDTO> questions;
 
@@ -31,6 +32,7 @@ public class ExtendedLearningContentDto {
             String contentType,
             String authorEmail,
             Integer maxAttempts,
+            String authorAvatarUrl,
             List<QuestionDTO> questions,
             String assignType,
             List<String> assignedUserIds,
@@ -50,6 +52,7 @@ public class ExtendedLearningContentDto {
         this.assignedUserIds = assignedUserIds;
         this.assignedTeamIds = assignedTeamIds;
         this.dueDate = dueDate;
+        this.authorAvatarUrl = authorAvatarUrl;
     }
 
     public void setAssignedTeamId(String teamId) {

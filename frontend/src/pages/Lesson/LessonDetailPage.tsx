@@ -12,6 +12,8 @@ interface Lesson {
   thumbnailUrl?: string;
   videoUrl?: string;
   authorName?: string;
+  authorEmail?: string;
+  authorAvatarUrl?: string;
   quizAttemptLimit?: number;
 }
 
@@ -61,18 +63,8 @@ const LessonDetailPage = () => {
 
         setAttempts(found.attempts);
         setMaxAttempts(found.maxAttempts);
-
-        if (found.score > 0) {
-          setQuizPassed(true); // user เคยทำผ่าน
-        } else {
-          setQuizPassed(false);
-        }
-
-        if (found.attempts >= found.maxAttempts) {
-          setHasTakenQuiz(true);
-        } else {
-          setHasTakenQuiz(false);
-        }
+        setQuizPassed(found.score > 0);
+        setHasTakenQuiz(found.attempts >= found.maxAttempts);
       })
       .catch(() => console.error("❌ Failed to fetch progress"));
   }, [lesson, token]);
@@ -102,7 +94,7 @@ const LessonDetailPage = () => {
           )
           .catch((err) => console.error("❌ PUT failed:", err));
       }
-    },0);
+    }, 5000); // every 5s
 
     if (progressPercent >= 100 && !showQuiz) {
       setShowQuiz(true);
@@ -136,15 +128,35 @@ const LessonDetailPage = () => {
               <h1 className="text-2xl font-bold text-gray-800">{lesson.title}</h1>
               <span className="text-xs font-semibold uppercase text-purple-600">{lesson.category}</span>
               <p className="text-gray-700">{lesson.description}</p>
-              <p className="text-sm text-gray-500">Author: {lesson.authorName || "Unknown"}</p>
+
+              <div className="flex items-center gap-4">
+                {lesson.authorAvatarUrl ? (
+                  <img
+                    src={lesson.authorAvatarUrl}
+                    alt="Author Avatar"
+                    className="w-10 h-10 rounded-full object-cover border"
+                    onError={(e) => ((e.currentTarget.style.display = "none"))}
+                  />
+                ) : (
+                  <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center text-sm text-white">
+                    {lesson.authorName?.charAt(0) ?? "?"}
+                  </div>
+                )}
+                <div>
+                  <p className="text-sm font-medium text-gray-800">{lesson.authorName || "Unknown"}</p>
+                  <p className="text-xs text-gray-500">{lesson.authorEmail || ""}</p>
+                </div>
+              </div>
+
               <div className="h-1 bg-gray-300">
                 <div
                   className="h-full bg-blue-600 transition-all"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
+
               <p className="text-sm text-gray-500">
-                Attempts: {attempts}/{maxAttempts || lesson.quizAttemptLimit || "1"}
+                Attempts: {attempts}/{maxAttempts || lesson.quizAttemptLimit || 1}
               </p>
             </section>
           </div>
