@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public class User {
 
     @Id
-    @Column(length = 21) // NanoId length
+    @Column(length = 21)
     private String id;
 
     @Column(nullable = false)
@@ -21,7 +21,10 @@ public class User {
     private String password;
 
     @Column(nullable = false)
-    private String role = "employee";
+    private String role = "user";
+
+    @Column(name = "avatarurl",length = 512)
+    private String avatar;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime created;
@@ -56,5 +59,13 @@ public class User {
     public void setCreated(LocalDateTime created)  { this.created = created; }
     public boolean passwordMatches(String rawPassword) {
         return BCrypt.checkpw(rawPassword, this.password);
+    }
+
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 }

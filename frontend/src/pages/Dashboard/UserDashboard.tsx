@@ -11,6 +11,7 @@ import NotificationWidget from "../../widgets/NotificationWidget";
 import ReminderBox from "../../widgets/ReminderBoxWidget";
 import { Navigate } from "react-router-dom";
 import JointeamWidget from "../../widgets/JointeamWidget";
+import Userwidget from "../../widgets/UserAvatarWidget";
 
 interface Lesson {
   id: string;
@@ -48,6 +49,8 @@ const UserDashboard = () => {
 
     fetchLessons();
   }, [token]);
+
+
 
   const filteredLessons = useMemo(() => {
     return lessons.filter((lesson) =>
@@ -87,7 +90,11 @@ const UserDashboard = () => {
         <main className="flex-1 p-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-3xl font-bold text-gray-800">👋 Welcome, {displayName}</h1>
+            <div className="flex items-center space-x-4">
             <NotificationWidget />
+            <Userwidget/>
+            </div>
+          
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
             <div className="xl:col-span-3 space-y-6">
@@ -113,9 +120,6 @@ const UserDashboard = () => {
       </button>
     ))}
 </div>
-
-                
-
                 <CalendarWidget events={calendarEvents} />
                 <ReminderBox reminders={upcomingReminders} />
 

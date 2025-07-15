@@ -13,4 +13,6 @@ public class PostCreateRequest {
 
     @Size(max = 100, message = "Author name must be at most 100 characters")
     public String authorName;
+
+    public String avatarUrl;
 }

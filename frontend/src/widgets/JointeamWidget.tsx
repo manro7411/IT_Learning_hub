@@ -136,7 +136,7 @@ const JoinTeamWidget = () => {
           <>
            
             {joinedTeams.map((team) => (
-               <h2 className="text-lg font-semibold mb-2">Team Joined : {team.name}</h2>
+               <h2  key={team.id} className="text-lg font-semibold mb-2">Team Joined : {team.name}</h2>
               // <div key={team.id} className="border p-4 rounded mb-2">
               //   <p><strong>Name:</strong> {team.name}</p>
               //   <p><strong>Description:</strong> {team.description}</p>

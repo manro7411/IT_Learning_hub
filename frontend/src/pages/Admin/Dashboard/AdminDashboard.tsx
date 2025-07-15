@@ -18,8 +18,8 @@ import {
   Pie,
   Cell,
 } from "recharts";
+import AdminAvatarWidget from "../Widgets/AdminAvatarWidget.tsx";
 
-/* ------- mock data ------- */
 const teamData = [
   { name: "Team A", value: 30 },
   { name: "Team B", value: 25 },
@@ -38,26 +38,22 @@ const donutData = [
 const COLORS = ["#C2CEFD", "#FF9736", "#0575E6", "#084590", "#055CC7"];
 
 const AdminDashboard = () => {
-  /* ---------- auth & navigation ---------- */
   const { user, token: ctxToken } = useContext(AuthContext);
   const token =
     ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
   const navigate = useNavigate();
 
-  /* redirect if not logged-in */
   useEffect(() => {
     if (!token) navigate("/");
   }, [token, navigate]);
 
   const displayName = user?.name || user?.email || "Administrator";
 
-  /* ---------- filter state ---------- */
   const [showFilter, setShowFilter] = useState(false);
   const [filterText, setFilterText] = useState({ team: "", course: "" });
 
   const handleClear = () => setFilterText({ team: "", course: "" });
 
-  /* ---------- filter logic ---------- */
   const filteredTeamData = teamData.filter(
     (item) =>
       !filterText.team ||
@@ -80,8 +76,6 @@ const AdminDashboard = () => {
     course,
     data: donutData.filter((d) => d.course === course),
   }));
-
-  /* ---------- render ---------- */
   return (
     <div className="min-h-screen bg-gray-50 flex">
       {/* sidebar */}
@@ -97,9 +91,7 @@ const AdminDashboard = () => {
             </h1>
             <p className="text-gray-600 mb-4 ml-10">Have a good day!</p>
           </div>
-
-          {/* filter + overall button */}
-          <div className="flex items-center gap-3 mb-6 relative">
+          <div className="flex items-center justify-end space-x-4">
             <button
               onClick={() => navigate("/admin-overall")}
               className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition"
@@ -114,6 +106,7 @@ const AdminDashboard = () => {
               >
                 <FaFilter /> Filter
               </button>
+              <AdminAvatarWidget/>
 
               {showFilter && (
                 <div className="absolute right-0 mt-2 w-64 bg-white border shadow-lg rounded-xl z-10 p-4 space-y-2">

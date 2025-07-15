@@ -45,6 +45,9 @@ public class PostEntity extends PanacheEntityBase {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
+    @Column(length = 512,name = "avatarurl")
+    private String avatarUrl;
+
     @PrePersist
     void prePersist() {
         if (id == null || id.isBlank()) id = NanoIdUtils.randomNanoId();
@@ -75,4 +78,12 @@ public class PostEntity extends PanacheEntityBase {
     public void setMessage(String m)        { this.message = m; }
     public void setLikes(long l)            { this.likes = l; }
     public void setViews(long v)            { this.views = v; }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
 }
