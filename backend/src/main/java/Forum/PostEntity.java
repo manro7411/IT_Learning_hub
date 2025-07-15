@@ -8,6 +8,8 @@ import jakarta.validation.constraints.Size;
 import model.CommentEntity;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "posts")
@@ -48,6 +50,11 @@ public class PostEntity extends PanacheEntityBase {
     @Column(length = 512,name = "avatarurl")
     private String avatarUrl;
 
+    @ElementCollection
+    @CollectionTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"))
+    @Column(name = "user_email")
+    private Set<String> likedBy = new HashSet<>();
+
     @PrePersist
     void prePersist() {
         if (id == null || id.isBlank()) id = NanoIdUtils.randomNanoId();
@@ -71,6 +78,7 @@ public class PostEntity extends PanacheEntityBase {
     public long   getViews()         { return views; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
+    public Set<String> getLikedBy() { return likedBy; }
 
     public void setAuthorName(String n)     { this.authorName = n; }
     public void setAuthorEmail(String e)    { this.authorEmail = e; }
@@ -85,5 +93,14 @@ public class PostEntity extends PanacheEntityBase {
 
     public void setAvatarUrl(String avatarUrl) {
         this.avatarUrl = avatarUrl;
+    }
+    public void addLike(String email) {
+        likedBy.add(email);
+        this.likes = likedBy.size();
+    }
+
+    public void removeLike(String email) {
+        likedBy.remove(email);
+        this.likes = likedBy.size();
     }
 }
