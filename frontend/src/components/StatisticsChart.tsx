@@ -2,6 +2,9 @@ import {
   LineChart, Line, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../components/LanguageSwitcher";
+
 const data = [
   { date: '1 Oct', overview: 1800, overall: 800 },
   { date: '3 Oct', overview: 2600, overall: 1200 },
@@ -15,15 +18,16 @@ const data = [
 ];
 
 const StatisticsChart = () => {
+  const { t } = useTranslation("dashboard");
   return (
     <div className="bg-white rounded-xl p-4 shadow-md w-full">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="font-semibold text-gray-700">Statistics</h2>
+        <h2 className="font-semibold text-gray-700">{t('statistic')}</h2>
         <div className="flex space-x-2 text-sm">
-          <button className="px-2 py-1 text-gray-500">Day</button>
-          <button className="px-2 py-1 text-gray-500">Week</button>
-          <button className="px-2 py-1 bg-orange-500 text-white rounded-md">Month</button>
-          <button className="px-2 py-1 text-gray-500">Year</button>
+          <button className="px-2 py-1 text-gray-500">{t('day')}</button>
+          <button className="px-2 py-1 text-gray-500">{t('week')}</button>
+          <button className="px-2 py-1 bg-orange-500 text-white rounded-md">{t('month')}</button>
+          <button className="px-2 py-1 text-gray-500">{t('year')}</button>
         </div>
       </div>
 

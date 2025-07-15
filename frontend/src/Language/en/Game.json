@@ -1,0 +1,5 @@
+{
+  "poRole": "Defines the product vision, manages stakeholders, and prioritizes the backlog",
+  "devRole":"Build, test, and refine the product in each sprint",
+  "smRole":"Facilitates sprints, removes roadblocks, and ensures Agile principles are followed"
+}

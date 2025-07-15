@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
 import { AuthContext } from "../../../Authentication/AuthContext";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../../components/LanguageSwitcher";
 
 interface LessonFormState {
   title: string;
@@ -52,7 +54,10 @@ const tabs = [
 
 const AdminAddLessonPage = () => {
   const { token, user  } = useContext(AuthContext);
+  const { t } = useTranslation("adminaddlesson");
+  const { token, user } = useContext(AuthContext);
   const navigate = useNavigate();
+
   const [form, setForm] = useState<LessonFormState>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
   const [users, setUsers] = useState<User[]>([]);
@@ -61,9 +66,6 @@ const AdminAddLessonPage = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [activeTab, setActiveTab] = useState("video");
    const [authorAvatarUrl, setAuthorAvatarUrl] = useState<User | null>(null);
-
-// user should have: id, name, userPicture
-
 
   useEffect(() => {
     if (!token) navigate("/");
@@ -127,21 +129,32 @@ const AdminAddLessonPage = () => {
     setForm({ ...form, questions: updatedQuestions });
   };
 
-  const addQuestion = () => setForm((prev) => ({
-    ...prev,
-    questions: [...prev.questions, { questionText: "", type: "single", options: [""], correctAnswers: [""] }],
-  }));
-
-  const addOption = (qIdx: number) => {
-    const updated = [...form.questions];
-    updated[qIdx].options.push("");
-    setForm({ ...form, questions: updated });
+  const handleOptionChange = (qIdx: number, optIdx: number, value: string) => {
+    const updatedQuestions = [...form.questions];
+    updatedQuestions[qIdx].options[optIdx] = value;
+    setForm({ ...form, questions: updatedQuestions });
   };
 
-  const addCorrectAnswer = (qIdx: number) => {
-    const updated = [...form.questions];
-    updated[qIdx].correctAnswers.push("");
-    setForm({ ...form, questions: updated });
+  const handleAddOption = (qIdx: number) => {
+    const updatedQuestions = [...form.questions];
+    updatedQuestions[qIdx].options.push("");
+    setForm({ ...form, questions: updatedQuestions });
+  };
+
+  const handleAddCorrectAnswer = (qIdx: number) => {
+    const updatedQuestions = [...form.questions];
+    updatedQuestions[qIdx].correctAnswers.push("");
+    setForm({ ...form, questions: updatedQuestions });
+  };
+
+  const handleAddQuestion = () => {
+    setForm((prev) => ({
+      ...prev,
+      questions: [
+        ...prev.questions,
+        { questionText: "", type: "single", options: [""], correctAnswers: [""] },
+      ],
+    }));
   };
 
   const resetForm = () => {
@@ -175,7 +188,6 @@ const AdminAddLessonPage = () => {
         })),
       })),
     };
-
     console.log("📤 Submitting payload:", payload);
 
     try {
@@ -192,6 +204,7 @@ const AdminAddLessonPage = () => {
       setLoading(false);
     }
   };
+
 
   const handleDocumentSubmit = async () => {
     setLoading(true);
@@ -219,7 +232,7 @@ const AdminAddLessonPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen flex">
       <AdminSidebarWidget />
       <main className="flex-1 p-10 space-y-6 max-w-3xl">
         <h1 className="text-2xl font-bold text-blue-800 pb-2">📚 Add New Lesson</h1>
@@ -372,15 +385,5 @@ const AdminAddLessonPage = () => {
     </div>
   );
 };
-
-function Field(props: { label: string } & React.InputHTMLAttributes<HTMLInputElement>) {
-  const { label, ...inputProps } = props;
-  return (
-    <div>
-      <label className="text-sm font-medium text-gray-700">{label}</label>
-      <input {...inputProps} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50" />
-    </div>
-  );
-}
 
 export default AdminAddLessonPage;

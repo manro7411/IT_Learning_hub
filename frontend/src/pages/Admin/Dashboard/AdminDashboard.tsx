@@ -19,6 +19,8 @@ import {
   Cell,
 } from "recharts";
 import AdminAvatarWidget from "../Widgets/AdminAvatarWidget.tsx";
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../../components/LanguageSwitcher";
 
 const teamData = [
   { name: "Team A", value: 30 },
@@ -38,6 +40,8 @@ const donutData = [
 const COLORS = ["#C2CEFD", "#FF9736", "#0575E6", "#084590", "#055CC7"];
 
 const AdminDashboard = () => {
+  const { t } = useTranslation("dashboard");
+
   const { user, token: ctxToken } = useContext(AuthContext);
   const token =
     ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -87,9 +91,9 @@ const AdminDashboard = () => {
         <div className="flex justify-between items-start">
           <div>
             <h1 className="text-3xl font-bold text-gray-800 mb-1">
-              👋 Welcome, {displayName}
+              👋 {t('welcome', { name: displayName })}
             </h1>
-            <p className="text-gray-600 mb-4 ml-10">Have a good day!</p>
+            <p className="text-gray-600 mb-4 ml-10">{t('greeting')}</p>
           </div>
          <div className="flex items-center justify-end space-x-4">
   <button
@@ -145,12 +149,67 @@ const AdminDashboard = () => {
     )}
   </div>
 </div>
+          {/* filter + overall button */}
+          <div className="flex items-center gap-3 mb-6 relative">
+           
+            <button
+              onClick={() => navigate("/admin-overall")}
+              className="px-3 py-1 text-sm bg-blue-100 text-blue-700 rounded-full hover:bg-blue-200 transition"
+            >
+              {t('seeOverall')}
+            </button>
 
+            <div className="relative">
+              <button
+                className="flex items-center gap-2 px-4 py-2 bg-white border shadow rounded-full hover:bg-gray-100"
+                onClick={() => setShowFilter(!showFilter)}
+              >
+                <FaFilter /> {t('filter')}
+              </button>
+              
+
+              {showFilter && (
+                <div className="absolute right-0 mt-2 w-64 bg-white border shadow-lg rounded-xl z-10 p-4 space-y-2">
+                  <p className="font-semibold text-gray-700">{t('filterBy')}</p>
+
+                  <input
+                    type="text"
+                    placeholder={t('team')}
+                    className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm"
+                    value={filterText.team}
+                    onChange={(e) =>
+                      setFilterText({ ...filterText, team: e.target.value })
+                    }
+                  />
+
+                  <input
+                    type="text"
+                    placeholder={t('course')}
+                    className="w-full px-4 py-2 bg-gray-100 rounded-full text-sm"
+                    value={filterText.course}
+                    onChange={(e) =>
+                      setFilterText({ ...filterText, course: e.target.value })
+                    }
+                  />
+
+                  <div className="flex justify-between pt-2">
+                    <button
+                      onClick={handleClear}
+                      className="text-sm text-red-500 hover:underline"
+                    >
+                      {t('clear')}
+                    </button>
+                  </div>                                 
+                </div>
+            )}             
+            </div>
+            <LanguageSwitcher />
+          </div>
         </div>
 
         {/* summary section */}
         <h2 className="text-xl font-semibold text-gray-700 mb-2 ml-2">
-          Summary
+          {t('summary')}
         </h2>
 
         <div className="flex flex-col xl:flex-row gap-6">
@@ -159,7 +218,7 @@ const AdminDashboard = () => {
             {/* Bar chart */}
             <div className="bg-white rounded-xl shadow p-4 border-t-8 border-blue-500">
               <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                By Team
+                {t('team')}
               </h2>
               <ResponsiveContainer width="100%" height={250}>
                 <BarChart data={filteredTeamData} layout="vertical">
@@ -179,7 +238,7 @@ const AdminDashboard = () => {
             {/* Donut charts by course */}
             <div className="bg-white rounded-xl shadow p-4 border-t-8 border-blue-500">
               <h2 className="text-lg font-semibold text-gray-700 mb-4">
-                By Course
+                {t('course')}
               </h2>
               <div className="flex flex-wrap justify-center gap-6">
                 {courseDataMap.map(({ course, data }, idx) => (
@@ -187,7 +246,7 @@ const AdminDashboard = () => {
                     key={idx}
                     className="flex flex-col items-center w-[280px] max-w-full"
                   >
-                    <h3 className="text-sm font-semibold mb-2 text-center">
+                    <h3 className="text-[16px] font-semibold mb-2 text-center">
                       {course}
                     </h3>
                     <ResponsiveContainer width="100%" height={200}>

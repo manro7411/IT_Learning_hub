@@ -9,6 +9,8 @@ interface Team {
   description: string;
   joinCode: string;
 }
+import { useRef, useState } from "react";
+import { Dialog } from "@headlessui/react";
 
 const JoinTeamWidget = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -32,6 +34,14 @@ const JoinTeamWidget = () => {
 
   const handleChange = (index: number, value: string) => {
     if (!/^\d?$/.test(value)) return;
+    const newDigits = [...digits];
+    newDigits[index] = value;
+    setDigits(newDigits);
+  const inputRefs = useRef<(HTMLInputElement | null)[]>([]); // Array of refs
+
+  const handleChange = (index: number, value: string) => {
+    if (!/^\d?$/.test(value)) return;
+
     const newDigits = [...digits];
     newDigits[index] = value;
     setDigits(newDigits);
@@ -122,6 +132,20 @@ const JoinTeamWidget = () => {
     } finally {
       setLoading(false);
     }
+    if (e.key === "Backspace" && !digits[index] && index > 0) {
+      inputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleSubmit = () => {
+    const joinCode = digits.join("");
+    console.log("🔑 Join code submitted:", joinCode);
+    resetForm();
+    setIsOpen(false);
+  };
+
+  const resetForm = () => {
+    setDigits(["", "", "", "", "", ""]);
   };
 
   const handleClose = () => {
@@ -137,10 +161,6 @@ const JoinTeamWidget = () => {
            
             {joinedTeams.map((team) => (
                <h2  key={team.id} className="text-lg font-semibold mb-2">Team Joined : {team.name}</h2>
-              // <div key={team.id} className="border p-4 rounded mb-2">
-              //   <p><strong>Name:</strong> {team.name}</p>
-              //   <p><strong>Description:</strong> {team.description}</p>
-              // </div>
             )
             )}
           </>
@@ -177,10 +197,10 @@ const JoinTeamWidget = () => {
                 onChange={(e) => handleChange(index, e.target.value)}
                 onKeyDown={(e) => handleKeyDown(index, e)}
                 className="w-12 h-14 text-center text-2xl border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-10 h-12 text-center text-xl border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             ))}
           </div>
-
           {errorMessage && <p className="text-sm text-red-500 text-center">{errorMessage}</p>}
 
           <div className="flex justify-end space-x-2">
@@ -188,6 +208,11 @@ const JoinTeamWidget = () => {
               onClick={handleClose}
               className="px-4 py-2 rounded-md text-sm bg-gray-200 hover:bg-gray-300"
               disabled={loading}
+
+          <div className="flex justify-end space-x-2">
+            <button
+              onClick={handleClose}
+              className="px-3 py-1 rounded-md text-sm bg-gray-200 hover:bg-gray-300
             >
               Cancel
             </button>
@@ -197,6 +222,9 @@ const JoinTeamWidget = () => {
               className="px-4 py-2 rounded-md text-sm bg-blue-500 text-white hover:bg-blue-600 disabled:bg-blue-300"
             >
               {loading ? "Joining..." : "Join"}
+              className="px-3 py-1 rounded-md text-sm bg-blue-500 text-white hover:bg-blue-600"
+            >
+              Join
             </button>
           </div>
         </Dialog.Panel>

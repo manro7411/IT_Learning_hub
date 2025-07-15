@@ -5,6 +5,10 @@ import { useNavigate } from "react-router-dom";
 import ChatBubbleWidget from '../../widgets/ChatBubbleWidget.tsx';
 import NotificationWidget from '../../widgets/NotificationWidget.tsx';
 import LessonCard from '../Lesson/LessonCard.tsx';
+// import ScoreboardChart from '../../widgets/ScoreboardChart.tsx';
+
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
 
 interface Task {
   id: number | string;
@@ -28,6 +32,7 @@ interface LessonFromAPI {
   authorRole?: string;
 }
 const TaskManagement = () => {
+  const { t } = useTranslation("usertask");
   const [tasks, setTasks] = useState<Task[]>([]);
   const { token: ctxToken } = useContext(AuthContext);
   const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
@@ -147,17 +152,17 @@ const TaskManagement = () => {
                   <div className="flex space-x-2 text-sm mt-2">
                     {status !== 'todo' && (
                       <button onClick={() => updateTaskStatus(task.id, 'todo')} className="text-blue-500 hover:underline">
-                        To do
+                        {t('todo')}
                       </button>
                     )}
                     {status !== 'inprogress' && (
                       <button onClick={() => updateTaskStatus(task.id, 'inprogress')} className="text-yellow-500 hover:underline">
-                        In progress
+                        {t('inprogress')}
                       </button>
                     )}
                     {status !== 'done' && (
                       <button onClick={() => updateTaskStatus(task.id, 'done')} className="text-green-500 hover:underline">
-                        Done
+                        {t('done')}
                       </button>
                     )}
                   </div>
@@ -174,8 +179,6 @@ const TaskManagement = () => {
       <Sidebar />
       <main className="flex-1 p-6 overflow-x-auto">
         <div className="flex items-center justify-between mb-6">
-    
-     
         </div>
           <div className="fixed top-4 right-4 z-50">
       <NotificationWidget />
@@ -183,10 +186,11 @@ const TaskManagement = () => {
 
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           <div className="xl:col-span-3 flex space-x-4">
-            {renderColumn('todo', 'To do')}
-            {renderColumn('inprogress', 'In progress')}
-            {renderColumn('done', 'Done')}
+            {renderColumn('todo', t('todo'))}
+            {renderColumn('inprogress', t('inprogress'))}
+            {renderColumn('done', t('done'))}
           </div>
+
           <div className="xl:col-span-1 space-y-6">
           </div>
         </div>

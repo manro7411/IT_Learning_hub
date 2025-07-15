@@ -33,7 +33,7 @@ const NotificationWidget = () => {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setItems(data);
-    //   console.log("📬 Notifications fetched:", data);
+      console.log("📬 Notifications fetched:", data);
       setUnread(data.filter((n) => !n.read).length);
     } catch (err) {
       console.error("❌ fetch notifications:", err);

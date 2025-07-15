@@ -182,7 +182,7 @@ const PostCardWidget = ({ post }: Props) => {
         </button>
       </div>
 
-      {/* Comments Section */}
+
       {showComments && (
         <section className="mt-4 space-y-2 border-t pt-4">
           {comments.length === 0 ? (

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
 import Sidebar from "../../widgets/SidebarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
+import { useTranslation } from "react-i18next";
 
 interface Lesson {
   id: string;
@@ -28,6 +29,7 @@ interface Progress {
 const fallbackVideo = "https://www.w3schools.com/html/mov_bbb.mp4";
 
 const LessonDetailPage = () => {
+  const { t } = useTranslation("userlesson");
   const { id } = useParams<{ id: string }>();
   const { token } = useContext(AuthContext);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -37,10 +39,10 @@ const LessonDetailPage = () => {
   const [progressPercent, setProgressPercent] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showQuiz, setShowQuiz] = useState(false);
-  const [hasTakenQuiz, setHasTakenQuiz] = useState(false);
   const [attempts, setAttempts] = useState(0);
   const [maxAttempts, setMaxAttempts] = useState(1);
   const [quizPassed, setQuizPassed] = useState(false);
+  const [hasTakenQuiz, setHasTakenQuiz] = useState(false);
 
   useEffect(() => {
     axios
@@ -60,7 +62,6 @@ const LessonDetailPage = () => {
       .then((res) => {
         const found = res.data.find((p) => p.lessonId === lesson.id);
         if (!found) return;
-
         setAttempts(found.attempts);
         setMaxAttempts(found.maxAttempts);
         setQuizPassed(found.score > 0);
@@ -94,8 +95,8 @@ const LessonDetailPage = () => {
           )
           .catch((err) => console.error("❌ PUT failed:", err));
       }
-    }, 5000); // every 5s
 
+    }, 5000); 
     if (progressPercent >= 100 && !showQuiz) {
       setShowQuiz(true);
     }
@@ -112,6 +113,7 @@ const LessonDetailPage = () => {
       <Sidebar />
       <main className="flex-1 p-8">
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+          {/* ▶ Video & Details */}
           <div className="xl:col-span-2 space-y-8">
             <div className="w-full rounded-xl overflow-hidden shadow">
               <video
@@ -123,7 +125,6 @@ const LessonDetailPage = () => {
                 src={lesson.videoUrl || fallbackVideo}
               />
             </div>
-
             <section className="bg-white rounded-xl shadow p-6 space-y-4">
               <h1 className="text-2xl font-bold text-gray-800">{lesson.title}</h1>
               <span className="text-xs font-semibold uppercase text-purple-600">{lesson.category}</span>
@@ -147,23 +148,28 @@ const LessonDetailPage = () => {
                   <p className="text-xs text-gray-500">{lesson.authorEmail || ""}</p>
                 </div>
               </div>
-
               <div className="h-1 bg-gray-300">
                 <div
                   className="h-full bg-blue-600 transition-all"
                   style={{ width: `${progressPercent}%` }}
                 />
               </div>
-
+            </div>
+            <section className="bg-white rounded-xl shadow p-6 space-y-4">
+              <h1 className="text-2xl font-bold text-gray-800">{lesson.title}</h1>
+              <span className="text-xs font-semibold uppercase text-purple-600">{lesson.category}</span>
+              <p className="text-gray-700">{lesson.description}</p>
+              <p className="text-base text-gray-500">{t('author')}: {lesson.authorName || "Unknown"}</p>
+              <p className="text-base text-gray-500">{t('progress')}: {Math.floor(progressPercent)}%</p>
               <p className="text-sm text-gray-500">
-                Attempts: {attempts}/{maxAttempts || lesson.quizAttemptLimit || 1}
+                {t('attempts')}: {attempts}/{maxAttempts || lesson.quizAttemptLimit || "1"}
               </p>
             </section>
           </div>
 
           <aside className="space-y-6 mt-4 xl:mt-0">
             <div className="bg-white p-4 rounded-xl shadow">
-              <h3 className="text-sm font-semibold mb-4 text-gray-700">Schedule</h3>
+              <h3 className="text-sm font-semibold mb-4 text-gray-700">{t('schedule')}</h3>
               {["What is Scrum?", "Scrum Events", "Scrum Artifacts", "Agile Estimation"].map((item, i) => (
                 <div key={i} className="flex items-start space-x-2 mb-4">
                   <div className="w-2 h-2 mt-1 bg-blue-600 rounded-full" />
@@ -183,11 +189,11 @@ const LessonDetailPage = () => {
           <div className="bg-white p-6 rounded-xl shadow-xl w-[90%] max-w-md text-center">
             {hasTakenQuiz ? (
               <>
-                <h2 className="text-xl font-bold text-red-600 mb-4">❌ Quiz unavailable</h2>
+                <h2 className="text-xl font-bold text-red-600 mb-4">❌ {t('quizUnavailable')}</h2>
                 <p className="text-gray-700 mb-6">
                   {quizPassed
-                    ? "You have already passed the quiz."
-                    : "You have reached the maximum number of attempts."}
+                    ? t('quizAlreadyPassed')
+                    : t('quizAttemptsExceeded')}
                 </p>
                 <button
                   onClick={() => {
@@ -196,13 +202,13 @@ const LessonDetailPage = () => {
                   }}
                   className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg"
                 >
-                  Back to Lessons
+                  {t('backToLessons')}
                 </button>
               </>
             ) : (
               <>
-                <h2 className="text-xl font-bold mb-4">🎉 Lesson Completed!</h2>
-                <p className="text-gray-700 mb-2">Take a quiz to test your knowledge.</p>
+                <h2 className="text-xl font-bold mb-4">🎉 {t('finish')}</h2>
+                <p className="text-gray-700 mb-2">{t('message')}</p>
                 <button
                   onClick={() => {
                     setShowQuiz(false);
@@ -210,7 +216,7 @@ const LessonDetailPage = () => {
                   }}
                   className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
                 >
-                  Start Quiz
+                  {t('startQuiz')}
                 </button>
               </>
             )}

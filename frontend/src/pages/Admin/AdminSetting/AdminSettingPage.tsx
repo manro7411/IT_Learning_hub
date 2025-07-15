@@ -4,6 +4,9 @@ import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../../Authentication/AuthContext";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../../components/LanguageSwitcher";
+
 interface FormState {
   fullName: string;
   username: string;
@@ -14,7 +17,7 @@ interface FormState {
 const AccountSettingsPage = () => {
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
-
+  const { t } = useTranslation("setting");
   const [form, setForm] = useState<FormState>({
     fullName: "",
     username: "",
@@ -106,7 +109,6 @@ const AccountSettingsPage = () => {
             Account Settings
           </button>
         </div>
-
         <form
           onSubmit={submit}
           className="bg-white rounded-xl shadow p-8 space-y-8"
@@ -195,6 +197,7 @@ const AccountSettingsPage = () => {
       </main>
     </div>
   );
+
 };
 
 function Input({

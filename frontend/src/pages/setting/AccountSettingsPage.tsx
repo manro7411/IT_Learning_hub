@@ -4,6 +4,9 @@ import SidebarWidget from "../../widgets/SidebarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
 import { useNavigate } from "react-router-dom";
 
+import { useTranslation } from "react-i18next";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
+
 interface FormState {
   fullName: string;
   username: string;
@@ -12,6 +15,8 @@ interface FormState {
 }
 
 const AccountSettingsPage = () => {
+  const { t } = useTranslation("setting");
+
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -139,7 +144,7 @@ const AccountSettingsPage = () => {
             </div>
           </div>
 
-          {/* Form Fields */}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input label="Full name" name="fullName" value={form.fullName} onChange={handleChange} />
             <Input label="Email" name="email" value={form.email} onChange={handleChange} />

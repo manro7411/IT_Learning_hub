@@ -1,0 +1,11 @@
+{
+  "title":"Account Setting",
+  "profilePic": "Your Profile Picture",
+  "upload": "Upload your photo",
+  "fullname": "Full name",
+  "email": "Email",
+  "username": "Username",
+  "password": "Password",
+  "update": "Update Profile",
+  "reset": "Reset"
+}

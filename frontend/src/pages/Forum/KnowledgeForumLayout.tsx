@@ -3,6 +3,7 @@ import { AuthContext } from "../../Authentication/AuthContext.tsx";
 import Sidebar from "../../widgets/SidebarWidget";
 import PostCardWidget from "./PostCardWidget.tsx";
 import AddPostWidget from "./AddPostWidget.tsx";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
 
 export type Comment = {
   id: string;
@@ -43,6 +44,7 @@ const KnowledgeForumLayout = () => {
   const { token } = useContext(AuthContext);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const { t } = useTranslation("usergroup");
 
   const fetchComments = async (postId: string): Promise<Comment[]> => {
     try {

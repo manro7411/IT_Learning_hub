@@ -99,6 +99,7 @@ public class ProfileResource {
     @GET
     @Path("/users")
     @RolesAllowed({"admin"})
+    @RolesAllowed({"admin","supervisor"})
     public List<ProfileDto> getAllUsers() {
         return em.createQuery("SELECT u FROM User u", User.class)
                 .getResultList()
@@ -122,7 +123,6 @@ public class ProfileResource {
                 ))
                 .toList();
     }
-
     @PUT
     @Path("/users/{id}/role")
     @Transactional
@@ -185,6 +185,7 @@ public class ProfileResource {
             this.role = role;
         }
     }
+
 
     public static class UpdateDto {
         @FormParam("name")
