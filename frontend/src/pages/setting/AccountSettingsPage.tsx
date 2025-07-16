@@ -6,9 +6,9 @@ import { useNavigate } from "react-router-dom";
 
 interface FormState {
   fullName: string;
-  username: string;
+  // username: string;
   email: string;
-  password: string;
+  // password: string;
 }
 
 const AccountSettingsPage = () => {
@@ -17,9 +17,9 @@ const AccountSettingsPage = () => {
 
   const [form, setForm] = useState<FormState>({
     fullName: "",
-    username: "",
+    // username: "",
     email: "",
-    password: "",
+    // password: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -42,9 +42,7 @@ const AccountSettingsPage = () => {
       .then((res) => {
         setForm({
           fullName: res.data.name ?? "",
-          username: res.data.username ?? "",
-          email: res.data.email ?? "",
-          password: "", // Don't preload password
+          email: res.data.email ?? "",    
         });
 
          if (res.data.avatarUrl) {
@@ -60,9 +58,10 @@ const AccountSettingsPage = () => {
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement>
   ) => setForm({ ...form, [e.target.name]: e.target.value });
-
+//  username: ""
+//  , password: ""
   const reset = () => {
-    setForm({ fullName: "", username: "", email: "", password: "" });
+    setForm({ fullName: "", email: "" });
     setProfilePicture(null);
     setPreviewUrl(null);
   };
@@ -72,9 +71,9 @@ const AccountSettingsPage = () => {
 
     const formData = new FormData();
     formData.append("name", form.fullName);
-    formData.append("username", form.username);
+    // formData.append("username", form.username);
     formData.append("email", form.email);
-    formData.append("password", form.password);
+    // formData.append("password", form.password);
 
     if (profilePicture) {
       formData.append("profilePicture", profilePicture);
@@ -142,9 +141,7 @@ const AccountSettingsPage = () => {
           {/* Form Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input label="Full name" name="fullName" value={form.fullName} onChange={handleChange} />
-            <Input label="Email" name="email" value={form.email} onChange={handleChange} />
-            <Input label="Username" name="username" value={form.username} onChange={handleChange} />
-            <Input label="Password" name="password" value={form.password} onChange={handleChange} type="password" />
+            <Input label="Email" name="email" value={form.email} onChange={handleChange} disabled/>
           </div>
 
           <div className="flex space-x-4">

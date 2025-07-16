@@ -10,6 +10,7 @@ public record CommentDto(
         String authorName,
         String authorEmail,
         String message,
+        String avatarUrl,
         LocalDateTime createdAt
 ) {
     public static CommentDto fromEntity(CommentEntity e) {
@@ -18,7 +19,9 @@ public record CommentDto(
                 e.getAuthorName(),
                 e.getAuthorEmail(),
                 e.getMessage(),
+                e.getAvatarUrl(),
                 e.getCreatedAt()
+
         );
     }
 
@@ -28,6 +31,7 @@ public record CommentDto(
         c.setAuthorName(authorName);
         c.setAuthorEmail(authorEmail);
         c.setMessage(message);
+        c.setAvatarUrl(avatarUrl);
         return c;
     }
 }

@@ -22,7 +22,6 @@ public class CommentResource {
     @Inject EntityManager em;
     @Inject JsonWebToken jwt;
 
-    /* ────────── 1) list comments ────────── */
     @GET
     public List<CommentDto> list(@PathParam("postId") String postId) {
         return em.createQuery("""
@@ -36,7 +35,6 @@ public class CommentResource {
                 .toList();
     }
 
-    /* ────────── 2) create comment ────────── */
     @POST
     @Transactional
     public Response create(@PathParam("postId") String postId,
@@ -53,6 +51,14 @@ public class CommentResource {
         if (comment.getAuthorEmail() == null || comment.getAuthorEmail().isBlank())
             comment.setAuthorEmail(jwt.getSubject());
 
+        if (comment.getAvatarUrl() == null || comment.getAvatarUrl().isBlank()) {
+            String avatar = jwt.getClaim("avatar");
+            if (avatar != null && !avatar.isBlank()) {
+                comment.setAvatarUrl(avatar);
+            }
+        }
+
+
         em.persist(comment);
 
         return Response
@@ -61,7 +67,7 @@ public class CommentResource {
                 .build();
     }
 
-    /* ────────── 3) delete comment ────────── */
+
     @DELETE
     @Path("/{commentId}")
     @Transactional

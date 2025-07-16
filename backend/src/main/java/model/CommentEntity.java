@@ -34,6 +34,9 @@ public class CommentEntity {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "avatarUrl")
+    private String avatarUrl;
+
     @PrePersist
     public void prePersist() {
         if (id == null || id.isBlank()) id = NanoIdUtils.randomNanoId();
@@ -52,4 +55,12 @@ public class CommentEntity {
     public void setAuthorName(String authorName) { this.authorName = authorName; }
     public void setAuthorEmail(String authorEmail) { this.authorEmail = authorEmail; }
     public void setMessage(String message) { this.message = message; }
+
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
 }
