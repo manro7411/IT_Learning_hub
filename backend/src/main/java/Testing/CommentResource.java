@@ -51,12 +51,17 @@ public class CommentResource {
         if (comment.getAuthorEmail() == null || comment.getAuthorEmail().isBlank())
             comment.setAuthorEmail(jwt.getSubject());
 
+        System.out.println(comment.getAuthorEmail());
+
         if (comment.getAvatarUrl() == null || comment.getAvatarUrl().isBlank()) {
             String avatar = jwt.getClaim("avatar");
             if (avatar != null && !avatar.isBlank()) {
                 comment.setAvatarUrl(avatar);
             }
         }
+        System.out.println("Comment details : "+comment);
+
+        System.out.println("Comment section : "+comment.getAvatarUrl());
 
 
         em.persist(comment);

@@ -1,10 +1,11 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext} from "react";
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
 import Sidebar from "../../widgets/SidebarWidget";
 import PostCardWidget from "./PostCardWidget.tsx";
 import AddPostWidget from "./AddPostWidget.tsx";
 
 export type Comment = {
+  avatarUrl: string;
   id: string;
   authorName: string;
   message: string;
@@ -12,6 +13,7 @@ export type Comment = {
 };
 
 export type Post = {
+  likedByUser: boolean;
   id: string;
   authorName: string;
   authorEmail: string;
@@ -21,15 +23,11 @@ export type Post = {
   createdAt: string;
   views: number;
   likes: number;
+  likedBy: string[]
   comments: Comment[];
 };
 
 const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
-
-/**
- * Converts stored relative avatar paths (like `uploads/avatars/...`) 
- * into valid accessible URLs via /posts/avatars/{filename}
- */
 const formatAvatarUrl = (rawUrl?: string): string | undefined => {
   if (!rawUrl) return undefined;
   if (rawUrl.startsWith("http")) return rawUrl;

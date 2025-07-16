@@ -50,10 +50,14 @@ public class PostEntity extends PanacheEntityBase {
     @Column(length = 512,name = "avatarurl")
     private String avatarUrl;
 
+    @Transient
+    private boolean likedByUser;
+
     @ElementCollection
     @CollectionTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "user_email")
     private Set<String> likedBy = new HashSet<>();
+
 
     @PrePersist
     void prePersist() {
@@ -102,5 +106,13 @@ public class PostEntity extends PanacheEntityBase {
     public void removeLike(String email) {
         likedBy.remove(email);
         this.likes = likedBy.size();
+    }
+
+    public boolean isLikedByUser() {
+        return likedByUser;
+    }
+
+    public void setLikedByUser(boolean likedByUser) {
+        this.likedByUser = likedByUser;
     }
 }

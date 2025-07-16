@@ -1,8 +1,8 @@
-import { useContext, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import type { Post, Comment } from "./KnowledgeForumLayout.tsx";
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
 import {
-  FaEye,
+  // FaEye,
   FaCommentDots,
   FaHeart,
   FaRegHeart,
@@ -21,10 +21,34 @@ const PostCardWidget = ({ post }: Props) => {
   const [comments, setComments] = useState<Comment[]>(post.comments);
 
   const [likes, setLikes] = useState(post.likes);
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(post.likedByUser ?? false);
   const [liking, setLiking] = useState(false);
 
+  const [userProfile, setUserProfile] = useState<{
+    name: string;
+    email: string;
+    avatarUrl?: string;
+  } | null>(null);
+
   const userEmail = user?.email || user?.upn;
+
+  useEffect(() => {
+    const fetchUserProfile = async () => {
+      if (!token) return;
+      try {
+        const res = await fetch(`${API_URL}/profile`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch user profile");
+        const data = await res.json();
+        setUserProfile(data);
+        // console.log("✅ User profile data:", data);
+      } catch (err) {
+        console.error("❌ Failed to fetch user profile:", err);
+      }
+    };
+    fetchUserProfile();
+  }, [token]);
 
   const fetchComments = async () => {
     try {
@@ -48,8 +72,10 @@ const PostCardWidget = ({ post }: Props) => {
         message: trimmed,
         authorName: user?.name || "Anonymous",
         authorEmail: userEmail || "unknown@example.com",
+        avatarUrl: userProfile?.avatarUrl || "",
       };
 
+      console.log(payload)
       const res = await fetch(`${API_URL}/forum/posts/${post.id}/comments`, {
         method: "POST",
         headers: {
@@ -75,7 +101,6 @@ const PostCardWidget = ({ post }: Props) => {
       await fetchComments();
     }
   };
-  
 
   const handleToggleLike = async () => {
     if (!userEmail || liking) return;
@@ -98,24 +123,27 @@ const PostCardWidget = ({ post }: Props) => {
 
       const data = await res.json();
       if (typeof data.likes === "number") setLikes(data.likes);
+       if (typeof data.likedByUser === "boolean") setLiked(data.likedByUser ?? false);
+      console.log("data :",data)
     } catch (err) {
       console.error("❌ Failed to toggle like:", err);
       setLiked(!nextLiked);
       setLikes(likes);
+
+      
     } finally {
       setLiking(false);
     }
   };
 
+
   const renderAvatar = () => {
     if (post.avatarUrl) {
-      const isFullUrl = post.avatarUrl.startsWith("http");
+      const isFullUrl = post.avatarUrl.startsWith("http") ;
       const filename = post.avatarUrl.split("/").pop();
       const avatarUrl = isFullUrl
         ? `${API_URL}/profile/avatars/${filename}`
         : "";
-
-        console.log(avatarUrl)
 
       return (
         <img
@@ -126,13 +154,14 @@ const PostCardWidget = ({ post }: Props) => {
         />
       );
     }
-
     return (
       <div className="w-10 h-10 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-sm">
         {post.authorName?.charAt(0)?.toUpperCase() || "?"}
       </div>
     );
   };
+
+  
 
   return (
     <article className="bg-white rounded-lg shadow p-4">
@@ -150,17 +179,15 @@ const PostCardWidget = ({ post }: Props) => {
         </div>
       </header>
 
-      {/* Title & Message */}
       <h2 className="text-base font-semibold text-gray-800">{post.title}</h2>
       <p className="text-sm text-gray-700 mt-1 whitespace-pre-line">
         {post.message}
       </p>
 
-      {/* Stats Section */}
       <div className="flex gap-4 text-xs text-gray-500 mt-3 items-center">
-        <span className="flex items-center gap-1">
+        {/* <span className="flex items-center gap-1">
           <FaEye /> {post.views}
-        </span>
+        </span> */}
 
         <button
           type="button"
@@ -182,24 +209,40 @@ const PostCardWidget = ({ post }: Props) => {
         </button>
       </div>
 
-      {/* Comments Section */}
       {showComments && (
         <section className="mt-4 space-y-2 border-t pt-4">
           {comments.length === 0 ? (
             <p className="text-xs text-gray-400">No comments yet.</p>
           ) : (
             comments.map((c) => (
-              <div key={c.id} className="text-xs space-y-1">
-                <p className="font-medium">{c.authorName}</p>
-                <p className="text-gray-700 whitespace-pre-line">{c.message}</p>
-                <p className="text-[10px] text-gray-400">
-                  {new Date(c.createdAt).toLocaleString()}
-                </p>
+
+                          
+              <div key={c.id} className="flex items-start gap-2 text-xs">
+                {c.avatarUrl ? (
+                  <img
+                    src={`${API_URL}/profile/avatars/${c.avatarUrl.split("/").pop()}`}
+                    alt="User avatar"
+                    className="w-6 h-6 rounded-full object-cover border"
+                  />
+
+                ) : (
+                  <div className="w-6 h-6 bg-gray-400 text-white rounded-full flex items-center justify-center text-[10px] font-bold">
+                    {c.authorName?.charAt(0)?.toUpperCase() || "?"}
+                  </div>
+                )}
+                <div>
+                  <p className="font-medium">{c.authorName}</p>
+                  <p className="text-gray-700 whitespace-pre-line">{c.message}</p>
+                  <p className="text-[10px] text-gray-400">
+                    {new Date(c.createdAt).toLocaleString()}
+                  </p>
+                </div>
               </div>
-            ))
+            )
+          
+          )
           )}
 
-          {/* Comment input */}
           <div className="mt-3">
             <textarea
               value={commentText}

@@ -30,12 +30,15 @@ public class PostResource {
         List<PostEntity> posts = em.createQuery("SELECT p FROM PostEntity p ORDER BY p.createdAt DESC", PostEntity.class)
                 .getResultList();
 
+        String userEmail = identity.getPrincipal().getName();
+
         for (PostEntity post : posts) {
             String avatar = post.getAvatarUrl();
             if (avatar != null && !avatar.startsWith("http")) {
                 String filename = Paths.get(avatar).getFileName().toString();
                 post.setAvatarUrl("http://localhost:8080/posts/avatars/" + filename);
             }
+            post.setLikedByUser(post.getLikedBy().contains(userEmail));
         }
 
         return posts;
@@ -45,15 +48,17 @@ public class PostResource {
     public PostEntity getOne(@PathParam("id") String id) {
         PostEntity post = em.find(PostEntity.class, id);
         if (post == null) throw new NotFoundException("Post not found");
-
         String avatar = post.getAvatarUrl();
         if (avatar != null && !avatar.startsWith("http")) {
             String filename = Paths.get(avatar).getFileName().toString();
             post.setAvatarUrl("http://localhost:8080/posts/avatars/" + filename);
         }
+        String userEmail = identity.getPrincipal().getName();
+        post.setLikedByUser(post.getLikedBy().contains(userEmail));
 
         return post;
     }
+
 
     @POST
     @Path("/{id}/like")
@@ -73,7 +78,7 @@ public class PostResource {
             System.out.println("⚠️ User " + userEmail + " already liked post " + id);
         }
 
-        return Response.ok().entity(Map.of("likes", post.getLikes())).build();
+        return Response.ok().entity(Map.of("likes", post.getLikes(), "likedByUser", true)).build();
     }
 
     @POST
@@ -94,7 +99,8 @@ public class PostResource {
             System.out.println("⚠️ User " + userEmail + " has not liked post " + id);
         }
 
-        return Response.ok().entity(Map.of("likes", post.getLikes())).build();
+        return Response.ok().entity(Map.of("likes", post.getLikes(), "likedByUser", false)).build();
+
     }
     @POST
     @Transactional

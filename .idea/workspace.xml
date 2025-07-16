@@ -6,15 +6,11 @@
   <component name="ChangeListManager">
     <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/LearningContentResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/LearningContentResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminNotification/AdminCreateNotificationPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminNotification/AdminCreateNotificationPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Dashboard/UserDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Dashboard/UserDashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Forum/PostEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/PostEntity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Forum/PostResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/PostResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/CommentResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/CommentResource.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Forum/KnowledgeForumLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Forum/KnowledgeForumLayout.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Point/PointDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Point/PointDashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/CalendarWidget.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/CalendarWidget.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/CalendarWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/CalendarWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Forum/PostCardWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Forum/PostCardWidget.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
