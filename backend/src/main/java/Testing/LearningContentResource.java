@@ -17,11 +17,9 @@ import jakarta.ws.rs.core.Response;
 import model.LearningContent;
 import model.UserLessonProgress;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-
-import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -58,12 +56,33 @@ public class LearningContentResource {
                 .toList();
     }
 
+    @GET
+    @Path("/video/{filename}")
+    @Produces("video/mp4")
+    public Response getVideo(@PathParam("filename") String filename) {
+        try {
+            java.nio.file.Path videoPath = java.nio.file.Paths.get("uploads/video", filename);
+            if (!Files.exists(videoPath)) {
+                throw new NotFoundException("Video not found.");
+            }
+
+            return Response.ok(Files.newInputStream(videoPath))
+                    .header("Content-Disposition", "inline; filename=\"" + filename + "\"")
+                    .build();
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Failed to load video.");
+        }
+    }
+
     @POST
     @Transactional
     @RolesAllowed("admin")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response create(ExtendedLearningContentDto dto) {
+        String lessonId = UUID.randomUUID().toString().replace("-", "").substring(0, 21);
         LearningContent lc = new LearningContent();
-        lc.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
+        lc.setId(lessonId);
         lc.setTitle(dto.title);
         lc.setDescription(dto.description);
         lc.setCategory(dto.category);
@@ -80,6 +99,24 @@ public class LearningContentResource {
         lc.setAssignedUserIds(dto.assignedUserIds);
         lc.setAssignedTeamIds(dto.assignedTeamIds);
         lc.setDueDate(dto.dueDate);
+
+        if (dto.videoStream != null) {
+            try {
+                String originalName = dto.videoMeta != null ? dto.videoMeta.fileName() : "video.mp4";
+                String filename = lessonId + ".mp4";
+                java.nio.file.Path dir = java.nio.file.Paths.get("uploads/video");
+                java.nio.file.Files.createDirectories(dir);
+                java.nio.file.Path videoPath = dir.resolve(filename);
+                java.nio.file.Files.copy(dto.videoStream, videoPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+
+                System.out.println("Video path : "+videoPath.toString());
+                System.out.println("Original file name"+originalName);
+                lc.setVideoUrl("uploads/video/" + filename);
+            }
+            catch (Exception e){
+                throw new InternalServerErrorException("Failed to save video.");
+            }
+        }
 
         em.persist(lc);
 

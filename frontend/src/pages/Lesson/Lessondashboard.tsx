@@ -88,8 +88,9 @@ const LessonPage = () => {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-
+        console.log("Lesson Data :"+lessonsRes.data)
         setLessons(lessonsRes.data);
+        
 
         const map: Record<string, Progress> = {};
         progressRes.data.forEach((item: { lessonId: string; percent: number; lastTimestamp?: number }) => {
@@ -244,23 +245,13 @@ const LessonPage = () => {
             ) : (
               filteredLessons.map((lesson) => {
                 const key = lesson.id.toLowerCase();
-                const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };
-
-             const avatarFilename = lesson.authorAvatarUrl?.split("/").pop();
-const avatarUrl = avatarFilename
-  ? `http://localhost:8080/profile/avatars/${avatarFilename}`
-  : defaultUserAvatar;
-
-console.log("Avatar URL:", avatarUrl);
-
-
-  
-
-
-                  
-
+                const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };    
+                 const avatarFilename = lesson.authorAvatarUrl?.split("/").pop();
+                 const avatarUrl = avatarFilename
+                 ? `http://localhost:8080/profile/avatars/${avatarFilename}`
+                 : defaultUserAvatar;
+                 console.log("Avatar URL:", avatarUrl);
                   console.log(avatarUrl);
-
                 return (
                   <button
                     key={lesson.id}

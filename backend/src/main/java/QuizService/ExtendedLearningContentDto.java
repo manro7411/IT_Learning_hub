@@ -1,59 +1,65 @@
 package QuizService;
+import jakarta.ws.rs.FormParam;
+import org.jboss.resteasy.reactive.PartType;
+import org.jboss.resteasy.reactive.multipart.FileUpload;
 
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public class ExtendedLearningContentDto {
 
+    @FormParam("title")
     public String title;
+
+    @FormParam("description")
     public String description;
+
+    @FormParam("category")
     public String category;
+
+    @FormParam("thumbnailUrl")
     public String thumbnailUrl;
+
+    @FormParam("authorName")
     public String authorName;
+
+    @FormParam("contentType")
     public String contentType;
+
+    @FormParam("authorEmail")
     public String authorEmail;
+
+    @FormParam("authorAvatarUrl")
     public String authorAvatarUrl;
+
+    @FormParam("maxAttempts")
     public Integer maxAttempts;
+
+    // This will not be passed in multipart directly (questions should come separately or be serialized if needed)
     public List<QuestionDTO> questions;
 
+    // 🟡 Actual uploaded video
+    @FormParam("video")
+    @PartType("application/octet-stream")
+    public InputStream videoStream;
+
+    @FormParam("video")
+    public FileUpload videoMeta;
+
+    @FormParam("assignType")
     public String assignType;
+
+    @FormParam("assignedUserIds")
     public List<String> assignedUserIds;
+
+    @FormParam("assignedTeamIds")
     public List<String> assignedTeamIds;
+
+    @FormParam("dueDate")
     public LocalDateTime dueDate;
 
     public ExtendedLearningContentDto() {}
-
-    public ExtendedLearningContentDto(
-            String title,
-            String description,
-            String category,
-            String thumbnailUrl,
-            String authorName,
-            String contentType,
-            String authorEmail,
-            Integer maxAttempts,
-            String authorAvatarUrl,
-            List<QuestionDTO> questions,
-            String assignType,
-            List<String> assignedUserIds,
-            List<String> assignedTeamIds,
-            LocalDateTime dueDate
-    ) {
-        this.title = title;
-        this.description = description;
-        this.category = category;
-        this.thumbnailUrl = thumbnailUrl;
-        this.authorName = authorName;
-        this.contentType = contentType;
-        this.authorEmail = authorEmail;
-        this.maxAttempts = maxAttempts;
-        this.questions = questions;
-        this.assignType = assignType;
-        this.assignedUserIds = assignedUserIds;
-        this.assignedTeamIds = assignedTeamIds;
-        this.dueDate = dueDate;
-        this.authorAvatarUrl = authorAvatarUrl;
-    }
 
     public void setAssignedTeamId(String teamId) {
         this.assignedTeamIds = teamId != null ? List.of(teamId) : List.of();

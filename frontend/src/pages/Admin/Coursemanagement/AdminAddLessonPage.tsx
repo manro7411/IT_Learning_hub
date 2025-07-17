@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext} from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
@@ -12,6 +12,7 @@ interface LessonFormState {
   quizAttemptLimit: number;
   assignType: "all" | "team" | "specific";
   assignTeamId?: string;
+  videoUrl:string,
   dueDate?: string;
   questions: QuestionForm[];
 }
@@ -42,6 +43,7 @@ const INITIAL_FORM: LessonFormState = {
   quizAttemptLimit: 1,
   assignType: "all",
   questions: [],
+  videoUrl:"",
   dueDate: ""
 };
 
@@ -61,15 +63,11 @@ const AdminAddLessonPage = () => {
   const [showUserModal, setShowUserModal] = useState(false);
   const [activeTab, setActiveTab] = useState("video");
    const [authorAvatarUrl, setAuthorAvatarUrl] = useState<User | null>(null);
-
-// user should have: id, name, userPicture
-
-
+   const [videoUrl, setvideoUrl] = useState<File | null>(null);
   useEffect(() => {
     if (!token) navigate("/");
   }, [token, navigate]);
 
- 
  useEffect(() => {
     if (token) {
       axios
@@ -149,49 +147,64 @@ const AdminAddLessonPage = () => {
     setSelectedUsers([]);
   };
 
-  const handleVideoSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-    
+const handleVideoSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setLoading(true);
 
-    const payload = {
-      contentType: "video",
-      title: form.title,
-      description: form.description,
-      category: form.category,
-      thumbnailUrl: form.thumbnailUrl,
-      maxAttempts: form.quizAttemptLimit,
-      assignType: form.assignType,
-      assignedUserIds: form.assignType === "specific" ? selectedUsers : [],
-      assignedTeamIds: form.assignType === "team" && form.assignTeamId ? [form.assignTeamId] : [],
-      dueDate: form.dueDate || null,
-      authorAvatarUrl: authorAvatarUrl?.userPicture ?? "",
-      questions: form.questions.map((q) => ({
-        questionText: q.questionText,
-        type: q.type,
-        choices: q.options.map((text) => ({
-          text,
-          isCorrect: q.correctAnswers.includes(text),
-        })),
-      })),
-    };
+  const formData = new FormData();
+  formData.append("contentType", "video");
+  formData.append("title", form.title);
+  formData.append("description", form.description);
+  formData.append("category", form.category);
+  formData.append("thumbnailUrl", form.thumbnailUrl);
+  formData.append("maxAttempts", form.quizAttemptLimit.toString());
+  formData.append("assignType", form.assignType);
+  formData.append("authorAvatarUrl", authorAvatarUrl?.userPicture ?? "");
+  if (form.dueDate) formData.append("dueDate", form.dueDate);
 
-    console.log("📤 Submitting payload:", payload);
 
-    try {
-      await axios.post("http://localhost:8080/learning", payload, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      alert("✅ Video lesson created!");
-      resetForm();
-      navigate("/admin/lesson/management");
-    } catch (err) {
-      alert("❌ Failed to create video lesson");
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
+  if (videoUrl) {
+    formData.append("video", videoUrl); 
+  }
+
+
+
+  if (form.assignType === "specific") {
+    selectedUsers.forEach((id) => formData.append("assignedUserIds", id));
+  }
+
+  if (form.assignType === "team" && form.assignTeamId) {
+    formData.append("assignedTeamIds", form.assignTeamId);
+  }
+
+  formData.append("questions", JSON.stringify(form.questions.map((q) => ({
+    questionText: q.questionText,
+    type: q.type,
+    choices: q.options.map((text) => ({
+      text,
+      isCorrect: q.correctAnswers.includes(text),
+    })),
+  }))));
+  console.log("Data sources : "+formData)
+  try {
+    await axios.post("http://localhost:8080/learning", formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "multipart/form-data",
+      },
+    });
+
+    alert("✅ Video lesson created!");
+    resetForm();
+    navigate("/admin/lesson/management");
+  } catch (err) {
+    alert("❌ Failed to create video lesson");
+    console.error(err);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const handleDocumentSubmit = async () => {
     setLoading(true);
@@ -242,6 +255,10 @@ const AdminAddLessonPage = () => {
         {activeTab === "video" && (
           <form onSubmit={handleVideoSubmit} className="bg-white p-8 rounded-xl shadow space-y-6">
             <Field label="Lesson Thumbnail URL" name="thumbnailUrl" value={form.thumbnailUrl} onChange={handleChange} />
+            <div className="flex flex-col space-y-2">
+              <label className="text-sm font-medium text-gray-700">Upload File (.mp4)</label>
+              <input type="file" className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"   onChange={(e) => setvideoUrl(e.target.files?.[0] || null)}/>
+            </div>
             <Field label="Lesson Title" name="title" value={form.title} onChange={handleChange} required />
             <Field label="Description" name="description" value={form.description} onChange={handleChange} />
             <Field label="Category" name="category" value={form.category} onChange={handleChange} />
@@ -354,7 +371,6 @@ const AdminAddLessonPage = () => {
           </div>
         )}
 
-        {/* User modal */}
         {showUserModal && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
             <div className="bg-white p-6 rounded-xl shadow-xl w-[90%] max-w-md">

@@ -73,6 +73,9 @@ public class LearningContent {
     @Column(name = "due_date")
     private LocalDateTime dueDate;
 
+    @Column(name = "videoUrl")
+    private String videoUrl;
+
 
     @PrePersist
     private void prePersist() {
@@ -101,7 +104,6 @@ public class LearningContent {
     public List<String> getAssignedTeamIds() { return assignedTeamIds; }
     public String getAssignType() { return assignType; }
 
-    // --- Setters ---
     public void setId(String id) { this.id = id; }
     public void setTitle(String title) { this.title = title; }
     public void setDescription(String description) { this.description = description; }
@@ -127,5 +129,13 @@ public class LearningContent {
 
     public void setContentType(String contentType) {
         this.contentType = contentType;
+    }
+
+    public String getVideoUrl() {
+        return videoUrl;
+    }
+
+    public void setVideoUrl(String videoUrl) {
+        this.videoUrl = videoUrl;
     }
 }
