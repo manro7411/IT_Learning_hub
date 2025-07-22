@@ -15,6 +15,7 @@ import AnswerFalse from "../pages/Game/Answer_false.tsx";
 import Rule from "../pages/Game/Rule";
 import { Route } from "react-router-dom";
 import QuizPageStyled from "../pages/quiz/QuizPage.tsx";
+
 export const UserRoutes = () => (
     <>
         <Route path="/dashboard" element={<UserDashboard />} />
@@ -34,5 +35,7 @@ export const UserRoutes = () => (
         <Route path="/answer_true" element={<AnswerTrue />} />
         <Route path="/answer_false" element={<AnswerFalse />} />
         <Route path="/rule" element={<Rule/>} />
+        <Route path="/minigame" element={<Gamedashboard/>} />
+
     </>
 );

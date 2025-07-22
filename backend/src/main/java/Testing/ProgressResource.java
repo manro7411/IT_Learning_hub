@@ -50,9 +50,14 @@ public class ProgressResource {
         progress.setUserEmail(userEmail);
         progress.setLessonId(lessonId);
         progress.setPercent(clamped);
-        progress.setLastTimestamp(lastTs);
         progress.setUpdatedAt(LocalDateTime.now());
+        if (dto.getLastTimestamp() > 0 && dto.getLastTimestamp() >= progress.getLastTimestamp()) {
+            progress.setLastTimestamp(dto.getLastTimestamp());
+        }
         em.merge(progress);
+
+        System.out.println("Incoming DTO: percent=" + dto.getPercent() + ", lastTimestamp=" + dto.getLastTimestamp());
+
 
         return Response.ok().build();
     }

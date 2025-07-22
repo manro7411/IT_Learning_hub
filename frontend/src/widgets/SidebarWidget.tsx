@@ -13,7 +13,7 @@ const menuItems = [
   { name: "Task",      icon: <ClipboardList size={20} />, path: "/task" },
   { name: "Community",     icon: <Users size={20} />, path: "/forum" },
   { name: "Point",     icon: <Star size={20} />, path: "/point" },
-  { name: "Game",      icon: <Gamepad2 size={20} />, path: "/game" },
+  { name: "Game",      icon: <Gamepad2 size={20} />, path: "/minigame" },
   { name: "Profile",  icon: <Settings size={20} />, path: "/settings" },
 ];
 
