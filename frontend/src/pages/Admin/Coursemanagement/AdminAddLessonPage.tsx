@@ -9,6 +9,7 @@ interface LessonFormState {
   description: string;
   category: "AGILE" | "SCRUM" | "WATERFALL";
   thumbnailUrl: string; // used as either image or document base64
+   thumbnailFile: File | null;
   quizAttemptLimit: number;
   assignType: "all" | "team" | "specific";
   assignTeamId?: string;
@@ -40,6 +41,7 @@ const INITIAL_FORM: LessonFormState = {
   description: "",
   category: "AGILE",
   thumbnailUrl: "",
+    thumbnailFile: null,
   quizAttemptLimit: 1,
   assignType: "all",
   questions: [],
@@ -53,7 +55,7 @@ const tabs = [
 ];
 
 const AdminAddLessonPage = () => {
-  const { token, user  } = useContext(AuthContext);
+  const { token} = useContext(AuthContext);
   const navigate = useNavigate();
   const [form, setForm] = useState<LessonFormState>(INITIAL_FORM);
   const [loading, setLoading] = useState(false);
@@ -75,7 +77,6 @@ const AdminAddLessonPage = () => {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {
-          // console.log("👤 Retrieved user profile:", res.data);
           setAuthorAvatarUrl({
             id: res.data.id,
             name: res.data.name,
@@ -185,7 +186,7 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
       isCorrect: q.correctAnswers.includes(text),
     })),
   }))));
-  console.log("Data sources : "+formData)
+  console.log("Data",formData)
   try {
     await axios.post("http://localhost:8080/learning", formData, {
       headers: {
@@ -208,17 +209,29 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
 
   const handleDocumentSubmit = async () => {
     setLoading(true);
-    const payload = {
-      contentType: "document",
-      title: form.title,
-      description: form.description,
-      documentBase64: form.thumbnailUrl,
-      avatarUrl: user?.userPicture ?? "",
-    };
+    const formData = new FormData;
 
+    formData.append("contentType","document")
+    formData.append("title",form.title)
+    formData.append("description",form.description)
+    formData.append("avatarUrl",authorAvatarUrl?.userPicture ?? "")
+    
+    if (form.thumbnailFile) {
+      console.log("Document file", form.thumbnailFile); 
+      formData.append("document",form.thumbnailFile)
+    }
     try {
-      await axios.post("http://localhost:8080/learning/documents", payload, {
-        headers: { Authorization: `Bearer ${token}` },
+     for (const [key, value] of formData.entries()) {
+  if (value instanceof File) {
+    console.log(`${key}:`, value.name, value.type, value.size);
+  } else {
+    console.log(`${key}:`, value);
+  }
+}
+
+      console.log("Payload Result : ",formData.entries())
+      await axios.post("http://localhost:8080/learning/documents", formData, {
+        headers: { Authorization: `Bearer ${token}` },  
       });
       alert("✅ Document uploaded!");
       resetForm();
@@ -230,7 +243,6 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
       setLoading(false);
     }
   };
-
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <AdminSidebarWidget />
@@ -347,7 +359,7 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
               <label className="text-sm font-medium text-gray-700">Upload File (.pdf, .doc, .docx)</label>
               <input
                 type="file"
-                accept=".pdf,.doc,.docx"
+                accept=".pdf,.doc,.docx,.png,.jpeg"
                 className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
                 onChange={(e) => {
                   const file = e.target.files?.[0];
@@ -356,7 +368,8 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
                     reader.onload = () => {
                       setForm((prev) => ({
                         ...prev,
-                        thumbnailUrl: reader.result as string,
+                        thumbnailFile: file,
+                        thumbnailUrl: URL.createObjectURL(file),
                       }));
                     };
                     reader.readAsDataURL(file);

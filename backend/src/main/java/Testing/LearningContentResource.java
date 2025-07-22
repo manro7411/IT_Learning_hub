@@ -6,7 +6,9 @@ import QuizService.QuestionType;
 import QuizService.ExtendedLearningContentDto;
 import QuizService.QuestionDTO;
 import QuizService.ChoiceDTO;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dto.LearningContentDto;
+import io.netty.handler.codec.http.multipart.FileUpload;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
@@ -17,8 +19,12 @@ import jakarta.ws.rs.core.Response;
 import model.LearningContent;
 import model.UserLessonProgress;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.jboss.resteasy.reactive.PartType;
+import org.jboss.resteasy.reactive.RestForm;
+import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -80,6 +86,19 @@ public class LearningContentResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.APPLICATION_JSON)
     public Response create(ExtendedLearningContentDto dto) {
+        if (dto.questionsJson != null && !dto.questionsJson.isEmpty()) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                dto.questions = mapper.readValue(dto.questionsJson,
+                        new com.fasterxml.jackson.core.type.TypeReference<List<QuestionDTO>>() {});
+                System.out.println("✅ Parsed questions count: " + dto.questions.size());
+            } catch (Exception e) {
+                System.out.println("❌ Failed to parse questions JSON");
+                e.printStackTrace();
+                throw new BadRequestException("Invalid format for questions JSON");
+            }
+        }
+
         String lessonId = UUID.randomUUID().toString().replace("-", "").substring(0, 21);
         LearningContent lc = new LearningContent();
         lc.setId(lessonId);
@@ -107,13 +126,12 @@ public class LearningContentResource {
                 java.nio.file.Path dir = java.nio.file.Paths.get("uploads/video");
                 java.nio.file.Files.createDirectories(dir);
                 java.nio.file.Path videoPath = dir.resolve(filename);
-                java.nio.file.Files.copy(dto.videoStream, videoPath, java.nio.file.StandardCopyOption.REPLACE_EXISTING);
+                java.nio.file.Files.copy(dto.videoStream, videoPath, StandardCopyOption.REPLACE_EXISTING);
 
-                System.out.println("Video path : "+videoPath.toString());
-                System.out.println("Original file name"+originalName);
+                System.out.println("Video path : " + videoPath.toString());
+                System.out.println("Original file name: " + originalName);
                 lc.setVideoUrl("uploads/video/" + filename);
-            }
-            catch (Exception e){
+            } catch (Exception e) {
                 throw new InternalServerErrorException("Failed to save video.");
             }
         }
@@ -145,10 +163,25 @@ public class LearningContentResource {
             }
         }
 
+        System.out.println("📥 Received new lesson creation request:");
+        System.out.println("Title: " + dto.title);
+        System.out.println("Description: " + dto.description);
+        System.out.println("Category: " + dto.category);
+        System.out.println("Thumbnail URL: " + dto.thumbnailUrl);
+        System.out.println("Assign Type: " + dto.assignType);
+        System.out.println("Assigned Users: " + (dto.assignedUserIds != null ? dto.assignedUserIds : "[]"));
+        System.out.println("Assigned Teams: " + (dto.assignedTeamIds != null ? dto.assignedTeamIds : "[]"));
+        System.out.println("Due Date: " + dto.dueDate);
+        System.out.println("Author Avatar URL: " + dto.authorAvatarUrl);
+        System.out.println("Max Attempts: " + dto.maxAttempts);
+        System.out.println("Video Meta: " + (dto.videoMeta != null ? dto.videoMeta.fileName() : "No file meta"));
+        System.out.println("Questions count: " + (dto.questions != null ? dto.questions.size() : 0));
+
         return Response.created(URI.create("/learning/" + lc.getId()))
                 .entity(LearningContentDto.fromEntity(lc))
                 .build();
     }
+
 
     @PUT
     @Path("/{id}")
@@ -296,4 +329,78 @@ public class LearningContentResource {
                 .map(LearningContentDto::fromEntity)
                 .toList();
     }
+
+    @GET
+    @Path("/document/{filename}")
+    @Produces({"application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/jpeg", "image/png"})
+    public Response getDocument(@PathParam("filename") String filename) {
+        try {
+            java.nio.file.Path file = Paths.get("uploads/documents", filename);
+            if (!Files.exists(file)) {
+                throw new NotFoundException("File not found: " + filename);
+            }
+
+            String mimeType = Files.probeContentType(file); // Automatically detect MIME type
+            if (mimeType == null) {
+                mimeType = "application/octet-stream";
+            }
+
+            return Response.ok(Files.newInputStream(file))
+                    .type(mimeType)
+                    .header("Content-Disposition", "inline; filename=\"" + filename + "\"")
+                    .build();
+
+        } catch (IOException e) {
+            throw new InternalServerErrorException("Failed to load document: " + filename, e);
+        }
+    }
+
+
+    @POST
+    @Path("/documents")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
+    @RolesAllowed("admin")
+    @Transactional
+    public Response uploadDocument(PdfUploadForm form) {
+
+        try {
+            if (form.document == null || form.document.uploadedFile() == null) {
+                throw new BadRequestException("Missing document file.");
+            }
+            LearningContent lc = new LearningContent();
+            String lessonId = UUID.randomUUID().toString().replace("-", "").substring(0, 21);
+            String originalName = form.document.fileName();
+            String extension = originalName.contains(".")
+                    ? originalName.substring(originalName.lastIndexOf("."))
+                    : "";
+            String newFileName = UUID.randomUUID().toString().replace("-", "") + extension;
+
+            java.nio.file.Path dir = java.nio.file.Paths.get("uploads/documents");
+            java.nio.file.Files.createDirectories(dir);
+            java.nio.file.Path destination = dir.resolve(newFileName);
+
+            Files.copy(form.document.uploadedFile(), destination, StandardCopyOption.REPLACE_EXISTING);
+            lc.setId(lessonId);
+            lc.setTitle(form.title);
+            lc.setDescription(form.description);
+            lc.setCreatedAt(LocalDateTime.now());
+            lc.setAuthorName(jwt.getClaim("name"));
+            lc.setAuthorEmail(jwt.getSubject());
+            lc.setAuthorRole("admin");
+            lc.setContentType("document");
+            lc.setAuthorAvatarUrl(form.avatarUrl);
+            lc.setDocumentUrl(destination.toString().replace("\\", "/"));
+
+
+            em.persist(lc);
+            return Response.ok().entity("{\"message\": \"✅ Document uploaded successfully.\"}").build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new InternalServerErrorException("❌ Failed to save document.");
+        }
+    }
+
+
 }

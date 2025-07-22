@@ -76,6 +76,9 @@ public class LearningContent {
     @Column(name = "videoUrl")
     private String videoUrl;
 
+    @Column(name = "documentUrl")
+    private String documentUrl;
+
 
     @PrePersist
     private void prePersist() {
@@ -137,5 +140,13 @@ public class LearningContent {
 
     public void setVideoUrl(String videoUrl) {
         this.videoUrl = videoUrl;
+    }
+
+    public String getDocumentUrl() {
+        return documentUrl;
+    }
+
+    public void setDocumentUrl(String documentUrl) {
+        this.documentUrl = documentUrl;
     }
 }

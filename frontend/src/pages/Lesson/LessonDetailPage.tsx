@@ -9,8 +9,10 @@ interface Lesson {
   title: string;
   description: string;
   category: string;
+  contentType: "video" | "document";
   thumbnailUrl?: string;
   videoUrl?: string;
+  documentUrl?: string;
   authorName?: string;
   authorEmail?: string;
   authorAvatarUrl?: string;
@@ -24,8 +26,6 @@ interface Progress {
   attempts: number;
   maxAttempts: number;
 }
-
-// const fallbackVideo = "https://www.w3schools.com/html/mov_bbb.mp4";
 
 const LessonDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -41,9 +41,6 @@ const LessonDetailPage = () => {
   const [attempts, setAttempts] = useState(0);
   const [maxAttempts, setMaxAttempts] = useState(1);
   const [quizPassed, setQuizPassed] = useState(false);
-
-
-  console.log("Lesson detail : "+lesson)
 
   useEffect(() => {
     axios
@@ -97,7 +94,7 @@ const LessonDetailPage = () => {
           )
           .catch((err) => console.error("❌ PUT failed:", err));
       }
-    }, 5000); // every 5s
+    }, 5000);
 
     if (progressPercent >= 100 && !showQuiz) {
       setShowQuiz(true);
@@ -110,8 +107,29 @@ const LessonDetailPage = () => {
     return <div className="p-6 text-gray-400">⏳ Loading lesson…</div>;
   }
 
-
-  console.log("Lesson detail : "+lesson)
+  const renderContent = () => {
+    if (lesson.contentType === "video") {
+      return (
+        <video
+          ref={videoRef}
+          controls
+          onTimeUpdate={handleTimeUpdate}
+          poster={lesson.thumbnailUrl}
+          className="w-full h-auto bg-black"
+          src={lesson.videoUrl || "http://localhost:8080/learning/video/default.mp4"}
+        />
+      );
+    } else if (lesson.contentType === "document") {
+      return (
+        <iframe
+          src={lesson.documentUrl}
+          className="w-full h-[600px] border rounded"
+          title="Lesson Document"
+        />
+      );
+    }
+    return null;
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -120,17 +138,9 @@ const LessonDetailPage = () => {
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
           <div className="xl:col-span-2 space-y-8">
             <div className="w-full rounded-xl overflow-hidden shadow">
-              <video
-                ref={videoRef}
-                controls
-                onTimeUpdate={handleTimeUpdate}
-                poster={lesson.thumbnailUrl}
-                className="w-full h-auto bg-black"
-                src={"http://localhost:8080/learning/video/8720b219c1b34eae8cf4e.mp4"}
-              />
+              {renderContent()}
             </div>
-            {/* lesson.videoUrl  */}
-{/* || fallbackVideo */}
+
             <section className="bg-white rounded-xl shadow p-6 space-y-4">
               <h1 className="text-2xl font-bold text-gray-800">{lesson.title}</h1>
               <span className="text-xs font-semibold uppercase text-purple-600">{lesson.category}</span>

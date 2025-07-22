@@ -59,7 +59,6 @@ const UserDashboard = () => {
   }, [lessons, assignTypeFilter]);
 
   const calendarEvents = useMemo(() => {
-    // console.log("🔍 Filtered Lessons:", filteredLessons);
     return filteredLessons
       .filter((lesson) => lesson.dueDate)
       .map((lesson) => ({
@@ -70,13 +69,22 @@ const UserDashboard = () => {
       }));
   }, [filteredLessons]);
 
-  const upcomingReminders: Reminder[] = useMemo(() => {
-    return calendarEvents
-      .filter((e) => new Date(e.date) > new Date())
-      .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-      .map((e) => ({ title: e.title, dueDate: e.date }))
-      .slice(0, 5);
-  }, [calendarEvents]);
+const pastDueLessons: Reminder[] = useMemo(() => {
+  return calendarEvents
+    .filter((e) => new Date(e.date) < new Date())
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .map((e) => ({ title: e.title, dueDate: e.date }))
+    .slice(0, 5);
+}, [calendarEvents]);
+
+const upcomingReminders: Reminder[] = useMemo(() => {
+  return calendarEvents
+    .filter((e) => new Date(e.date) >= new Date())
+    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
+    .map((e) => ({ title: e.title, dueDate: e.date }))
+    .slice(0, 5);
+}, [calendarEvents]);
+
 
   if (!token) return <Navigate to="/" replace />;
 
@@ -121,7 +129,8 @@ const UserDashboard = () => {
     ))}
 </div>
                 <CalendarWidget events={calendarEvents} />
-                <ReminderBox reminders={upcomingReminders} />
+                <ReminderBox title="🔔 Past Due Lessons" reminders={upcomingReminders} />
+                <ReminderBox title="⏰ Past Due Lessons" reminders={pastDueLessons} accentColor="text-gray-600"/>
 
               </div>
             </div>

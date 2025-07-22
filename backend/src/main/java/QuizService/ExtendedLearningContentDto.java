@@ -36,10 +36,13 @@ public class ExtendedLearningContentDto {
     @FormParam("maxAttempts")
     public Integer maxAttempts;
 
-    // This will not be passed in multipart directly (questions should come separately or be serialized if needed)
+
+    @FormParam("questions")
+    @PartType("application/json")
+    public String questionsJson;
+
     public List<QuestionDTO> questions;
 
-    // 🟡 Actual uploaded video
     @FormParam("video")
     @PartType("application/octet-stream")
     public InputStream videoStream;

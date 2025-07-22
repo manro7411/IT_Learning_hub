@@ -18,6 +18,7 @@ interface Lesson {
   assignType: string;
   assignedUserIds?: string[];
   assignedTeamIds?: string[];
+  contentType: "video" | "document";
 }
 
 interface Progress {
@@ -88,9 +89,11 @@ const LessonPage = () => {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-        console.log("Lesson Data :"+lessonsRes.data)
+
+        console.log(lessonsRes.data)
+
         setLessons(lessonsRes.data);
-        
+
 
         const map: Record<string, Progress> = {};
         progressRes.data.forEach((item: { lessonId: string; percent: number; lastTimestamp?: number }) => {
@@ -123,6 +126,8 @@ const LessonPage = () => {
 
   const categories = Array.from(new Set(lessons.map((l) => l.category).filter(Boolean)));
 
+ 
+
   const filteredLessons = lessons.filter((lesson) => {
     
     const matchesAssignType =
@@ -143,6 +148,10 @@ const LessonPage = () => {
 
     return matchesAssignType && matchesSearch && matchesCategory;
   });
+
+  //  const videoLessons = filteredLessons.filter((l) => l.contentType === "video");
+  //  const documentLessons = filteredLessons.filter((l) => l.contentType === "document");
+
 
   const handleLessonClick = async (id: string) => {
     const key = id.toLowerCase();

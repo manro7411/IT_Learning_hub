@@ -110,7 +110,6 @@ const JoinTeamWidget = () => {
       resetForm();
       setIsOpen(false);
 
-      // Refetch joined teams
       const updated = await axios.get(`http://localhost:8080/teams/my-teams/${userId}`);
       setJoinedTeams(updated.data || []);
     } catch (err: unknown) {
@@ -134,15 +133,12 @@ const JoinTeamWidget = () => {
       <div className="bg-white p-4 rounded-lg shadow">
         {joinedTeams.length > 0 ? (
           <>
-           
-            {joinedTeams.map((team) => (
+          <button onClick={() => console.log("opem modal function")}>
+             {joinedTeams.map((team) => (
                <h2  key={team.id} className="text-lg font-semibold mb-2">Team Joined : {team.name}</h2>
-              // <div key={team.id} className="border p-4 rounded mb-2">
-              //   <p><strong>Name:</strong> {team.name}</p>
-              //   <p><strong>Description:</strong> {team.description}</p>
-              // </div>
             )
             )}
+          </button>
           </>
         ) : (
           <>
