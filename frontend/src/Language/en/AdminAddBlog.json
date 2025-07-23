@@ -1,0 +1,11 @@
+{
+  "addBlog": "Add Blog",
+  "title": "Title",
+  "cover": "Cover Image",
+  "date": "Date",
+  "content": "Content",
+  "write": "Write your blog content here...",
+  "post": "Post",
+  "reset": "Reset",
+  "posting": "Posting…"
+}

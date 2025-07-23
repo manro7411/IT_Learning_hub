@@ -1,20 +1,26 @@
 package Testing;
 
-import jakarta.annotation.security.RolesAllowed;
-import jakarta.inject.Inject;
-import jakarta.persistence.EntityManager;
-import jakarta.transaction.Transactional;
-import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
-import model.LearningContent;
-import model.UserLessonProgress;
-import org.eclipse.microprofile.jwt.JsonWebToken;
-
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import org.eclipse.microprofile.jwt.JsonWebToken;
+
+import jakarta.annotation.security.RolesAllowed;
+import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PUT;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
+import model.LearningContent;
+import model.UserLessonProgress;
 
 @Path("/user/progress")
 @Produces(MediaType.APPLICATION_JSON)
@@ -76,38 +82,38 @@ public class UserProgressResource {
         return result;
     }
 
-    @PUT
-    @Path("/{lessonId}/submit-score")
-    @Transactional
-    public Response submitScore(@PathParam("lessonId") String lessonId, SubmitScoreRequest req) {
-        String userEmail = jwt.getSubject();
+    // @PUT
+    // @Path("/{lessonId}/submit-score")
+    // @Transactional
+    // public Response submitScore(@PathParam("lessonId") String lessonId, SubmitScoreRequest req) {
+    //     String userEmail = jwt.getSubject();
 
-        var progress = em.createQuery("""
-            SELECT p FROM UserLessonProgress p
-            WHERE p.lessonId = :lessonId AND p.userEmail = :userEmail
-            """, UserLessonProgress.class)
-                .setParameter("lessonId", lessonId)
-                .setParameter("userEmail", userEmail)
-                .getResultStream()
-                .findFirst()
-                .orElseThrow(() -> new NotFoundException("No progress found. Please watch the lesson first."));
+    //     var progress = em.createQuery("""
+    //         SELECT p FROM UserLessonProgress p
+    //         WHERE p.lessonId = :lessonId AND p.userEmail = :userEmail
+    //         """, UserLessonProgress.class)
+    //             .setParameter("lessonId", lessonId)
+    //             .setParameter("userEmail", userEmail)
+    //             .getResultStream()
+    //             .findFirst()
+    //             .orElseThrow(() -> new NotFoundException("No progress found. Please watch the lesson first."));
 
-        LearningContent lesson = em.find(LearningContent.class, lessonId);
-        if (lesson == null) throw new NotFoundException("Lesson not found.");
+    //     LearningContent lesson = em.find(LearningContent.class, lessonId);
+    //     if (lesson == null) throw new NotFoundException("Lesson not found.");
 
-        int maxAttempts = Optional.ofNullable(lesson.getMaxAttempts()).orElse(1);
-        int currentAttempts = Optional.ofNullable(progress.getAttempts()).orElse(0);
+    //     int maxAttempts = Optional.ofNullable(lesson.getMaxAttempts()).orElse(1);
+    //     int currentAttempts = Optional.ofNullable(progress.getAttempts()).orElse(0);
 
-        if (currentAttempts >= maxAttempts) {
-            throw new BadRequestException("You have reached the maximum number of attempts for this quiz.");
-        }
+    //     if (currentAttempts >= maxAttempts) {
+    //         throw new BadRequestException("You have reached the maximum number of attempts for this quiz.");
+    //     }
 
-        progress.setAttempts(currentAttempts + 1);
-        progress.setScore(req.score);
-        progress.setUpdatedAt(LocalDateTime.now());
+    //     progress.setAttempts(currentAttempts + 1);
+    //     progress.setScore(req.score);
+    //     progress.setUpdatedAt(LocalDateTime.now());
 
-        return Response.ok().build();
-    }
+    //     return Response.ok().build();
+    // }
 
 
     @PUT

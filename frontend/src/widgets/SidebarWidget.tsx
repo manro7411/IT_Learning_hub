@@ -1,6 +1,6 @@
 import {
   Home, BookOpen, ClipboardList, Users, Star, Gamepad2,
-  Settings, LogOut, UserCircle
+  Settings, LogOut, UserCircle,SquarePen
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -14,6 +14,7 @@ const menuItems = [
   { name: "Community",     icon: <Users size={20} />, path: "/forum" },
   { name: "Point",     icon: <Star size={20} />, path: "/point" },
   { name: "Game",      icon: <Gamepad2 size={20} />, path: "/game" },
+  { name: "Blog",      icon: <SquarePen size={20} />, path: "/bloglist" },
   { name: "Profile",  icon: <Settings size={20} />, path: "/settings" },
 ];
 

@@ -15,6 +15,10 @@ import AnswerFalse from "../pages/Game/Answer_false.tsx";
 import Rule from "../pages/Game/Rule";
 import { Route } from "react-router-dom";
 import QuizPageStyled from "../pages/quiz/QuizPage.tsx";
+import BlogList from "../pages/Blog/BlogList.tsx"
+import BlogDetail from "../pages/Blog/BlogDetail.tsx"
+import MissionList from "../pages/Game/MissionList.tsx";
+
 export const UserRoutes = () => (
     <>
         <Route path="/dashboard" element={<UserDashboard />} />
@@ -34,5 +38,10 @@ export const UserRoutes = () => (
         <Route path="/answer_true" element={<AnswerTrue />} />
         <Route path="/answer_false" element={<AnswerFalse />} />
         <Route path="/rule" element={<Rule/>} />
+        <Route path="/bloglist" element={<BlogList/>} />
+        <Route path="/blogdetail/:id" element={<BlogDetail />} />
+        <Route path="/missions" element={<MissionList />} />
+
+
     </>
 );

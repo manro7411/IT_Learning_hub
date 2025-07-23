@@ -6,6 +6,7 @@ import AdminCreateNotificationPage from "../pages/Admin/AdminNotification/AdminC
 import {Route} from "react-router-dom";
 import Systemlogging from "../pages/Admin/Systemlog/Systemlogging.tsx";
 import Teammanagement from "../pages/Admin/Teammanagement/Teammanagement.tsx";
+import AdminAddBlog from "../pages/Admin/AdminBlog/AdminAddBlog.tsx"
 
 export const AdminRoutes = () => (
     <>
@@ -15,6 +16,7 @@ export const AdminRoutes = () => (
         <Route path="/admin/setting" element={<AdminSettingPage/>}/>
         <Route path="/admin/notifications" element={<AdminCreateNotificationPage />} />
         <Route path="/admin/logs" element={<Systemlogging/>} />
+        <Route path="/admin/addblog" element={<AdminAddBlog/>} />
         <Route path="/admin/team" element={<Teammanagement/>} />
     </>
 );

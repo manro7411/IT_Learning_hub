@@ -6,6 +6,7 @@ import {
   Settings,
   LogOut,
   Bell,
+  SquarePen
 } from "lucide-react";
 import Logo from "../../../assets/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -18,6 +19,7 @@ const adminMenuItems = [
   { name: "Team management", icon: <Users size={20} />, path: "/admin/team" },
   { name: "Notifications", icon: <Bell size={20} />, path: "/admin/notifications" }, 
   { name: "System Logs", icon: <FileText size={20} />, path: "/admin/logs" },
+  { name: "Blog", icon: <SquarePen size={20} />, path: "/admin/addblog" },
   { name: "Settings", icon: <Settings size={20} />, path: "/admin/setting" },
 ];
 export default function AdminSidebarWidget() {
