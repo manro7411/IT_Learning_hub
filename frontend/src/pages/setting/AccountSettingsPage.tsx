@@ -36,7 +36,7 @@ const AccountSettingsPage = () => {
     if (!token) return;
 
     axios
-      .get("http://localhost:8080/profile", {
+      .get("/api/profile", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -80,7 +80,7 @@ const AccountSettingsPage = () => {
     }
 
     try {
-      await axios.put("http://localhost:8080/profile", formData, {
+      await axios.put("/api/profile", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
