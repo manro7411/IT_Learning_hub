@@ -7,10 +7,14 @@ import jakarta.persistence.NoResultException;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.NewCookie;
 import jakarta.ws.rs.core.Response;
 import model.User;
 import util.JwtUtil;
 import org.mindrot.jbcrypt.BCrypt;  // ✅ เพิ่ม import
+
+import java.time.Duration;
+import java.util.UUID;
 
 @Path("/login")
 //@RunOnVirtualThread
@@ -39,11 +43,19 @@ public class LoginResource {
                         .entity(new ErrorResponse("Invalid credentials"))
                         .build();
             }
+            UUID accessUUID = UUID.randomUUID();
+            UUID refreshUUID = UUID.randomUUID();
 
-            String token = JwtUtil.generateToken(user.getEmail(), user.getRole(), user.getName());
+            String accessToken = JwtUtil.generateAccessToken(user.getEmail(),user.getRole(),user.getName(),accessUUID);
+            String refreshToken = JwtUtil.generateRefreshToken(user.getEmail(),refreshUUID);
+
+            NewCookie accessCookie = new NewCookie("access_token", accessToken,"/",null,"access-token",15*60,true,true);
+            NewCookie refreshCookie = new NewCookie("refresh_token",refreshToken,"/",null,"refresh-token",7*24*60*60,true,true);
+
+            LoginResponse loginResponse = new LoginResponse(user.getEmail(), user.getName(), user.getRole());
 
             System.out.println("✅ Login success: " + request.email);
-            return Response.ok(new LoginResponse(token)).build();
+            return Response.ok(loginResponse).cookie(accessCookie).cookie(refreshCookie).build();
 
         } catch (NoResultException e) {
             System.out.println("❌ User not found: " + request.email);
@@ -53,16 +65,29 @@ public class LoginResource {
         }
     }
 
+    @POST
+    @Path("/clear")
+    public Response logout() {
+        NewCookie expiredAccess = new NewCookie("access_token", "", "/", null, "access-token", 0, true, true);
+        NewCookie expiredRefresh = new NewCookie("refresh_token", "", "/", null, "refresh-token", 0, true, true);
+
+        return Response.ok().cookie(expiredAccess).cookie(expiredRefresh).build();
+    }
+
     public static class LoginRequest {
         public String email;
         public String password;
     }
 
     public static class LoginResponse {
-        public String token;
+        public String email;
+        public String name;
+        public String role;
 
-        public LoginResponse(String token) {
-            this.token = token;
+        public LoginResponse(String email, String name, String role) {
+            this.email = email;
+            this.name = name;
+            this.role = role;
         }
     }
 
