@@ -26,14 +26,14 @@ const CreateTeamModal = ({ open, onClose }: CreateTeamModalProps) => {
 
   useEffect(() => {
     if (!token) return;
-    axios.get<User>("http://localhost:8080/profile", { headers: { Authorization: `Bearer ${token}` } })
+    axios.get<User>("/api/profile", { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setUsername(res.data.email))
       .catch(err => console.error("❌ Failed to fetch profile:", err));
   }, [token]);
 
   useEffect(() => {
     if (!token) return;
-    axios.get<User[]>("http://localhost:8080/profile/users", { headers: { Authorization: `Bearer ${token}` } })
+    axios.get<User[]>("/api/profile/users", { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setUsers(res.data))
       .catch(err => {
         console.error("❌ Failed to load users:", err);
@@ -69,7 +69,7 @@ const CreateTeamModal = ({ open, onClose }: CreateTeamModalProps) => {
     };
 
     try {
-      await axios.post("http://localhost:8080/teams", newTeam, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post("/api/teams", newTeam, { headers: { Authorization: `Bearer ${token}` } });
       alert(`✅ Team "${teamName}" created!`);
       setTeamName("");
       setDescription("");

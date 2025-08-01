@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Sidebar from '../../widgets/SidebarWidget';
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
 import { useNavigate } from "react-router-dom";
@@ -29,21 +29,20 @@ interface LessonFromAPI {
 }
 const TaskManagement = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const { token: ctxToken } = useContext(AuthContext);
-  const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) {
+    if (!user) {
       navigate("/");
       return;
     }
 
     const fetchUserProfile = async () => {
       try {
-        const res = await fetch("http://localhost:8080/profile", {
-          headers: { Authorization: `Bearer ${token}` }
+        const res = await fetch("/api/profile", {
+          credentials: "include"
         });
         if (!res.ok) return;
         const profile = await res.json();
@@ -54,15 +53,15 @@ const TaskManagement = () => {
     };
 
     fetchUserProfile();
-  }, [token, navigate]);
+  }, [user, navigate]);
 
   useEffect(() => {
-    if (!token || !userId) return;
+    if (!userId) return;
 
     const fetchLearningTasks = async () => {
       try {
-        const res = await fetch("http://localhost:8080/learning", {
-          headers: { Authorization: `Bearer ${token}` }
+        const res = await fetch("/api/learning", {
+          credentials: "include"
         });
         if (!res.ok) return;
         const lessons: LessonFromAPI[] = await res.json();
@@ -97,7 +96,7 @@ const TaskManagement = () => {
     };
 
     fetchLearningTasks();
-  }, [token, userId]);
+  }, [userId]);
 
   const updateTaskStatus = (id: number | string, status: Task['status']) => {
     setTasks((prevTasks) =>

@@ -8,14 +8,13 @@ interface TopLesson {
     thumbnailUrl?: string;
     viewers?: number;
 }
-const API = "http://localhost:8080/learning";
 
 const TopViewedLessonsWidget = () => {
     const [topLessons, setTopLessons] = useState<TopLesson[]>([]);
     const navigate = useNavigate();
     useEffect(() => {
         axios
-            .get(`${API}/top-viewed?limit=3`)
+            .get('/api/learning/top-viewed?limit=3')
             .then((res) => setTopLessons(res.data))
             .catch(console.error);
     }, []);

@@ -71,7 +71,7 @@ public class ProfileResource {
 
             }
             catch (Exception e) {
-                throw new InternalServerErrorException("Failed to save avatar");
+                throw new InternalServerErrorException("Failed to save avatar"+e.getMessage());
             }
         }
 

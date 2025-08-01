@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="quarkus-arc-3.24.4">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-arc-3.24.4.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

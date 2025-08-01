@@ -5,12 +5,74 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/jackson_core_2_15_2.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/jakarta_ws_rs_api_4_0_0.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/libraries/quarkus_arc_3_24_4.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/jackson-core-2.15.2.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/jakarta.ws.rs-api-4.0.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-arc-3.23.0.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-arc-3.24.4.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-elytron-security-jdbc-3.24.4.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-flyway-postgresql-3.24.4.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-hibernate-orm-3.24.4.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-hibernate-orm-panache-3.24.4.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-hibernate-validator-3.24.4.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-jdbc-postgresql-3.24.4.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-rest-jackson-3.24.4.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-smallrye-jwt-3.24.4.jar" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/resources/lib/quarkus-smallrye-jwt-build-3.24.4.jar" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/IT_Learning_hub.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/IT_Learning_hub.iml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Forum/PostEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/PostEntity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Forum/PostResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/PostResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/CommentResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/CommentResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/pom.xml" beforeDir="false" afterPath="$PROJECT_DIR$/backend/pom.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/LearningContentResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/LearningContentResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/LoginResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/LoginResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/ProfileResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/ProfileResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/ProgressResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/ProgressResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/TeamResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/TeamResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/UserProgressResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/UserProgressResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/uploads/avatars/avatar_GXrl85u_lYyyBzFGcpNbd.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/uploads/avatars/avatar_TrMAfqMWOPSmbBTNTYJeu.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/uploads/avatars/avatar_rS8HLzOjMBbnVAuwnzrgB.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/uploads/avatars/avatar_u2orzIyZvuArnyEMZ28Sh.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/uploads/avatars/avatar_zqlNi95TToWmy62ExDHbK.jpg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/uploads/video/285b5f3ace2d4cdb8aa96.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/uploads/video/809b6ba337d0477ea3b0f.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/uploads/video/8720b219c1b34eae8cf4e.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/uploads/video/a61aa5bd90d5470780fdb.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/uploads/video/c338b80fe40a4f4ca5f8e.mp4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/components/StatisticsChart.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/StatisticsChart.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminNotification/AdminCreateNotificationPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminNotification/AdminCreateNotificationPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminSetting/AdminSettingPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminSetting/AdminSettingPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Coursemanagement/AdminAddLessonPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Coursemanagement/AdminAddLessonPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Dashboard/AdminDashboard_overall.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Dashboard/AdminDashboard_overall.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Systemlog/Systemlogging.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Systemlog/Systemlogging.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Taskmanagement/AdminTaskManagementPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Taskmanagement/AdminTaskManagementPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/CreateTeamModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/CreateTeamModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/EditTeamModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/EditTeamModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/Teammanagement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/Teammanagement.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Widgets/AdminAvatarWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Widgets/AdminAvatarWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Dashboard/TopViewedLessonsWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Dashboard/TopViewedLessonsWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Forum/AddPostWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Forum/AddPostWidget.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Forum/KnowledgeForumLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Forum/KnowledgeForumLayout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Forum/PostCardWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Forum/PostCardWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Game/Answer_false.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Game/Answer_false.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Game/Answer_true.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Game/Answer_true.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Game/Question.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Game/Question.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Game/Scenario.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Game/Scenario.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Game/Select_role.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Game/Select_role.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/LessonDetailPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/LessonDetailPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Login/Register.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Login/Register.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Point/PointDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Point/PointDashboard.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/ChatBubbleWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/ChatBubbleWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/JointeamWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/JointeamWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/NotificationWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/NotificationWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/SidebarWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/SidebarWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/UserAvatarWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/UserAvatarWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/vite.config.ts" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/vite.config.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -43,9 +105,11 @@
     &quot;Repository.Attach.JavaDocs&quot;: &quot;false&quot;,
     &quot;Repository.Attach.Sources&quot;: &quot;false&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.formatter.settings.were.checked&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
+    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
     &quot;git-widget-placeholder&quot;: &quot;feature/authen&quot;,
@@ -56,12 +120,17 @@
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Libraries&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;SDKs&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
     &quot;project.structure.side.proportion&quot;: &quot;0.64712644&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;reference.settings.project.maven.repository.indices&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;http.proxy&quot;,
     &quot;ts.external.directory.path&quot;: &quot;/Users/sleanz/Desktop/CSC302/untitled folder/IT_Learning_hub/frontend/node_modules/typescript/lib&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  },
+  &quot;keyToStringList&quot;: {
+    &quot;DatabaseDriversLRU&quot;: [
+      &quot;postgresql&quot;
+    ]
   }
 }</component>
   <component name="RecentsManager">
@@ -69,11 +138,11 @@
       <recent name="$PROJECT_DIR$/backend/src/main/resources" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\S_Tratchanon\Documents\GitHub\IT_Learning_hub\backend\src\main\resources\lib" />
       <recent name="$PROJECT_DIR$/frontend/src/assets" />
       <recent name="$PROJECT_DIR$/backend/src/main/resources" />
       <recent name="$PROJECT_DIR$/backend/src/main/resources/META-INF" />
       <recent name="$PROJECT_DIR$/backend/src/main/java/Testing" />
-      <recent name="$PROJECT_DIR$/backend/src/main/resources/META-INF/resources" />
     </key>
   </component>
   <component name="RunManager">
@@ -138,8 +207,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26094.121" />
-        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-IU-251.26094.121" />
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53" />
+        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53" />
       </set>
     </attachedChunks>
   </component>
@@ -165,6 +234,18 @@
       <workItem from="1751264180474" duration="22971000" />
       <workItem from="1751521704746" duration="46661000" />
       <workItem from="1751879059343" duration="1309000" />
+      <workItem from="1752813456937" duration="4573000" />
+      <workItem from="1753062546323" duration="50000" />
+      <workItem from="1753064781129" duration="16322000" />
+      <workItem from="1753150729738" duration="1192000" />
+      <workItem from="1753151956029" duration="12107000" />
+      <workItem from="1753236437504" duration="5898000" />
+      <workItem from="1753260255431" duration="2793000" />
+      <workItem from="1753329689831" duration="15231000" />
+      <workItem from="1753409453621" duration="19968000" />
+      <workItem from="1753762006266" duration="2394000" />
+      <workItem from="1753854859703" duration="9049000" />
+      <workItem from="1753946693744" duration="1006000" />
     </task>
     <servers />
   </component>
@@ -187,5 +268,9 @@
   </component>
   <component name="VgoProject">
     <settings-migrated>true</settings-migrated>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand />
+    <select />
   </component>
 </project>

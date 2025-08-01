@@ -29,7 +29,7 @@ const TeamManagement = () => {
   // Load logged-in user's profile
   const fetchUserProfile = async () => {
     try {
-      const res = await axios.get<UserProfile>("http://localhost:8080/profile", {
+      const res = await axios.get<UserProfile>("/api/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUserEmail(res.data.email);
@@ -41,7 +41,7 @@ const TeamManagement = () => {
   // Load all teams
   const fetchTeams = async () => {
     try {
-      const res = await axios.get<Team[]>("http://localhost:8080/teams", {
+      const res = await axios.get<Team[]>("/api/teams", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setTeams(res.data);

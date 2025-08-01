@@ -4,13 +4,13 @@ import Sidebar from '../../widgets/SidebarWidget';
 import ChatBubbleWidget from '../../widgets/ChatBubbleWidget';
 
 const rewards = [
-  { name: 'Tumbler', points: 200 },
+  { name: 'Tumbler', points: 200 ,},
   { name: 'Canvas Bag', points: 150 },
   { name: 'Notebook', points: 100 },
 ];
 
 const PointDashboard = () => {
-  return (
+    return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
 

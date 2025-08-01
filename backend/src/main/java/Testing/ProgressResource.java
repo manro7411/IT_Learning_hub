@@ -52,6 +52,9 @@ public class ProgressResource {
         progress.setPercent(clamped);
         progress.setLastTimestamp(lastTs);
         progress.setUpdatedAt(LocalDateTime.now());
+        if (dto.getLastTimestamp() > 0 && dto.getLastTimestamp() >= progress.getLastTimestamp()){
+            progress.setLastTimestamp(dto.getLastTimestamp());
+        }
         em.merge(progress);
 
         return Response.ok().build();

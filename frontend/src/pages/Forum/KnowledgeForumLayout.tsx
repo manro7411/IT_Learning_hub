@@ -27,14 +27,13 @@ export type Post = {
   comments: Comment[];
 };
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 const formatAvatarUrl = (rawUrl?: string): string | undefined => {
   if (!rawUrl) return undefined;
   if (rawUrl.startsWith("http")) return rawUrl;
 
   const parts = rawUrl.split("/");
   const filename = parts[parts.length - 1];
-  return `${API_URL}/posts/avatars/${filename}`;
+  return `/api/posts/avatars/${filename}`;
 };
 
 const KnowledgeForumLayout = () => {
@@ -44,7 +43,7 @@ const KnowledgeForumLayout = () => {
 
   const fetchComments = async (postId: string): Promise<Comment[]> => {
     try {
-      const res = await fetch(`${API_URL}/forum/posts/${postId}/comments`, {
+      const res = await fetch(`/api/forum/posts/${postId}/comments`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       return res.ok ? await res.json() : [];
@@ -57,7 +56,7 @@ const KnowledgeForumLayout = () => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/posts`, {
+      const res = await fetch(`/api/posts`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 

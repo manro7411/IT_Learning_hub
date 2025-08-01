@@ -23,6 +23,7 @@ interface Progress {
   score: number;
   attempts: number;
   maxAttempts: number;
+  lastTimestamp:number;
 }
 
 // const fallbackVideo = "https://www.w3schools.com/html/mov_bbb.mp4";
@@ -42,12 +43,13 @@ const LessonDetailPage = () => {
   const [maxAttempts, setMaxAttempts] = useState(1);
   const [quizPassed, setQuizPassed] = useState(false);
 
+  const lastTimestamp = useRef<number>(0);
+  const [lastTimestampFromServer, setLastTimestampFromServer] = useState<number | null>(null);
 
-  console.log("Lesson detail : "+lesson)
 
   useEffect(() => {
     axios
-      .get<Lesson>(`http://localhost:8080/learning/${id}`)
+      .get<Lesson>(`/api/learning/${id}`)
       .then((res) => setLesson(res.data))
       .catch(() => alert("Lesson not found"))
       .finally(() => setLoading(false));
@@ -57,7 +59,7 @@ const LessonDetailPage = () => {
     if (!lesson || !token) return;
 
     axios
-      .get<Progress[]>(`http://localhost:8080/user/progress`, {
+      .get<Progress[]>(`/api/user/progress`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -68,6 +70,13 @@ const LessonDetailPage = () => {
         setMaxAttempts(found.maxAttempts);
         setQuizPassed(found.score > 0);
         setHasTakenQuiz(found.attempts >= found.maxAttempts);
+        setProgressPercent(found.percent);
+
+        if (typeof found.lastTimestamp === "number" && found.lastTimestamp > 0 && found.lastTimestamp) {
+
+          setLastTimestampFromServer(found.percent)
+          lastTimestamp.current = found.lastTimestamp;
+        }
       })
       .catch(() => console.error("❌ Failed to fetch progress"));
   }, [lesson, token]);
@@ -86,7 +95,7 @@ const LessonDetailPage = () => {
       if (progressPercent > 0 && progressPercent < 100) {
         axios
           .put(
-            `http://localhost:8080/user/progress/${lesson.id}`,
+            `/api/user/progress/${lesson.id}`,
             { percent: Math.floor(progressPercent) },
             {
               headers: {
@@ -97,7 +106,7 @@ const LessonDetailPage = () => {
           )
           .catch((err) => console.error("❌ PUT failed:", err));
       }
-    }, 5000); // every 5s
+    }, 5000); 
 
     if (progressPercent >= 100 && !showQuiz) {
       setShowQuiz(true);
@@ -106,13 +115,23 @@ const LessonDetailPage = () => {
     return () => clearInterval(timer);
   }, [progressPercent, lesson, token, showQuiz]);
 
+  useEffect(() => {
+    const interval = setInterval(() =>{
+        const video = videoRef.current;
+    if ( video && lastTimestampFromServer !== null && video.readyState >= 1 &&lastTimestampFromServer>0) {
+      console.log("Seeking to:",lastTimestampFromServer);
+      video.currentTime = lastTimestampFromServer;
+      clearInterval(interval);
+    }
+    },2000);
+    return () => clearInterval(interval);
+
+  },[lastTimestampFromServer])
+
   if (loading || !lesson) {
     return <div className="p-6 text-gray-400">⏳ Loading lesson…</div>;
   }
-
-
-  console.log("Lesson detail : "+lesson)
-
+  const filename = lesson.videoUrl?.split('/').pop();
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar />
@@ -126,7 +145,7 @@ const LessonDetailPage = () => {
                 onTimeUpdate={handleTimeUpdate}
                 poster={lesson.thumbnailUrl}
                 className="w-full h-auto bg-black"
-                src={"http://localhost:8080/learning/video/8720b219c1b34eae8cf4e.mp4"}
+                src={`/api/learning/video/${filename}`}
               />
             </div>
             {/* lesson.videoUrl  */}

@@ -74,10 +74,10 @@ const Systemlogging = () => {
       try {
         const url =
           activeTab === "chatlog"
-            ? "http://localhost:8080/chatlog/all"
+            ? "/api/chatlog/all"
             : activeTab === "progress"
-            ? "http://localhost:8080/progress/all"
-            : "http://localhost:8080/notifications/all";
+            ? "/api/progress/all"
+            : "/api/notifications/all";
 
         const res = await axios.get(url, {
           headers: {

@@ -3,13 +3,10 @@ import SidebarWidget from '../../widgets/SidebarWidget';
 import TeamImage from '../../assets/team.png';
 import QuestionImage from '../../assets/question.png';
 
-import scenariosByRole from './types/index'; 
-import type { ScenarioItem } from './types/Scenario';
-
 const Scenario = () => {
   const { role, scenarioIndex } = useParams<{ role: string; scenarioIndex: string }>();
   const navigate = useNavigate();
-  const scenarioList = role ? scenariosByRole[role] : null;
+  const scenarioList = role 
   const scenarioIdx = parseInt(scenarioIndex || '0', 10);
   const currentScenario = Array.isArray(scenarioList) ? scenarioList[scenarioIdx] : null;
   const location = useLocation();

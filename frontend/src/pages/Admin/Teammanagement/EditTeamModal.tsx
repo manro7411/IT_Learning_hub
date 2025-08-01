@@ -32,7 +32,7 @@ const EditTeamModal: FC<Props> = ({ open, onClose, onUpdated, teamId, initialNam
 
   const fetchMembers = async () => {
     try {
-      const res = await axios.get<Member[]>(`http://localhost:8080/teams/${teamId}/members`, {
+      const res = await axios.get<Member[]>(`/api/teams/${teamId}/members`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setMembers(res.data);
@@ -45,7 +45,7 @@ const EditTeamModal: FC<Props> = ({ open, onClose, onUpdated, teamId, initialNam
   const handleSave = async () => {
     try {
       await axios.put(
-        `http://localhost:8080/teams/${teamId}`,
+        `/api/teams/${teamId}`,
         { name: teamName.trim() },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -60,10 +60,10 @@ const EditTeamModal: FC<Props> = ({ open, onClose, onUpdated, teamId, initialNam
 
   const handleRemoveMember = async (memberId: string) => {
     try {
-      await axios.delete(`http://localhost:8080/teams/${teamId}/members/${memberId}`, {
+      await axios.delete(`/api/teams/${teamId}/members/${memberId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      await fetchMembers(); // ✅ reload members after remove
+      await fetchMembers();
     } catch (err) {
       console.error("❌ Failed to remove member:", err);
       setError("Failed to remove member.");

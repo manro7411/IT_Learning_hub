@@ -282,7 +282,7 @@ public class LearningContentResource {
     }
     @GET
     @Path("/upcoming-due")
-    @RolesAllowed({"user", "admin"})
+//    @RolesAllowed({"user", "admin"})
     public List<LearningContentDto> getUpcomingDue() {
         List<LearningContent> lessons = em.createQuery("""
         SELECT lc FROM LearningContent lc

@@ -57,7 +57,7 @@ const JoinTeamWidget = () => {
 
     const fetchUserData = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/profile", {
+        const res = await axios.get("/api/profile", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -70,7 +70,7 @@ const JoinTeamWidget = () => {
           setUserId(id);
           setUserName(name);
 
-          const teamRes = await axios.get(`http://localhost:8080/teams/my-teams/${id}`);
+          const teamRes = await axios.get(`/api/teams/my-teams/${id}`);
           setJoinedTeams(teamRes.data || []);
         }
       } catch (error) {
@@ -91,7 +91,7 @@ const JoinTeamWidget = () => {
     setSuccessMessage("");
 
     try {
-      const res = await fetch("http://localhost:8080/teams/joining", {
+      const res = await fetch("/api/teams/joining", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -111,7 +111,7 @@ const JoinTeamWidget = () => {
       setIsOpen(false);
 
       // Refetch joined teams
-      const updated = await axios.get(`http://localhost:8080/teams/my-teams/${userId}`);
+      const updated = await axios.get(`/api/teams/my-teams/${userId}`);
       setJoinedTeams(updated.data || []);
     } catch (err: unknown) {
       if (err instanceof Error) {

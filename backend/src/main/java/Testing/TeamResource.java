@@ -13,9 +13,8 @@ import model.TeamEntity;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
-
-import static io.quarkus.arc.ComponentsProvider.LOG;
 
 @Path("/teams")
 @Produces(MediaType.APPLICATION_JSON)
@@ -61,7 +60,7 @@ public class TeamResource {
         team.setName(request.name);
         team.setDescription(request.description);
         team.setCreateBy(request.createBy);
-        team.setJoinCode(UUID.randomUUID().toString().replace("-", "").substring(0, 8));
+        team.setJoinCode(String.format("%06d", new Random().nextInt(1_000_000)));
 
         List<MemberEntity> members = request.members.stream().map(dto -> {
             MemberEntity member = new MemberEntity();

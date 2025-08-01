@@ -8,9 +8,9 @@ const AnswerFalse = () => {
   const navigate = useNavigate();
   const {
     question,
-    selected,
+    // selected,
     correctAnswer,
-    currentIndex = 1,
+    // currentIndex = 1,
     total = 1,
     correctCount = 0,
     role,

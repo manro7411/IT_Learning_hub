@@ -1,10 +1,9 @@
-import { useContext, useState } from "react";
-import { AuthContext } from "../../../Authentication/AuthContext.tsx";
 import AdminSidebarWidget from "../Widgets/AdminSideBar.tsx";
 import AdminCalendar from "../Widgets/AdminCalendar.tsx";
 import ScoreboardChart from "../../../components/ScoreboardChart";
 import StatisticsChart from "../../../components/StatisticsChart";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const mockSubmissions = Array(8).fill({
   name: "Firstname Lastname",
@@ -15,7 +14,6 @@ const mockSubmissions = Array(8).fill({
 
 const AdminDashboard_overall = () => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [activeDetailIndex, setActiveDetailIndex] = useState<number | null>(null);
 

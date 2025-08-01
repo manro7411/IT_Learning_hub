@@ -16,72 +16,72 @@ const questionsByRole: Record<Role, QuestionItem[][]> = {
 };
 
 const Question = () => {
-  const { role, scenarioIndex } = useParams<{ role: Role; scenarioIndex: string }>();
-  const scenarioIdx = parseInt(scenarioIndex || '0');
+  const { role: roleParam, scenarioIndex: scenarioIndexParam } = useParams<{ role?: string; scenarioIndex?: string }>();
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Validate and parse role and scenarioIndex
+  const role = roleParam as Role | undefined;
+  const scenarioIndex = parseInt(scenarioIndexParam || '0', 10);
+
   const { currentIndex: passedIndex = 0, correctCount: passedCorrect = 0 } = location.state || {};
-  const [currentIndex, setCurrentIndex] = useState(passedIndex);
-  const [correctCount, setCorrectCount] = useState(passedCorrect);
+  const [currentIndex] = useState<number>(passedIndex);
+  const [correctCount] = useState<number>(passedCorrect);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(10);
 
-  const questionSet = (role && questionsByRole[role]?.[scenarioIdx]) || [];
-  
+  const questionSet: QuestionItem[] = role && questionsByRole[role]?.[scenarioIndex]
+    ? questionsByRole[role][scenarioIndex]
+    : [];
+
   const currentQuestion = questionSet[currentIndex];
-  const total = questionsByRole[role]?.flat().length || 1;
+  const totalQuestions = role ? questionsByRole[role].flat().length : 1;
 
-
+  // Timer countdown
   useEffect(() => {
     if (!currentQuestion) {
-      navigate(`/scenario/${role}/${scenarioIdx + 1}`);
+      navigate(`/scenario/${role}/${scenarioIndex + 1}`);
       return;
     }
 
     const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     return () => clearInterval(timer);
-  }, [currentQuestion]);
+  }, [currentQuestion, navigate, role, scenarioIndex]);
 
+  // Handle timeout
   useEffect(() => {
-  if (timeLeft <= 0 && selectedIndex === null && currentQuestion) {
-   
-    const totalQuestions = questionsByRole[role]?.flat().length || 1;
+    if (timeLeft <= 0 && selectedIndex === null && currentQuestion) {
+      navigate('/answer_false', {
+        state: {
+          question: currentQuestion.question,
+          correctAnswer: currentQuestion.choices[currentQuestion.correctAnswerIndex],
+          selected: null,
+          currentIndex: currentIndex + 1,
+          correctCount,
+          total: totalQuestions,
+          role,
+          scenarioIndex,
+        },
+      });
+    }
+  }, [timeLeft, selectedIndex, currentQuestion, navigate, correctCount, currentIndex, totalQuestions, role, scenarioIndex]);
 
-    navigate('/answer_false', {
-      state: {
-        question: currentQuestion.question,
-        correctAnswer: currentQuestion.choices[currentQuestion.correctAnswerIndex],
-        selected: null, 
-        currentIndex: parseInt(scenarioIndex || '0', 10) + 1,
-        correctCount,
-        total: totalQuestions,
-        role,
-        scenarioIndex,
-      },
-    });
-  }
-}, [timeLeft, selectedIndex]);
-
-
-  
-
+  // Handle answer selection
   useEffect(() => {
-    if (selectedIndex !== null) {
+    if (selectedIndex !== null && currentQuestion) {
+      const correct = selectedIndex === currentQuestion.correctAnswerIndex;
+      setIsCorrect(correct);
+
       const timeout = setTimeout(() => {
-        const correct = selectedIndex === currentQuestion.correctAnswerIndex;
-        const nextCorrect = correct ? correctCount + 1 : correctCount;
-        const total = questionsByRole[role]?.length || 1;
-
-        navigate(isCorrect ? '/answer_true' : '/answer_false', {
+        navigate(correct ? '/answer_true' : '/answer_false', {
           state: {
             question: currentQuestion.question,
             correctAnswer: currentQuestion.choices[currentQuestion.correctAnswerIndex],
             selected: currentQuestion.choices[selectedIndex],
             currentIndex: currentIndex + 1,
-            correctCount: isCorrect ? correctCount + 1 : correctCount,
-            total,
+            correctCount: correct ? correctCount + 1 : correctCount,
+            total: totalQuestions,
             role,
             scenarioIndex,
           },
@@ -90,11 +90,11 @@ const Question = () => {
 
       return () => clearTimeout(timeout);
     }
-  }, [selectedIndex]);
+  }, [selectedIndex, currentQuestion, navigate, correctCount, currentIndex, totalQuestions, role, scenarioIndex]);
 
   const handleChoice = (index: number) => {
     setSelectedIndex(index);
-    setIsCorrect(index === currentQuestion.correctAnswerIndex);
+    setIsCorrect(index === currentQuestion?.correctAnswerIndex);
   };
 
   if (!currentQuestion) return null;
@@ -122,16 +122,15 @@ const Question = () => {
         <div className="mt-24 bg-gray-50 rounded-xl p-8 shadow-md">
           <div className="flex flex-col items-center gap-3 mb-6">
             <div className="absolute top-40 left-14 w-12 h-12 rounded-full bg-orange-400 text-white flex items-center justify-center text-xl font-syne">
-              {parseInt(scenarioIndex || '0', 10) + 1}/{total}
+              {scenarioIndex + 1}/{totalQuestions}
             </div>
             <h2 className="text-2xl font-syne text-center">
-              {currentQuestion?.question}
+              {currentQuestion.question}
             </h2>
           </div>
 
           <div className="flex flex-col gap-4 font-syne">
-            {currentQuestion?.choices.map((choice, index) => {
-              const isSelected = selectedIndex === index;
+            {currentQuestion.choices.map((choice, index) => {
               const showResult = selectedIndex !== null;
 
               let borderColor = 'border-transparent';

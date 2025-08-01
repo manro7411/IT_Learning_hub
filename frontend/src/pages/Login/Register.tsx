@@ -25,7 +25,7 @@ const RegisterPage = () => {
         setLoading(true);
 
         try {
-            await axios.post("http://localhost:8080/register", form);
+            await axios.post("/api/register", form);
             alert("✅ Registration success, please login");
             nav("/");
         } catch (err: unknown) {

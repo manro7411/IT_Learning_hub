@@ -32,7 +32,7 @@ const ChatBubbleWidget = () => {
 
     try {
       await axios.post(
-        "http://localhost:8080/chatlog",
+        "/api/chatlog",
         {
           inputMessage: userMsg,
           responseMessage: aiReply,
@@ -61,7 +61,7 @@ const ChatBubbleWidget = () => {
 
     try {
       const res = await axios.post<BackendResponse>(
-        "http://localhost:8080/filtering",
+        "/api/filtering",
         { msg: userInput }
       );
 

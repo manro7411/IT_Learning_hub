@@ -1,10 +1,7 @@
-// Full file version with summary screen and delayed redirect
-
 import { useState, useEffect, useContext } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import SidebarWidget from "../../widgets/SidebarWidget";
-import CalendarWidget from "../../widgets/CalendarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
 import QuestionWidget from "./QuestionWidget";
 

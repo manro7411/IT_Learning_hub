@@ -33,7 +33,7 @@ public class UserProgressResource {
 
     @GET
     @Path("/all")
-    @RolesAllowed("admin")
+    @RolesAllowed({"user","admin"})
     public List<UserCourseProgressDto> getAllProgress() {
         List<UserLessonProgress> progresses = em.createQuery("""
                 SELECT p FROM UserLessonProgress p

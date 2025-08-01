@@ -46,7 +46,7 @@ const LessonPage = () => {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/teams", {
+        const res = await axios.get("/api/teams", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setMyTeamIds(res.data.map((team: { id: string }) => team.id));
@@ -60,7 +60,7 @@ const LessonPage = () => {
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/profile", {
+        const res = await axios.get("/api/profile", {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUserId(res.data.id);
@@ -81,10 +81,10 @@ const LessonPage = () => {
     const fetchData = async () => {
       try {
         const [lessonsRes, progressRes] = await Promise.all([
-          axios.get("http://localhost:8080/learning", {
+          axios.get("/api/learning", {
             headers: { Authorization: `Bearer ${token}` },
           }),
-          axios.get("http://localhost:8080/user/progress", {
+          axios.get("/api/user/progress", {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
@@ -149,7 +149,7 @@ const LessonPage = () => {
     const lastTimestamp = progressMap[key]?.lastTimestamp || 0;
 
     try {
-      await axios.post(`http://localhost:8080/learning/${id}/click`, {}, {
+      await axios.post(`/api/learning/${id}/click`, {}, {
         headers: { Authorization: `Bearer ${token}` },
       });
     } catch (err) {
@@ -248,7 +248,7 @@ const LessonPage = () => {
                 const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };    
                  const avatarFilename = lesson.authorAvatarUrl?.split("/").pop();
                  const avatarUrl = avatarFilename
-                 ? `http://localhost:8080/profile/avatars/${avatarFilename}`
+                 ? `/api/profile/avatars/${avatarFilename}`
                  : defaultUserAvatar;
                  console.log("Avatar URL:", avatarUrl);
                   console.log(avatarUrl);

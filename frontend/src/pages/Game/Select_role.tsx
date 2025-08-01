@@ -12,11 +12,6 @@ const roles = [
 const SelectRole = () => {
   const navigate = useNavigate();
   const [selected, setSelected] = useState<string | null>(null);
-
-  const handleSelect = (role: 'dev' | 'po' | 'sm') => {
-  navigate(`/scenario/${role}/0`);
-  };
-
   return (
     <div className="min-h-screen bg-white flex">
       <SidebarWidget />

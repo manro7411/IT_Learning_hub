@@ -24,6 +24,8 @@ export default function SidebarWidget() {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const handleLogout = () => {
+    document.cookie = "access_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Strict; Secure";
+    document.cookie = "refresh_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 UTC; SameSite=Strict; Secure";
     logout();
     navigate("/");
   };
@@ -50,9 +52,9 @@ export default function SidebarWidget() {
         </nav>
 
         <div className="mt-10">
-          <h3 className="text-sm font-semibold text-gray-400 mb-2">FRIENDS</h3>
+          {/* <h3 className="text-sm font-semibold text-gray-400 mb-2">FRIENDS</h3> */}
           <div className="space-y-3">
-            {Array.from({ length: 4 }).map((_, i) => (
+            {/* {Array.from({ length: 4 }).map((_, i) => (
               <div key={i} className="flex items-center space-x-2">
                 <UserCircle className="w-8 h-8 text-blue-500" />
                 <div>
@@ -60,7 +62,7 @@ export default function SidebarWidget() {
                   <div className="text-xs text-gray-500">Software Developer</div>
                 </div>
               </div>
-            ))}
+            ))} */}
           </div>
         </div>
       </div>

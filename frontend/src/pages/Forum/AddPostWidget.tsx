@@ -1,6 +1,5 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 
 const AddPostWidget = ({ onCreated }: { onCreated?: () => void }) => {
     const { user, token } = useContext(AuthContext);
@@ -28,7 +27,7 @@ const AddPostWidget = ({ onCreated }: { onCreated?: () => void }) => {
             const headers: Record<string, string> = { "Content-Type": "application/json" };
             if (token) headers.Authorization = `Bearer ${token}`;
 
-            const res = await fetch(`${API_URL}/posts`, {
+            const res = await fetch(`/api/posts`, {
                 method: "POST",
                 headers,
                 body: JSON.stringify({ title, message , authorName: user?.name  })

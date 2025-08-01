@@ -71,7 +71,7 @@ const AdminAddLessonPage = () => {
  useEffect(() => {
     if (token) {
       axios
-        .get("http://localhost:8080/profile", {
+        .get("/api/profile", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {
@@ -91,11 +91,11 @@ const AdminAddLessonPage = () => {
   useEffect(() => {
     if (!token) return;
 
-    axios.get<User[]>("http://localhost:8080/profile/users", { headers: { Authorization: `Bearer ${token}` } })
+    axios.get<User[]>("/api/profile/users", { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setUsers(res.data))
       .catch(() => console.error("❌ Failed to load users"));
 
-    axios.get<Team[]>("http://localhost:8080/teams", { headers: { Authorization: `Bearer ${token}` } })
+    axios.get<Team[]>("/api/teams", { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setTeams(res.data))
       .catch(() => console.error("❌ Failed to load teams"));
   }, [token]);
@@ -187,7 +187,7 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
   }))));
   console.log("Data sources : "+formData)
   try {
-    await axios.post("http://localhost:8080/learning", formData, {
+    await axios.post("/api/learning", formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
@@ -217,7 +217,7 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
     };
 
     try {
-      await axios.post("http://localhost:8080/learning/documents", payload, {
+      await axios.post("/api/learning/documents", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("✅ Document uploaded!");

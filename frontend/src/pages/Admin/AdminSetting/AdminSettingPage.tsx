@@ -33,7 +33,7 @@ const AccountSettingsPage = () => {
     }
 
     axios
-      .get("http://localhost:8080/profile", {
+      .get("/api/profile", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -47,7 +47,7 @@ const AccountSettingsPage = () => {
         const avatarPath = res.data.avatarUrl || res.data.avatar;
         if (avatarPath) {
           const filename = avatarPath.split("/").pop();
-          setPreviewUrl(`http://localhost:8080/profile/avatars/${filename}`);
+          setPreviewUrl(`/api/profile/avatars/${filename}`);
         }
       })
       .catch((err) => {
@@ -79,7 +79,7 @@ const AccountSettingsPage = () => {
     if (profilePicture) formData.append("profilePicture", profilePicture);
 
     try {
-      await axios.put("http://localhost:8080/profile", formData, {
+      await axios.put("/api/profile", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
