@@ -15,7 +15,7 @@ type Notification = {
 const NotificationWidget = () => {
   const { token: ctxToken } = useContext(AuthContext);
   const token =
-    ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
+    ctxToken || localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
 
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Notification[]>([]);

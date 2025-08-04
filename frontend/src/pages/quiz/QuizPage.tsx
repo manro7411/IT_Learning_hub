@@ -1,10 +1,7 @@
-// Full file version with summary screen and delayed redirect
-
 import { useState, useEffect, useContext } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 import SidebarWidget from "../../widgets/SidebarWidget";
-import CalendarWidget from "../../widgets/CalendarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
 import QuestionWidget from "./QuestionWidget";
 
@@ -119,7 +116,10 @@ const QuizPageStyled = () => {
       setSelectedOption(null);
       setTimeLeft(20);
     } else {
+      let finalScore = score;
+      if (isCorrect) finalScore += current.points;
       await submitScore(score);
+      setScore(finalScore);
       setShowSummary(true);
     }
   };
@@ -133,7 +133,7 @@ const QuizPageStyled = () => {
         <div>
           <h2 className="text-2xl font-bold text-red-600 mb-4">⚠️ Quiz Unavailable</h2>
           <p className="text-gray-600 mb-4">You have used {attempts} / {maxAttempts} attempts.</p>
-          <button onClick={() => navigate("/lesson")} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          <button onClick={() => navigate("/lesson/${lessonId}")} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
             Back to Lessons
           </button>
         </div>
@@ -146,7 +146,7 @@ const QuizPageStyled = () => {
   return (
     <div className="flex min-h-screen bg-white">
       <div className={`w-64 hidden lg:block ${showSummary ? "" : "pointer-events-none opacity-50"}`}>
-        <SidebarWidget />
+        {/* <SidebarWidget /> */}
       </div>
 
       <div className="flex-1 px-16 py-10 relative">

@@ -143,7 +143,7 @@ const JoinTeamWidget = () => {
         ) : (
           <>
             <h2 className="text-lg font-semibold mb-4">Join a Team</h2>
-            <p className="text-gray-600 mb-4">Join a team to collaborate on projects and assignments.</p>
+            <p className="text-gray-600 mb-4">To join a team, ask your team leader for the 6-digit join code and enter it below. Once you join, you’ll see your team’s assignments and can start collaborating right away!</p>
             <button
               onClick={() => setIsOpen(true)}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"

@@ -22,10 +22,15 @@ const LoginPage = () => {
 
     try {
       const res = await axios.post("http://localhost:8080/login", { email, password });
-      const token = res.data.token;
-      localStorage.setItem("token", token);
 
-      const decoded: JwtPayload = jwtDecode(token);
+      const accessToken = res.data.accessToken;
+      const refreshToken = res.data.refreshToken;
+
+      localStorage.setItem("accessToken", accessToken);
+      localStorage.setItem("refreshToken", refreshToken);
+
+
+      const decoded: JwtPayload = jwtDecode(accessToken);
       const role = (decoded.role ?? decoded.groups?.[0] ?? "user").toLowerCase();
 
       if (role === "admin") {

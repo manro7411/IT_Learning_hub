@@ -27,7 +27,7 @@ export const AuthContext = createContext<AuthContextType>({
 
 export function AuthProvider({ children }: { children: ReactNode }) {
     const [token, setToken] = useState<string | null>(
-        localStorage.getItem("token")
+        localStorage.getItem("accessToken")
     );
 
     const [user, setUser] = useState<User | null>(null);
@@ -59,13 +59,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }, [token]);
 
     const login = (jwt: string) => {
-        localStorage.setItem("token", jwt);
+        localStorage.setItem("accessToken", jwt);
         setToken(jwt);
         decodeAndSetUser(jwt);
     };
 
     const logout = () => {
-        localStorage.removeItem("token");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
         setToken(null);
         setUser(null);
     };

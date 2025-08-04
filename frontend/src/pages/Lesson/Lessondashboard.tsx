@@ -89,9 +89,6 @@ const LessonPage = () => {
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-
-        console.log(lessonsRes.data)
-
         setLessons(lessonsRes.data);
 
 
@@ -259,8 +256,6 @@ const LessonPage = () => {
                  const avatarUrl = avatarFilename
                  ? `http://localhost:8080/profile/avatars/${avatarFilename}`
                  : defaultUserAvatar;
-                 console.log("Avatar URL:", avatarUrl);
-                  console.log(avatarUrl);
                 return (
                   <button
                     key={lesson.id}

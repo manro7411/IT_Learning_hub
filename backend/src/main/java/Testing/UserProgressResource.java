@@ -33,7 +33,7 @@ public class UserProgressResource {
 
     @GET
     @Path("/all")
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin","user"})
     public List<UserCourseProgressDto> getAllProgress() {
         List<UserLessonProgress> progresses = em.createQuery("""
                 SELECT p FROM UserLessonProgress p
@@ -70,6 +70,7 @@ public class UserProgressResource {
             dto.attempts = Optional.ofNullable(p.getAttempts()).orElse(0);
             dto.maxAttempts = Optional.ofNullable(lesson.getMaxAttempts()).orElse(1);
             dto.userEmail = p.getUserEmail();
+            dto.lastTimestamp = p.getLastTimestamp();
 
             result.add(dto);
         }
@@ -105,6 +106,7 @@ public class UserProgressResource {
         progress.setAttempts(currentAttempts + 1);
         progress.setScore(req.score);
         progress.setUpdatedAt(LocalDateTime.now());
+
 
         return Response.ok().build();
     }
@@ -147,6 +149,7 @@ public class UserProgressResource {
         public int attempts;
         public int maxAttempts;
         public String userEmail;
+        public int lastTimestamp;
     }
 
     public static class SubmitScoreRequest {

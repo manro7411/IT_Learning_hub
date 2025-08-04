@@ -9,7 +9,7 @@ import OnlineCourseBanner from "../../components/OnlineCourseBanner";
 import TopViewedLessonsWidget from "./TopViewedLessonsWidget";
 import NotificationWidget from "../../widgets/NotificationWidget";
 import ReminderBox from "../../widgets/ReminderBoxWidget";
-import { Navigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import JointeamWidget from "../../widgets/JointeamWidget";
 import Userwidget from "../../widgets/UserAvatarWidget";
 
@@ -21,16 +21,18 @@ interface Lesson {
 }
 
 interface Reminder {
+  id: string;
   title: string;
   dueDate: string;
 }
 
 const UserDashboard = () => {
   const { user, token: ctxToken } = useContext(AuthContext);
-  const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
+  const token = ctxToken || localStorage.getItem("accessToken") || sessionStorage.getItem("accessToken");
 
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [assignTypeFilter, setAssignTypeFilter] = useState<string>("all");
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!token) return;
@@ -40,7 +42,6 @@ const UserDashboard = () => {
         const res = await axios.get("http://localhost:8080/learning/upcoming-due", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        // console.log("📚 Lessons fetched:", res.data);
         setLessons(res.data);
       } catch (err) {
         console.error("❌ Error fetching lessons", err);
@@ -73,17 +74,29 @@ const pastDueLessons: Reminder[] = useMemo(() => {
   return calendarEvents
     .filter((e) => new Date(e.date) < new Date())
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .map((e) => ({ title: e.title, dueDate: e.date }))
+    .map((e) => ({ id:e.id, title: e.title, dueDate: e.date }))
     .slice(0, 5);
 }, [calendarEvents]);
 
 const upcomingReminders: Reminder[] = useMemo(() => {
   return calendarEvents
-    .filter((e) => new Date(e.date) >= new Date())
+    .filter((e) => {
+      const now = new Date();
+      const duedate = new Date(e.date);
+
+      now.setHours(0, 0, 0, 0);
+      duedate.setHours(0, 0, 0, 0);
+      return duedate > now;
+    })
     .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .map((e) => ({ title: e.title, dueDate: e.date }))
+    .map((e) => ({ id:e.id,title: e.title, dueDate: e.date }))
     .slice(0, 5);
 }, [calendarEvents]);
+
+const handleReminderClick = (id:string) =>{
+  navigate(`/lesson/${id}`)
+}
+
 
 
   if (!token) return <Navigate to="/" replace />;
@@ -129,8 +142,8 @@ const upcomingReminders: Reminder[] = useMemo(() => {
     ))}
 </div>
                 <CalendarWidget events={calendarEvents} />
-                <ReminderBox title="🔔 Past Due Lessons" reminders={upcomingReminders} />
-                <ReminderBox title="⏰ Past Due Lessons" reminders={pastDueLessons} accentColor="text-gray-600"/>
+                <ReminderBox title="🔔 Upcoming Due Lesson" reminders={upcomingReminders} accentColor="text-blue-600"  onReminderClick={handleReminderClick}/>
+                <ReminderBox title="⏰ Past Due Lessons" reminders={pastDueLessons} accentColor="text-red-600" onReminderClick={handleReminderClick}/>
 
               </div>
             </div>

@@ -46,6 +46,10 @@ const LessonDetailPage = () => {
   const [maxAttempts, setMaxAttempts] = useState(1);
   const [quizPassed, setQuizPassed] = useState(false);
   const [lastTimestampFromServer, setLastTimestampFromServer] = useState<number | null>(null);
+  // const [feedback, setFeedback] = useState<string>("");
+  // const [ feedbackSent,setFeedbackSent] = useState(false)
+  // const [isPlaying, setIsPlaying] = useState(false);
+  const[hasSeeked,setHasSeeked] = useState(false);
 
   // Fetch lesson
   useEffect(() => {
@@ -66,6 +70,10 @@ const LessonDetailPage = () => {
       })
       .then((res) => {
         const found = res.data.find((p) => p.lessonId === lesson.id);
+        const lastTimestampp = found?.lastTimestamp || 0;
+        console.log("Last timestamp from servers:", lastTimestampp);
+        console.log("Last time stamp from server : ",found?.lastTimestamp);
+        console.log("Progress data fetched:", res.data);
         if (!found) return;
 
         setAttempts(found.attempts);
@@ -82,21 +90,37 @@ const LessonDetailPage = () => {
       .catch(() => console.error("❌ Failed to fetch progress"));
   }, [lesson, token]);
 
-  // Seek to last position when metadata is loaded
+  useEffect(() => {
+  const video = videoRef.current;
+  console.log("Video metadata loaded:", video?.duration);
+  console.log("Last timestamp from server:", lastTimestampFromServer);
+  if (
+    video &&
+    lastTimestampFromServer !== null &&
+    lastTimestampFromServer > 0 &&
+    video.readyState >= 1 &&
+    lastTimestampFromServer < video.duration
+  ) {
+    video.currentTime = lastTimestampFromServer;
+    console.log("Seeked to:", lastTimestampFromServer);
+  }
+}, [lastTimestampFromServer, lesson]);
+
   const handleLoadedMetadata = () => {
-    const video = videoRef.current;
-    if (
-      video &&
-      lastTimestampFromServer !== null &&
-      lastTimestampFromServer > 0 &&
-      lastTimestampFromServer < video.duration
-    ) {
-      console.log("⏪ Seeking video to:", lastTimestampFromServer);
-      video.currentTime = lastTimestampFromServer;
-    }
+ const video = videoRef.current;
+  if (
+    video &&
+    lastTimestampFromServer !== null &&
+    lastTimestampFromServer > 0 &&
+    lastTimestampFromServer < video.duration
+  ) {
+    video.currentTime = lastTimestampFromServer;
+    video.play();
+    console.log("⏪ Seeked to:", lastTimestampFromServer);
+  }
+  setHasSeeked(true);
   };
 
-  // Track video time updates
   const handleTimeUpdate = () => {
     const video = videoRef.current;
     if (!video || !video.duration) return;
@@ -112,9 +136,8 @@ const LessonDetailPage = () => {
     }
   };
 
-  // Send progress periodically
   useEffect(() => {
-    if (!lesson || !token) return;
+    if (!lesson || !token || !hasSeeked) return;
 
     const timer = setInterval(() => {
       const video = videoRef.current;
@@ -126,9 +149,11 @@ const LessonDetailPage = () => {
         progressPercent > 0 &&
         progressPercent < 100 &&
         Math.floor(progressPercent) !== lastSent.current &&
-      currentTime > 0
+      currentTime > 0 && 
+      currentTime >= lastTimestamp.current
       ) {
         lastSent.current = current;
+        lastTimestamp.current = currentTime
 
         axios
           .put(
@@ -149,29 +174,8 @@ const LessonDetailPage = () => {
     }, 5000);
 
     return () => clearInterval(timer);
-  }, [lesson, token, progressPercent]);
+  }, [lesson, token, progressPercent,hasSeeked]);
 
-  useEffect(() => {
-  const interval = setInterval(() => {
-    const video = videoRef.current;
-    if (
-      video &&
-      lastTimestampFromServer !== null &&
-      video.readyState >= 1 &&
-      lastTimestampFromServer > 0 &&
-      lastTimestampFromServer < video.duration
-    ) {
-      console.log("⏪ Seeking to:", lastTimestampFromServer);
-      video.currentTime = lastTimestampFromServer;
-      clearInterval(interval); // สำเร็จแล้วก็ clear
-    }
-  }, 200);
-
-  return () => clearInterval(interval);
-}, [lastTimestampFromServer]);
-
-
-  // Trigger quiz when finished
   useEffect(() => {
     if (progressPercent >= 100 && !showQuiz) {
       setShowQuiz(true);
@@ -182,18 +186,24 @@ const LessonDetailPage = () => {
     return <div className="p-6 text-gray-400">⏳ Loading lesson…</div>;
   }
 
+  const filename = lesson.videoUrl?.split("/").pop() || "";
+
   const renderContent = () => {
-    if (lesson.contentType === "video") {
+    if (lesson?.contentType === "video") {
+      
       return (
+        <>
         <video
           ref={videoRef}
           controls
+          // autoPlay
           onLoadedMetadata={handleLoadedMetadata}
           onTimeUpdate={handleTimeUpdate}
           poster={lesson.thumbnailUrl}
           className="w-full h-auto bg-black"
-          src={"http://localhost:8080/learning/video/64b794b46d664a1a8ec1c.mp4"}
+          src={`http://localhost:8080/learning/video/${filename}`}
         />
+        </>
       );
     } else if (lesson.contentType === "document") {
       return (
@@ -310,6 +320,14 @@ const LessonDetailPage = () => {
           </div>
         </div>
       )}
+      {
+        progressPercent >= 100 
+          ? <div>Feedback section</div>
+          : (!hasTakenQuiz && !showQuiz) && (
+              <div>
+              </div>
+            )
+      }
     </div>
   );
 };

@@ -40,10 +40,11 @@ public class LoginResource {
                         .build();
             }
 
-            String token = JwtUtil.generateToken(user.getEmail(), user.getRole(), user.getName());
+            String accessToken = JwtUtil.generateToken(user.getEmail(), user.getRole(), user.getName());
+            String refreshToken = JwtUtil.generateRefreshToken(user.getEmail());
 
             System.out.println("✅ Login success: " + request.email);
-            return Response.ok(new LoginResponse(token)).build();
+            return Response.ok(new LoginResponse(accessToken,refreshToken)).build();
 
         } catch (NoResultException e) {
             System.out.println("❌ User not found: " + request.email);
@@ -59,10 +60,12 @@ public class LoginResource {
     }
 
     public static class LoginResponse {
-        public String token;
+        public String accessToken;
+        public String refreshToken;
 
-        public LoginResponse(String token) {
-            this.token = token;
+        public LoginResponse(String accessToken, String refreshToken) {
+            this.accessToken = accessToken;
+            this.refreshToken = refreshToken;
         }
     }
 
