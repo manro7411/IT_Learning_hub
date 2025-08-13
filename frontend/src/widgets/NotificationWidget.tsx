@@ -29,7 +29,7 @@ const NotificationWidget = () => {
     try {
       setError(null);
       const { data } = await axios.get<Notification[]>(
-        "http://localhost:8080/notifications",
+        "/api/notifications",
         { headers: { Authorization: `Bearer ${token}` } }
       );
       setItems(data);
@@ -72,7 +72,7 @@ const NotificationWidget = () => {
   const markAllRead = async () => {
     try {
       await axios.put(
-        "http://localhost:8080/notifications/read-all",
+        "/api/notifications/read-all",
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -86,7 +86,7 @@ const NotificationWidget = () => {
   const clearAll = async () => {
     if (!confirm("Delete ALL notifications?")) return;
     try {
-      await axios.delete("http://localhost:8080/notifications", {
+      await axios.delete("/api/notifications", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setItems([]);
@@ -99,7 +99,7 @@ const NotificationWidget = () => {
   const markSingleRead = async (id: string) => {
     try {
       await axios.put(
-        `http://localhost:8080/notifications/${id}/read`,
+        `/api/notifications/${id}/read`,
         {},
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -114,7 +114,7 @@ const NotificationWidget = () => {
 
   const deleteSingle = async (id: string, wasUnread: boolean) => {
     try {
-      await axios.delete(`http://localhost:8080/notifications/${id}`, {
+      await axios.delete(`/api/notifications/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setItems((prev) => prev.filter((n) => n.id !== id));

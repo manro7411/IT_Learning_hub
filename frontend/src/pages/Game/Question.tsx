@@ -22,8 +22,8 @@ const Question = () => {
   const location = useLocation();
 
   const { currentIndex: passedIndex = 0, correctCount: passedCorrect = 0 } = location.state || {};
-  const [currentIndex, setCurrentIndex] = useState(passedIndex);
-  const [correctCount, setCorrectCount] = useState(passedCorrect);
+  const [currentIndex] = useState(passedIndex);
+  const [correctCount] = useState(passedCorrect);
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(10);
@@ -31,7 +31,7 @@ const Question = () => {
   const questionSet = (role && questionsByRole[role]?.[scenarioIdx]) || [];
   
   const currentQuestion = questionSet[currentIndex];
-  const total = questionsByRole[role]?.flat().length || 1;
+  // const total = questionsByRole[role]?.flat().length || 1;
 
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const Question = () => {
   useEffect(() => {
   if (timeLeft <= 0 && selectedIndex === null && currentQuestion) {
    
-    const totalQuestions = questionsByRole[role]?.flat().length || 1;
+    // const totalQuestions = questionsByRole[role]?.flat().length || 1;
 
     navigate('/answer_false', {
       state: {
@@ -56,7 +56,7 @@ const Question = () => {
         selected: null, 
         currentIndex: parseInt(scenarioIndex || '0', 10) + 1,
         correctCount,
-        total: totalQuestions,
+        // total: totalQuestions,
         role,
         scenarioIndex,
       },
@@ -70,9 +70,9 @@ const Question = () => {
   useEffect(() => {
     if (selectedIndex !== null) {
       const timeout = setTimeout(() => {
-        const correct = selectedIndex === currentQuestion.correctAnswerIndex;
-        const nextCorrect = correct ? correctCount + 1 : correctCount;
-        const total = questionsByRole[role]?.length || 1;
+        // const correct = selectedIndex === currentQuestion.correctAnswerIndex;
+        // const nextCorrect = correct ? correctCount + 1 : correctCount;
+        // const total = questionsByRole[role]?.length || 1;
 
         navigate(isCorrect ? '/answer_true' : '/answer_false', {
           state: {
@@ -81,7 +81,7 @@ const Question = () => {
             selected: currentQuestion.choices[selectedIndex],
             currentIndex: currentIndex + 1,
             correctCount: isCorrect ? correctCount + 1 : correctCount,
-            total,
+            // total,
             role,
             scenarioIndex,
           },
@@ -122,7 +122,7 @@ const Question = () => {
         <div className="mt-24 bg-gray-50 rounded-xl p-8 shadow-md">
           <div className="flex flex-col items-center gap-3 mb-6">
             <div className="absolute top-40 left-14 w-12 h-12 rounded-full bg-orange-400 text-white flex items-center justify-center text-xl font-syne">
-              {parseInt(scenarioIndex || '0', 10) + 1}/{total}
+              {/* {parseInt(scenarioIndex || '0', 10) + 1}/{total} */}
             </div>
             <h2 className="text-2xl font-syne text-center">
               {currentQuestion?.question}
@@ -131,7 +131,7 @@ const Question = () => {
 
           <div className="flex flex-col gap-4 font-syne">
             {currentQuestion?.choices.map((choice, index) => {
-              const isSelected = selectedIndex === index;
+              // const isSelected = selectedIndex === index;
               const showResult = selectedIndex !== null;
 
               let borderColor = 'border-transparent';

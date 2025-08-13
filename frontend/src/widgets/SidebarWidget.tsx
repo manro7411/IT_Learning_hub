@@ -1,6 +1,6 @@
 import {
   Home, BookOpen, ClipboardList, Users, Star, Gamepad2,
-  Settings, LogOut, UserCircle
+  Settings, LogOut
 } from "lucide-react";
 import Logo from "../assets/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
@@ -48,21 +48,6 @@ export default function SidebarWidget() {
             </Link>
           ))}
         </nav>
-
-        <div className="mt-10">
-          <h3 className="text-sm font-semibold text-gray-400 mb-2">FRIENDS</h3>
-          <div className="space-y-3">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="flex items-center space-x-2">
-                <UserCircle className="w-8 h-8 text-blue-500" />
-                <div>
-                  <div className="text-sm font-medium">Firstname Lastname</div>
-                  <div className="text-xs text-gray-500">Software Developer</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
 
       <div className="text-sm space-y-2">

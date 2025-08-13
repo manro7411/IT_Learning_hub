@@ -18,7 +18,7 @@ const SupervisorDashboard = () => {
     try {
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
       const { data } = await axios.get<User[]>(
-        "http://localhost:8080/profile/users/for-supervisor",
+        "/api/profile/users/for-supervisor",
         {
           headers: { Authorization: `Bearer ${token}` },
         }
@@ -42,7 +42,7 @@ const SupervisorDashboard = () => {
     try {
       const token = localStorage.getItem("token") || sessionStorage.getItem("token");
       await axios.put(
-        `http://localhost:8080/profile/users/${userId}/role`,
+        `/api/profile/users/${userId}/role`,
         { role },
         { headers: { Authorization: `Bearer ${token}` } }
       );

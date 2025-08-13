@@ -8,7 +8,7 @@ interface TopLesson {
     thumbnailUrl?: string;
     viewers?: number;
 }
-const API = "http://localhost:8080/learning";
+const API = "/api/learning";
 
 const TopViewedLessonsWidget = () => {
     const [topLessons, setTopLessons] = useState<TopLesson[]>([]);

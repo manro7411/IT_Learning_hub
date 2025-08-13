@@ -15,6 +15,7 @@ public record LearningContentDto(
         String contentType,
         String authorEmail,
         String videoUrl,
+        String documentUrl,
         String authorAvatarUrl,
         Integer progressPercent,
         String assignType,
@@ -34,6 +35,7 @@ public record LearningContentDto(
                 e.getContentType(),
                 e.getAuthorEmail(),
                 e.getVideoUrl(),
+                e.getDocumentUrl(),
                 e.getAuthorAvatarUrl(),
                 e.getProgressPercent() != null ? e.getProgressPercent() : 0,
                 e.getAssignType(),
@@ -60,6 +62,7 @@ public record LearningContentDto(
         e.setAssignedTeamIds(assignedTeamIds);
         e.setDueDate(dueDate);
         e.setVideoUrl(videoUrl);
+        e.setDocumentUrl(documentUrl);
         e.setContentType(contentType);
         return e;
     }

@@ -41,6 +41,9 @@ public class PostEntity extends PanacheEntityBase {
     @Column(nullable = false)
     private long views = 0;
 
+    @Column(name = "forum_category")
+    private String forumCategory;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -57,6 +60,9 @@ public class PostEntity extends PanacheEntityBase {
     @CollectionTable(name = "post_likes", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "user_email")
     private Set<String> likedBy = new HashSet<>();
+
+    @Column(name = "pictureUrl")
+    private String pictureUrl;
 
 
     @PrePersist
@@ -114,5 +120,19 @@ public class PostEntity extends PanacheEntityBase {
 
     public void setLikedByUser(boolean likedByUser) {
         this.likedByUser = likedByUser;
+    }
+
+    public String getForumCategory() {
+        return forumCategory;
+    }
+
+    public void setForumCategory(String forumCategory) {
+        this.forumCategory = forumCategory;
+    }
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+    public void setPictureUrl(String pictureUrl) {
+        this.pictureUrl = pictureUrl;
     }
 }

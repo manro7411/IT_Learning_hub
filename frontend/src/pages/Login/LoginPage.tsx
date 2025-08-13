@@ -21,7 +21,7 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("http://localhost:8080/login", { email, password });
+      const res = await axios.post("/api/login", { email, password });
       const token = res.data.token;
       localStorage.setItem("token", token);
 

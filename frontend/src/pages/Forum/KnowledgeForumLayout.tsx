@@ -25,26 +25,27 @@ export type Post = {
   likes: number;
   likedBy: string[]
   comments: Comment[];
+  forumCategory:string;
 };
-
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
 const formatAvatarUrl = (rawUrl?: string): string | undefined => {
   if (!rawUrl) return undefined;
   if (rawUrl.startsWith("http")) return rawUrl;
 
   const parts = rawUrl.split("/");
   const filename = parts[parts.length - 1];
-  return `${API_URL}/posts/avatars/${filename}`;
+  return `/api/posts/avatars/${filename}`;
 };
 
 const KnowledgeForumLayout = () => {
   const { token } = useContext(AuthContext);
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+    const [selectedAssignType, setselectedAssignType] = useState<string>("พูดคุยทั่วไป");
+
 
   const fetchComments = async (postId: string): Promise<Comment[]> => {
     try {
-      const res = await fetch(`${API_URL}/forum/posts/${postId}/comments`, {
+      const res = await fetch(`/api/forum/posts/${postId}/comments`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       return res.ok ? await res.json() : [];
@@ -57,7 +58,7 @@ const KnowledgeForumLayout = () => {
   const fetchPosts = async () => {
     setLoading(true);
     try {
-      const res = await fetch(`${API_URL}/posts`, {
+      const res = await fetch(`/api/posts`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
 
@@ -68,7 +69,6 @@ const KnowledgeForumLayout = () => {
       }
 
       const basePosts: Omit<Post, "comments">[] = await res.json();
-
       const enrichedPosts: Post[] = await Promise.all(
         basePosts.map(async (p) => ({
           ...p,
@@ -76,7 +76,6 @@ const KnowledgeForumLayout = () => {
           comments: await fetchComments(p.id),
         }))
       );
-
       setPosts(enrichedPosts);
     } catch (err) {
       console.error("❌ Error fetching posts:", err);
@@ -93,12 +92,20 @@ const KnowledgeForumLayout = () => {
     void fetchPosts();
   };
 
+  
+  const groupPosts = posts.reduce((acc,post) =>{
+    const category = post.forumCategory || "Uncategorized"
+    if (!acc[category]) acc[category] = []; 
+    acc[category].push(post);
+    return acc
+  }, {} as Record<string,Post[]>);
+
+
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar */}
+
       <Sidebar />
 
-      {/* Main content */}
       <main className="flex-1 overflow-y-auto p-6">
         {loading ? (
           <p className="text-gray-500 text-sm">Loading posts…</p>
@@ -106,19 +113,37 @@ const KnowledgeForumLayout = () => {
           <p className="text-gray-400 text-sm">No posts available.</p>
         ) : (
           <div className="space-y-4">
-            {posts.map((post) => (
-              <PostCardWidget key={post.id} post={post} />
-            ))}
+            <div className="flex space-x-2">
+              {["พูดคุยทั่วไป","ข่าวสาร IT","IT & งานระบบ"].map((type) =>(
+                <button key={type} onClick={() => setselectedAssignType(type)} className={`px-3 py-1 rounded-md text-sm ${
+                    selectedAssignType === type
+                      ? "bg-purple-500 text-white"
+                      : "bg-gray-200 hover:bg-gray-300"
+                  }`}>
+                      {type.charAt(0).toUpperCase() + type.slice(1)}
+                </button>
+              ))}
+            </div>
+            {Object.entries(groupPosts)
+            .filter(([category]) => category === selectedAssignType)
+            .map(([category, postsInCategory]) => (
+              <div key={category} className="mb-8">
+                <h2 className="text-xl font-semibold text-gray-700 mb-4">
+                  {category}
+                </h2>
+                <div className="space-y-4">
+                  {postsInCategory.map((post) => (
+                    <PostCardWidget key={post.id} post={post} />
+                  ))}
+                </div>
+              </div>
+          ))}
           </div>
+
         )}
       </main>
-
-      {/* Optional right sidebar */}
       <aside className="w-80 p-6 hidden lg:block">
-        {/* Add trending or suggestions here */}
       </aside>
-
-      {/* Add post floating widget */}
       <AddPostWidget onCreated={handlePostCreated} />
     </div>
   );

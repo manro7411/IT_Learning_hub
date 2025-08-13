@@ -3,25 +3,23 @@ import SidebarWidget from '../../widgets/SidebarWidget';
 import TeamImage from '../../assets/team.png';
 import QuestionImage from '../../assets/question.png';
 
-import scenariosByRole from './types/index'; 
-import type { ScenarioItem } from './types/Scenario';
-
+// import scenariosByRole from './types/index'; 
 const Scenario = () => {
   const { role, scenarioIndex } = useParams<{ role: string; scenarioIndex: string }>();
   const navigate = useNavigate();
-  const scenarioList = role ? scenariosByRole[role] : null;
+  // const scenarioList = role ? scenariosByRole[role] : null;
   const scenarioIdx = parseInt(scenarioIndex || '0', 10);
-  const currentScenario = Array.isArray(scenarioList) ? scenarioList[scenarioIdx] : null;
+  // const currentScenario = Array.isArray(scenarioList) ? scenarioList[scenarioIdx] : null;
   const location = useLocation();
   const { correctCount = 0, total = scenarioIdx + 1 } = location.state || {};
 
-  if (!currentScenario || !scenarioList) {
-    return (
-      <div className="p-10 text-red-600 font-bold">
-        Nothing found for this scenario.
-      </div>
-    );
-  }
+  // if (!currentScenario || !scenarioList) {
+  //   return (
+  //     <div className="p-10 text-red-600 font-bold">
+  //       Nothing found for this scenario.
+  //     </div>
+  //   );
+  // }
 
   const handleNext = () => {
     navigate(`/question/${role}/${scenarioIdx}`, {
@@ -52,7 +50,7 @@ const Scenario = () => {
               textShadow: '2px 2px 6px rgba(0, 0, 255, 0.3)',
             }}
           >
-            {currentScenario.title}
+            {/* {currentScenario.title} */}
           </h1>
 
           <button
@@ -81,7 +79,7 @@ const Scenario = () => {
                 💬 Background:
               </h2>
               <p className="text-base text-gray-800 font-syne mb-24">
-                {currentScenario.background}
+                {/* {currentScenario.background} */}
               </p>
             </div>
           </div>
@@ -103,7 +101,7 @@ const Scenario = () => {
                 💥 Challenge:
               </h2>
               <p className="text-base text-gray-800 font-syne">
-                {currentScenario.challenge}
+                {/* {currentScenario.challenge} */}
               </p>
             </div>
           </div>

@@ -11,7 +11,7 @@ const UserWidget = () => {
   useEffect(() => {
     if (!token) return;
     axios
-      .get("http://localhost:8080/profile", {
+      .get("/api/profile", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -20,7 +20,7 @@ const UserWidget = () => {
         if (avatarPath) {
           const filename = avatarPath.split("/").pop();
           if (filename) {
-            setAvatarUrl(`http://localhost:8080/profile/avatars/${filename}`);
+            setAvatarUrl(`/api/profile/avatars/${filename}`);
           }
         }
       })

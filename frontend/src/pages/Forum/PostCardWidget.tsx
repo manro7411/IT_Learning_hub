@@ -12,8 +12,6 @@ type Props = {
   post: Post;
 };
 
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
-
 const PostCardWidget = ({ post }: Props) => {
   const { token, user } = useContext(AuthContext);
   const [showComments, setShowComments] = useState(false);
@@ -36,7 +34,7 @@ const PostCardWidget = ({ post }: Props) => {
     const fetchUserProfile = async () => {
       if (!token) return;
       try {
-        const res = await fetch(`${API_URL}/profile`, {
+        const res = await fetch(`/api/profile`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (!res.ok) throw new Error("Failed to fetch user profile");
@@ -52,7 +50,7 @@ const PostCardWidget = ({ post }: Props) => {
 
   const fetchComments = async () => {
     try {
-      const res = await fetch(`${API_URL}/forum/posts/${post.id}/comments`, {
+      const res = await fetch(`/api/forum/posts/${post.id}/comments`, {
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       if (!res.ok) throw new Error("Failed to fetch comments");
@@ -76,7 +74,7 @@ const PostCardWidget = ({ post }: Props) => {
       };
 
       console.log(payload)
-      const res = await fetch(`${API_URL}/forum/posts/${post.id}/comments`, {
+      const res = await fetch(`/api/forum/posts/${post.id}/comments`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -114,7 +112,7 @@ const PostCardWidget = ({ post }: Props) => {
     setLikes(optimisticLikes);
 
     try {
-      const res = await fetch(`${API_URL}/posts/${post.id}/${endpoint}`, {
+      const res = await fetch(`/api/posts/${post.id}/${endpoint}`, {
         method: "POST",
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
@@ -136,13 +134,19 @@ const PostCardWidget = ({ post }: Props) => {
     }
   };
 
-
+ const linkify = (text: string): string => {
+  const urlRegex = /(\bhttps?:\/\/[^\s]+)/g;
+  return text.replace(urlRegex, (url) => {
+    const safeUrl = url.replace(/"/g, "&quot;");
+    return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">${url}</a>`;
+  });
+};
   const renderAvatar = () => {
     if (post.avatarUrl) {
       const isFullUrl = post.avatarUrl.startsWith("http") ;
       const filename = post.avatarUrl.split("/").pop();
       const avatarUrl = isFullUrl
-        ? `${API_URL}/profile/avatars/${filename}`
+        ? `/api/profile/avatars/${filename}`
         : "";
 
       return (
@@ -180,10 +184,21 @@ const PostCardWidget = ({ post }: Props) => {
       </header>
 
       <h2 className="text-base font-semibold text-gray-800">{post.title}</h2>
-      <p className="text-sm text-gray-700 mt-1 whitespace-pre-line">
-        {post.message}
-      </p>
-
+      <p className="text-sm text-gray-700 mt-1 whitespace-pre-line" dangerouslySetInnerHTML={{__html:linkify(post.message)}} />
+     {post.pictureUrl && (
+        <div className="mt-3">
+          {(() => {
+            const filename = post.pictureUrl.split("/").pop();
+            return (
+              <img
+                src={`/api/posts/picture/${filename}`}
+                alt="Post Image"
+                className="w-full max-h-96 object-cover rounded-md border"
+              />
+            );
+          })()}
+        </div>
+      )}
       <div className="flex gap-4 text-xs text-gray-500 mt-3 items-center">
         {/* <span className="flex items-center gap-1">
           <FaEye /> {post.views}
@@ -220,7 +235,7 @@ const PostCardWidget = ({ post }: Props) => {
               <div key={c.id} className="flex items-start gap-2 text-xs">
                 {c.avatarUrl ? (
                   <img
-                    src={`${API_URL}/profile/avatars/${c.avatarUrl.split("/").pop()}`}
+                    src={`/api/profile/avatars/${c.avatarUrl.split("/").pop()}`}
                     alt="User avatar"
                     className="w-6 h-6 rounded-full object-cover border"
                   />

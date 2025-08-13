@@ -50,6 +50,9 @@ public class ExtendedLearningContentDto {
     @FormParam("video")
     public FileUpload videoMeta;
 
+    @FormParam("document")
+    public FileUpload documentMeta;
+
     @FormParam("assignType")
     public String assignType;
 

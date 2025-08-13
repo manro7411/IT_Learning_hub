@@ -47,7 +47,7 @@ const AccountSettingsPage = () => {
 
          if (res.data.avatarUrl) {
         const filename = res.data.avatarUrl.split("/").pop();
-        setPreviewUrl(`http://localhost:8080/profile/avatars/${filename}`);
+        setPreviewUrl(`/api/profile/avatars/${filename}`);
       }
         console.log("Profile data fetched:", res.data);
       })

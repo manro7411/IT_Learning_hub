@@ -11,7 +11,7 @@ const AnswerTrue = () => {
     question,
     selected,
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    correctAnswer,
+    // correctAnswer,
     correctCount = 1,
     total = 1,
     role,

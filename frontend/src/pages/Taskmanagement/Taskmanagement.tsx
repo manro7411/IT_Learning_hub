@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Sidebar from '../../widgets/SidebarWidget';
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +42,7 @@ const TaskManagement = () => {
 
     const fetchUserProfile = async () => {
       try {
-        const res = await fetch("http://localhost:8080/profile", {
+        const res = await fetch("/api/profile", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!res.ok) return;
@@ -61,7 +61,7 @@ const TaskManagement = () => {
 
     const fetchLearningTasks = async () => {
       try {
-        const res = await fetch("http://localhost:8080/learning", {
+        const res = await fetch("/api/learning", {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (!res.ok) return;

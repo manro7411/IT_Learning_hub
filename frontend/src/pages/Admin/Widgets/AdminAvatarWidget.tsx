@@ -11,14 +11,14 @@ const AdminAvatarWidget = () => {
   useEffect(() => {
     if (!token) return;
 
-    axios.get("http://localhost:8080/profile", {
+    axios.get("/api/profile", {
       headers: { Authorization: `Bearer ${token}` },
     })
     .then((res) => {
       const avatarPath = res.data.avatarUrl || res.data.avatar;
       if (avatarPath) {
         const filename = avatarPath.split("/").pop();
-        setAvatarUrl(`http://localhost:8080/profile/avatars/${filename}`);
+        setAvatarUrl(`/api/profile/avatars/${filename}`);
       }
     })
     .catch(() => console.warn("Failed to fetch admin avatar"));

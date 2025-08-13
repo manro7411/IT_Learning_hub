@@ -32,12 +32,29 @@ export default function UserListWidget({ users, assignRole, error }: Props) {
             {isAdmin ? (
               <span className="text-green-600 font-medium">Already Admin</span>
             ) : (
-              <button
-                onClick={() => assignRole(user.id, "admin")}
-                className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
-              >
-                Assign Admin
-              </button>
+               <div className="flex items-center space-x-2">
+            <select
+              value={user.role}
+              onChange={(e) => assignRole(user.id, e.target.value)}
+              className="border rounded px-2 py-1"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+              <option value="supervisor">Supervisor</option>
+            </select>
+            <button
+              onClick={() => assignRole(user.id, user.role)}
+              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Update Role
+            </button>
+          </div>
+              // <button
+              //   onClick={() => assignRole(user.id, "admin")}
+              //   className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+              // >
+              //   Assign Admin
+              // </button>
             )}
           </div>
         );

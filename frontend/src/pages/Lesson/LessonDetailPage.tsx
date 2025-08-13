@@ -4,6 +4,14 @@ import axios from "axios";
 import Sidebar from "../../widgets/SidebarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
 
+
+import {Document,Page,pdfjs} from 'react-pdf'
+import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
+import 'react-pdf/dist/Page/TextLayer.css';
+import 'react-pdf/dist/Page/AnnotationLayer.css'; 
+
+pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
+
 interface Lesson {
   id: string;
   title: string;
@@ -47,21 +55,21 @@ const LessonDetailPage = () => {
   const [quizPassed, setQuizPassed] = useState(false);
   const [lastTimestampFromServer, setLastTimestampFromServer] = useState<number | null>(null);
 
-  // Fetch lesson
+  const [currentPage, setCurrentPage] = useState(0);
+  const [ numPages, setNumPages] = useState(0);
   useEffect(() => {
     axios
-      .get<Lesson>(`http://localhost:8080/learning/${id}`)
+      .get<Lesson>(`/api/learning/${id}`)
       .then((res) => setLesson(res.data))
       .catch(() => alert("Lesson not found"))
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Fetch user progress
   useEffect(() => {
     if (!lesson || !token) return;
 
     axios
-      .get<Progress[]>(`http://localhost:8080/user/progress`, {
+      .get<Progress[]>(`/api/user/progress`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -96,7 +104,6 @@ const LessonDetailPage = () => {
     }
   };
 
-  // Track video time updates
   const handleTimeUpdate = () => {
     const video = videoRef.current;
     if (!video || !video.duration) return;
@@ -112,7 +119,6 @@ const LessonDetailPage = () => {
     }
   };
 
-  // Send progress periodically
   useEffect(() => {
     if (!lesson || !token) return;
 
@@ -132,7 +138,7 @@ const LessonDetailPage = () => {
 
         axios
           .put(
-            `http://localhost:8080/user/progress/${lesson.id}`,
+            `/api/user/progress/${lesson.id}`,
             {
               percent: current,
               lastTimestamp: Math.floor(video.currentTime),
@@ -163,25 +169,24 @@ const LessonDetailPage = () => {
     ) {
       console.log("⏪ Seeking to:", lastTimestampFromServer);
       video.currentTime = lastTimestampFromServer;
-      clearInterval(interval); // สำเร็จแล้วก็ clear
+      clearInterval(interval);
     }
   }, 200);
 
   return () => clearInterval(interval);
 }, [lastTimestampFromServer]);
-
-
-  // Trigger quiz when finished
   useEffect(() => {
     if (progressPercent >= 100 && !showQuiz) {
       setShowQuiz(true);
     }
   }, [progressPercent, showQuiz]);
-
+    
   if (loading || !lesson) {
     return <div className="p-6 text-gray-400">⏳ Loading lesson…</div>;
   }
 
+  const filename = lesson.videoUrl?.split("/").pop() || "";
+  const documentfile = lesson.documentUrl?.split("/").pop() || "Can't file the document name";
   const renderContent = () => {
     if (lesson.contentType === "video") {
       return (
@@ -192,20 +197,71 @@ const LessonDetailPage = () => {
           onTimeUpdate={handleTimeUpdate}
           poster={lesson.thumbnailUrl}
           className="w-full h-auto bg-black"
-          src={"http://localhost:8080/learning/video/64b794b46d664a1a8ec1c.mp4"}
+          src={`/api/learning/video/${filename}`}
         />
       );
-    } else if (lesson.contentType === "document") {
-      return (
-        <iframe
-          src={lesson.documentUrl}
-          className="w-full h-[600px] border rounded"
-          title="Lesson Document"
+    } 
+else if (lesson.contentType === "document") {
+  return (
+    <div className="bg-white p-4 rounded shadow w-full">
+      <Document
+        file={`/api/learning/document/${documentfile}`}
+        onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+        onLoadError={(error) => console.error("Error loading PDF:", error)}
+        loading={<p>Loading PDF...</p>}
+      >
+        <Page
+          pageNumber={currentPage + 1}
+          renderAnnotationLayer={true}
+          renderTextLayer={true}
         />
-      );
-    }
+      </Document>
+
+      <div className="flex justify-between items-center mt-4">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+          disabled={currentPage <= 0}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          ◀️ Previous
+        </button>
+        <p className="text-sm text-gray-600">
+          Page {currentPage + 1} of {numPages}
+        </p>
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, numPages - 1))}
+          disabled={currentPage >= numPages - 1}
+          className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+        >
+          Next ▶️
+        </button>
+      </div>
+    </div>
+  );
+}
     return null;
   };
+
+  const filteringProgress = () =>{
+    if (lesson.contentType === "video") {
+      return(
+        <div className="h-1 bg-gray-300">
+                <div
+                  className="h-full bg-blue-600 transition-all"
+                  style={{ width: `${progressPercent}%` }}
+                />
+                <div>
+                   <p className="text-sm text-gray-500">
+                Attempts: {attempts}/{maxAttempts || lesson.quizAttemptLimit || 1}
+              </p>
+                </div>
+        </div>
+        
+      )
+    }
+    return null;
+  }
+
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
@@ -241,16 +297,15 @@ const LessonDetailPage = () => {
                 </div>
               </div>
 
-              <div className="h-1 bg-gray-300">
+              {/* <div className="h-1 bg-gray-300">
                 <div
                   className="h-full bg-blue-600 transition-all"
                   style={{ width: `${progressPercent}%` }}
                 />
-              </div>
+              </div> */}
+              {filteringProgress()}
 
-              <p className="text-sm text-gray-500">
-                Attempts: {attempts}/{maxAttempts || lesson.quizAttemptLimit || 1}
-              </p>
+            
             </section>
           </div>
 

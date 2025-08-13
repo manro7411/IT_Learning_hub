@@ -79,7 +79,7 @@ const AccountSettingsPage = () => {
     if (profilePicture) formData.append("profilePicture", profilePicture);
 
     try {
-      await axios.put("http://localhost:8080/profile", formData, {
+      await axios.put("/api/profile", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",

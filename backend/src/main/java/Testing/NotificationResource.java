@@ -134,7 +134,7 @@ public class NotificationResource {
 
     @POST
     @Transactional
-    @RolesAllowed("admin")
+    @RolesAllowed({"admin","supervisor"})
     public Response createNotification(NotificationCreationReq req) {
         if (req == null || req.message == null || req.message.isBlank()) {
             return Response.status(Response.Status.BAD_REQUEST).entity("Message must not be empty").build();

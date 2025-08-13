@@ -1,0 +1,80 @@
+export default function UserListWidget({ users, assignRole, error }: Props) {
+  return (
+    <div className="space-y-4">
+      {error && <p className="text-red-500">{error}</p>}
+
+      {users.map((user) => (
+        <div
+          key={user.id}
+          className="flex justify-between items-center p-4 border rounded-lg"
+        >
+          <div>
+            <p className="font-semibold">{user.name || user.email}</p>
+            <p className="text-sm text-gray-500">Role: {user.role || "Unknown"}</p>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <select
+              value={user.role}
+              onChange={(e) => assignRole(user.id, e.target.value)}
+              className="border rounded px-2 py-1"
+            >
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+              <option value="supervisor">Supervisor</option>
+            </select>
+            <button
+              onClick={() => assignRole(user.id, user.role)}
+              className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+            >
+              Update Role
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+const assignRole = async (userId: string, newRole: string) => {
+  const confirmAssign = window.confirm(
+    `Are you sure you want to change this user's role to "${newRole}"?`
+  );
+  if (!confirmAssign) return;
+
+  try {
+    const token = localStorage.getItem("token") || sessionStorage.getItem("token");
+    await axios.put(
+      `/api/profile/users/${userId}/role`,
+      { role: newRole },
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    alert(`✅ Role successfully updated to "${newRole}"`);
+    fetchUsers(); // Refresh user list
+  } catch (err: any) {
+    console.error("❌ Role update failed:", err);
+    if (err.response?.status === 403) {
+      alert("You do not have permission to change roles.");
+    } else {
+      alert("An error occurred while updating the role.");
+    }
+  }
+};
+
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+function RouteTracker() {
+    const location = useLocation();
+
+    useEffect(() => {
+        localStorage.setItem("lastVisitedPath", location.pathname);
+    }, [location]);
+
+    return null;
+}

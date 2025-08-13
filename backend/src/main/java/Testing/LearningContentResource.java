@@ -392,7 +392,6 @@ public class LearningContentResource {
             lc.setAuthorAvatarUrl(form.avatarUrl);
             lc.setDocumentUrl(destination.toString().replace("\\", "/"));
 
-
             em.persist(lc);
             return Response.ok().entity("{\"message\": \"✅ Document uploaded successfully.\"}").build();
 

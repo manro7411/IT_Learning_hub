@@ -36,7 +36,7 @@ const AdminTaskManagementPage = () => {
 
         setLoading(true);
         axios
-            .get<Lesson[]>("http://localhost:8080/learning?mine=true", {
+            .get<Lesson[]>("/api/learning?mine=true", {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => setLessons(res.data))
@@ -52,7 +52,7 @@ const AdminTaskManagementPage = () => {
         setSelectedUser(null);
 
         axios
-            .get<UserProgress[]>("http://localhost:8080/user/progress/all", {
+            .get<UserProgress[]>("/api/user/progress/all", {
                 headers: { Authorization: `Bearer ${token}` },
             })
             .then((res) => {
@@ -73,7 +73,7 @@ const AdminTaskManagementPage = () => {
         if (!window.confirm("Delete this lesson? This cannot be undone!")) return;
 
         try {
-            await axios.delete(`http://localhost:8080/learning/${id}`, {
+            await axios.delete(`/api/learning/${id}`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
             setLessons((prev) => prev.filter((l) => l.id !== id));

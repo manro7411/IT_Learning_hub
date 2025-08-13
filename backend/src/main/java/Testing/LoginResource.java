@@ -23,7 +23,6 @@ public class LoginResource {
 
     @POST
     @Transactional
-
     public Response login(LoginRequest request) {
         System.out.println("🔐 Attempt login: " + request.email);
 
@@ -53,6 +52,8 @@ public class LoginResource {
         }
     }
 
+
+
     public static class LoginRequest {
         public String email;
         public String password;
@@ -65,6 +66,7 @@ public class LoginResource {
             this.token = token;
         }
     }
+
 
     public static class ErrorResponse {
         public String error;

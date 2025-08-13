@@ -1,6 +1,7 @@
 import { useState, useContext } from "react";
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
-const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8080";
+
+const categories = ["พูดคุยทั่วไป","ข่าวสาร IT","IT & งานระบบ"];
 
 const AddPostWidget = ({ onCreated }: { onCreated?: () => void }) => {
     const { user, token } = useContext(AuthContext);
@@ -10,46 +11,73 @@ const AddPostWidget = ({ onCreated }: { onCreated?: () => void }) => {
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [errorMsg, setErrorMsg] = useState("");
+    const [forumCategory,setforumCategory] = useState("")
+    const [picture,setPicture] = useState<File | null>(null)
+   
+
 
     const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-    const handleSubmit = async () => {
-        if (!title.trim() || !message.trim()) {
-            setErrorMsg("Please fill in both title and message.");
-            return;
+   const handleSubmit = async () => {
+    if (!title.trim() || !message.trim()) {
+        setErrorMsg("Please fill in both title and message.");
+        return;
+    }
+    if (!forumCategory) {
+        setErrorMsg("Please select a category");
+        return;
+    }
+
+    setLoading(true);
+    setErrorMsg("");
+
+    try {
+        await delay(1000);
+
+        const formData = new FormData();
+        formData.append("title", title);
+        formData.append("message", message);
+        formData.append("authorName", user?.name ?? "Unknown");
+        formData.append("forumCategory", forumCategory);
+        if (picture) {
+            formData.append("picture", picture);
+            formData.append("pictureFileName",picture.name)
         }
 
-        setLoading(true);
-        setErrorMsg("");
-
-        try {
-            await delay(1000);
-
-            const headers: Record<string, string> = { "Content-Type": "application/json" };
-            if (token) headers.Authorization = `Bearer ${token}`;
-
-            const res = await fetch(`${API_URL}/posts`, {
-                method: "POST",
-                headers,
-                body: JSON.stringify({ title, message , authorName: user?.name  })
-            });
-
-            if (res.ok) {
-                setOpen(false);
-                setTitle("");
-                setMessage("");
-                onCreated?.();
+        console.log("FormData payload:");
+        formData.forEach((value, key) => {
+            if (value instanceof File) {
+                console.log(`${key}: [File] name=${value.name}, size=${value.size}, type=${value.type}`);
             } else {
-                const err = await res.json().catch(() => ({}));
-                setErrorMsg(err.message ?? "Failed to create post");
+                console.log(`${key}: ${value}`);
             }
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        } catch (err) {
-            setErrorMsg("Something went wrong. Please try again.");
-        } finally {
-            setLoading(false);
+        });
+        const res = await fetch("/api/posts", {
+            method: "POST",
+            headers: {Authorization: `Bearer ${token}` },
+
+            body: formData,
+        });
+
+        if (res.ok) {
+            setOpen(false);
+            setTitle("");
+            setMessage("");
+            setforumCategory("");
+            setPicture(null);
+            onCreated?.();
+        } else {
+            const err = await res.json().catch(() => ({}));
+            setErrorMsg(err.message ?? "Failed to create post");
         }
-    };
+    } catch (err) {
+        setErrorMsg("Something went wrong. Please try again.");
+    } finally {
+        setLoading(false);
+    }
+};
+
+
 
     return (
         <>
@@ -76,7 +104,28 @@ const AddPostWidget = ({ onCreated }: { onCreated?: () => void }) => {
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
                         />
-
+                        <select
+                            className="w-full border rounded px-3 py-2 mb-2"
+                            value={forumCategory}
+                            onChange={(e) => setforumCategory(e.target.value)}
+                        >
+                            <option value="" disabled>Select a category</option>
+                            {categories.map((cat) => (
+                                <option key={cat} value={cat}>
+                                    {cat}
+                                </option>
+                            ))}
+                        </select>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                    setPicture(file)                
+                                }
+                            }}
+                        />
                         <textarea
                             className="w-full border rounded px-3 py-2 h-28 mb-4"
                             placeholder="Message"

@@ -57,7 +57,7 @@ const JoinTeamWidget = () => {
 
     const fetchUserData = async () => {
       try {
-        const res = await axios.get("http://localhost:8080/profile", {
+        const res = await axios.get("/api/profile", {
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
@@ -70,7 +70,7 @@ const JoinTeamWidget = () => {
           setUserId(id);
           setUserName(name);
 
-          const teamRes = await axios.get(`http://localhost:8080/teams/my-teams/${id}`);
+          const teamRes = await axios.get(`/api/teams/my-teams/${id}`);
           setJoinedTeams(teamRes.data || []);
         }
       } catch (error) {
@@ -91,7 +91,7 @@ const JoinTeamWidget = () => {
     setSuccessMessage("");
 
     try {
-      const res = await fetch("http://localhost:8080/teams/joining", {
+      const res = await fetch("/api/teams/joining", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -110,7 +110,7 @@ const JoinTeamWidget = () => {
       resetForm();
       setIsOpen(false);
 
-      const updated = await axios.get(`http://localhost:8080/teams/my-teams/${userId}`);
+      const updated = await axios.get(`/api/teams/my-teams/${userId}`);
       setJoinedTeams(updated.data || []);
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -143,7 +143,7 @@ const JoinTeamWidget = () => {
         ) : (
           <>
             <h2 className="text-lg font-semibold mb-4">Join a Team</h2>
-            <p className="text-gray-600 mb-4">Join a team to collaborate on projects and assignments.</p>
+            <p className="text-gray-600 mb-4">To join a teams, ask your team leader for the 6-digit join code and enter it below.You 'll see your team's assignments and can start collaborating right away!</p>
             <button
               onClick={() => setIsOpen(true)}
               className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"

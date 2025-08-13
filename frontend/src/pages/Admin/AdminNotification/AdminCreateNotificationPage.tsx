@@ -42,7 +42,7 @@ const AdminCreateNotificationPage: React.FC = () => {
     }
 
     axios
-      .get<User[]>("http://localhost:8080/profile/users", {
+      .get<User[]>("/api/profile/users", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => setUsers(res.data))
@@ -52,7 +52,7 @@ const AdminCreateNotificationPage: React.FC = () => {
       });
 
     axios
-      .get<Team[]>("http://localhost:8080/teams", {
+      .get<Team[]>("/api/teams", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -115,7 +115,7 @@ const AdminCreateNotificationPage: React.FC = () => {
 
     try {
       setLoading(true);
-      await axios.post("http://localhost:8080/notifications", payload, {
+      await axios.post("/api/notifications", payload, {
         headers: { Authorization: `Bearer ${token}` },
       });
       alert("✅ Notification sent!");

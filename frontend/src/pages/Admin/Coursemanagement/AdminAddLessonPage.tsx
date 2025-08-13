@@ -3,12 +3,13 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
 import { AuthContext } from "../../../Authentication/AuthContext";
+import { sendLessonNotification } from "../Widgets/notificationServices";
 
 interface LessonFormState {
   title: string;
   description: string;
   category: "AGILE" | "SCRUM" | "WATERFALL";
-  thumbnailUrl: string; // used as either image or document base64
+  thumbnailUrl: string; 
    thumbnailFile: File | null;
   quizAttemptLimit: number;
   assignType: "all" | "team" | "specific";
@@ -73,7 +74,7 @@ const AdminAddLessonPage = () => {
  useEffect(() => {
     if (token) {
       axios
-        .get("http://localhost:8080/profile", {
+        .get("/api/profile", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {
@@ -92,11 +93,11 @@ const AdminAddLessonPage = () => {
   useEffect(() => {
     if (!token) return;
 
-    axios.get<User[]>("http://localhost:8080/profile/users", { headers: { Authorization: `Bearer ${token}` } })
+    axios.get<User[]>("/api/profile/users", { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setUsers(res.data))
       .catch(() => console.error("❌ Failed to load users"));
 
-    axios.get<Team[]>("http://localhost:8080/teams", { headers: { Authorization: `Bearer ${token}` } })
+    axios.get<Team[]>("/api/localhost:8080/teams", { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setTeams(res.data))
       .catch(() => console.error("❌ Failed to load teams"));
   }, [token]);
@@ -188,12 +189,21 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
   }))));
   console.log("Data",formData)
   try {
-    await axios.post("http://localhost:8080/learning", formData, {
+    await axios.post("/api/learning", formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
       },
     });
+
+    await sendLessonNotification({
+      token:token as string,
+      message:`A new Video "${form.title}: Lesson has been added`,
+      target:form.assignType.toLocaleUpperCase() as "ALL" | "TEAM" | "USER",
+      userIds: form.assignType === "specific" ? selectedUsers:[],
+      teamIds: form.assignType === "team" && form.assignTeamId ? [form.assignTeamId]:[]
+
+    })
 
     alert("✅ Video lesson created!");
     resetForm();
@@ -230,7 +240,7 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
 }
 
       console.log("Payload Result : ",formData.entries())
-      await axios.post("http://localhost:8080/learning/documents", formData, {
+      await axios.post("/api/learning/documents", formData, {
         headers: { Authorization: `Bearer ${token}` },  
       });
       alert("✅ Document uploaded!");
@@ -352,9 +362,34 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
 
         {activeTab === "document" && (
           <div className="bg-white p-8 rounded-xl shadow space-y-6">
-            <h2 className="text-lg font-semibold text-blue-800">📄 Upload Document</h2>
+            {/* <h2 className="text-lg font-semibold text-blue-800">📄 Upload Document</h2> */}
             <Field label="Lesson Title" name="title" value={form.title} onChange={handleChange} required />
             <Field label="Lesson Description" name="description" value={form.description} onChange={handleChange} />
+            <Field label="Category" name="category" value={form.category} onChange={handleChange}></Field>
+            <div>
+              <label className="text-sm font-medium text-gray-700">Assgin To</label>
+              <select name="assignType" value={form.assignType} onChange={handleAssignTypeChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50">
+                <option value="all">All Users</option>
+                <option value="team">Specific Team</option>
+                <option value="specific">Specific User</option>                
+              </select>
+              {form.assignType === "team" && (
+                <select name="assignTeamId" value={form.assignTeamId || ""} onChange={(e)=> setForm({...form,assignTeamId : e.target.value})}
+                className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50 "
+                >
+                  <option value="">--- Select a team ---</option>
+                  {teams.map((team) => (
+                    <option key={team.id} value={team.id}>{team.id}</option>
+                  ))}
+                </select>
+              )}
+              {form.assignType === "specific" && selectedUsers.length > 0 &&(
+               <p className="text-sm text-gray-500 mt-1">
+                  Selected users: {users.filter(u => selectedUsers.includes(u.id)).map(u => u.name).join(", ")}
+                </p>
+              ) 
+              }
+            </div>
             <div>
               <label className="text-sm font-medium text-gray-700">Upload File (.pdf, .doc, .docx)</label>
               <input

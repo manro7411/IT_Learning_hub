@@ -1,5 +1,6 @@
 package Forum;
 import io.quarkus.security.identity.SecurityIdentity;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
@@ -12,8 +13,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.*;
-
 @Path("/posts")
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
@@ -59,7 +60,6 @@ public class PostResource {
         return post;
     }
 
-
     @POST
     @Path("/{id}/like")
     @Transactional
@@ -104,6 +104,9 @@ public class PostResource {
     }
     @POST
     @Transactional
+    @RolesAllowed("user")
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Produces(MediaType.APPLICATION_JSON)
     public Response create(@Valid PostCreateRequest req) {
         String email = identity.getPrincipal().getName();
         String displayName = Optional.ofNullable(req.authorName).filter(s -> !s.isBlank()).orElse(email);
@@ -117,15 +120,44 @@ public class PostResource {
         post.setAuthorEmail(email);
         post.setTitle(req.title);
         post.setMessage(req.message);
+        post.setForumCategory(req.forumCategory);
 
         if (user.getAvatar() != null) {
             post.setAvatarUrl(user.getAvatar());
         }
-
         post.persist();
+        String filename = post.getId() + ".jpg";
+        if(req.picture != null){
+            try {
+                String originalName = req.pictureFileName != null ? req.pictureFileName : "picture.jpeg";
+                java.nio.file.Path dir = java.nio.file.Paths.get("uploads/picture");
+                java.nio.file.Files.createDirectories(dir);
+                java.nio.file.Path picturePath = dir.resolve(filename);
+                java.nio.file.Files.copy(req.picture, picturePath, StandardCopyOption.REPLACE_EXISTING);
 
+                System.out.println("Picture path : " + picturePath.toString());
+                System.out.println("Original file name: " + originalName);
+                post.setPictureUrl("uploads/picture/" + filename);
+            } catch (Exception e) {
+                throw new InternalServerErrorException("Failed to save photo.");
+            }
+        }
         return Response.created(URI.create("/posts/" + post.getId()))
                 .entity(post)
                 .build();
+    }
+    @GET
+    @Path("/picture/{filename}")
+    @Produces({"image/jpeg", "image/png", "image/webp"})
+    public Response getPicture(@PathParam("filename") String filename) {
+        java.nio.file.Path picturePath = java.nio.file.Paths.get("uploads/picture/" + filename);
+        if (!picturePath.toFile().exists()) {
+            return Response.status(Response.Status.NOT_FOUND).entity("Picture not found").build();
+        }
+        try {
+            return Response.ok().entity(picturePath.toFile()).build();
+        }catch(Exception e){
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }

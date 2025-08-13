@@ -70,6 +70,7 @@ public class UserProgressResource {
             dto.attempts = Optional.ofNullable(p.getAttempts()).orElse(0);
             dto.maxAttempts = Optional.ofNullable(lesson.getMaxAttempts()).orElse(1);
             dto.userEmail = p.getUserEmail();
+            dto.lastTimestamp = p.getLastTimestamp();
 
             result.add(dto);
         }
@@ -147,6 +148,7 @@ public class UserProgressResource {
         public int attempts;
         public int maxAttempts;
         public String userEmail;
+        public int lastTimestamp;
     }
 
     public static class SubmitScoreRequest {

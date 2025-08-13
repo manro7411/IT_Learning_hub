@@ -29,5 +29,6 @@
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-databind:2.15.2" level="project" />
     <orderEntry type="library" name="Maven: org.ow2.asm:asm:9.8" level="project" />
     <orderEntry type="library" name="Maven: com.fasterxml.jackson.core:jackson-core:2.18.3" level="project" />
+    <orderEntry type="library" name="Maven: io.quarkus.resteasy.reactive:resteasy-reactive-common:3.23.3" level="project" />
   </component>
 </module>

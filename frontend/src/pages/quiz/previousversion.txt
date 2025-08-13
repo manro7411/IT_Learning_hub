@@ -152,3 +152,260 @@ const QuizPage = () => {
 };
 
 export default QuizPage;
+
+
+
+import { Document, Page } from 'react-pdf';
+import { useState } from 'react';
+
+const PDFViewer = ({ pdfUrl }) => {
+  const [numPages, setNumPages] = useState(null);
+  const [pageNumber, setPageNumber] = useState(1);
+
+  const onDocumentLoadSuccess = ({ numPages }) => {
+    setNumPages(numPages);
+  };
+
+  return (
+    <div className="flex flex-col items-center">
+      <Document
+        file={pdfUrl}
+        onLoadSuccess={onDocumentLoadSuccess}
+        loading="Loading PDF..."
+      >
+        <Page pageNumber={pageNumber} width={600} />
+      </Document>
+
+      <div className="mt-4 flex space-x-4">
+        <button
+          onClick={() => setPageNumber((prev) => Math.max(prev - 1, 1))}
+          disabled={pageNumber <= 1}
+          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+        >
+          Previous
+        </button>
+        <span>
+          Page {pageNumber} of {numPages}
+        </span>
+        <button
+          onClick={() => setPageNumber((prev) => Math.min(prev + 1, numPages))}
+          disabled={pageNumber >= numPages}
+          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+};
+import PdfViewer from '@/components/PdfViewer';
+
+const renderContent = () => {
+  if (lesson.contentType === 'document') {
+    return <PdfViewer url={`/api/learning/document/${lesson.documentUrl?.split("/").pop()}`} />;
+  }
+  // ... other content types
+};
+
+
+import { Worker, Viewer } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import '@react-pdf-viewer/default-layout/lib/styles/index.css';
+
+const renderContent = () => {
+  if (lesson.contentType === "video") {
+    return (
+      <video
+        ref={videoRef}
+        controls
+        onLoadedMetadata={handleLoadedMetadata}
+        onTimeUpdate={handleTimeUpdate}
+        poster={lesson.thumbnailUrl}
+        className="w-full h-auto bg-black"
+        src={`/api/learning/video/${filename}`}
+      />
+    );
+  } else if (lesson.contentType === "document") {
+    return (
+      <div>
+        <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js`}>
+          <Viewer fileUrl="/api/learning/document/f000530f0c384eb8b57b4cb7dd0467f4.pdf" />
+        </Worker>
+        <h1>{lesson.contentType}</h1>
+      </div>
+    );
+  }
+  return null;
+};
+
+
+const renderContent = () => {
+  if (lesson.contentType === "video") {
+    return (
+      <video
+        ref={videoRef}
+        controls
+        onLoadedMetadata={handleLoadedMetadata}
+        onTimeUpdate={handleTimeUpdate}
+        poster={lesson.thumbnailUrl}
+        className="w-full h-auto bg-black"
+        src={`/api/learning/video/${filename}`}
+      />
+    );
+  } else if (lesson.contentType === "document") {
+    return (
+      <PDFViewerWithPagination fileUrl="/api/learning/document/f000530f0c384eb8b57b4cb7dd0467f4.pdf" />
+    );
+  }
+  return null;
+};
+
+import { Worker, Viewer, SpecialZoomLevel } from '@react-pdf-viewer/core';
+import { useState } from 'react';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+
+const PDFViewerWithPagination = ({ fileUrl }) => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [numPages, setNumPages] = useState(0);
+
+  const handleDocumentLoad = (e) => {
+    setNumPages(e.doc.numPages);
+  };
+
+  const goToNextPage = () => {
+    if (currentPage < numPages - 1) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 0) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
+  return (
+    <div>
+      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+        <Viewer
+          fileUrl={fileUrl}
+          defaultScale={SpecialZoomLevel.PageFit}
+          initialPage={currentPage}
+          onDocumentLoad={handleDocumentLoad}
+        />
+      </Worker>
+
+      <div className="flex justify-center mt-4 space-x-4">
+        <button
+          onClick={goToPreviousPage}
+          disabled={currentPage === 0}
+          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+        >
+          Previous
+        </button>
+        <span>Page {currentPage + 1} of {numPages}</span>
+        <button
+          onClick={goToNextPage}
+          disabled={currentPage === numPages - 1}
+          className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+};
+  //    <div>
+      //   <Worker workerUrl={`https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js`}>
+      //     <Viewer fileUrl="/api/learning/document/f000530f0c384eb8b57b4cb7dd0467f4.pdf" />
+      //   </Worker>
+      //   <h1>{lesson.contentType}</h1>
+      // </div>
+      ={`
+
+
+      import { Worker, Viewer } from '@react-pdf-viewer/core';
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import { useState } from 'react';
+
+const PdfViewer = ({ url }: { url: string }) => {
+  const [currentPage, setCurrentPage] = useState(0);
+  const [numPages, setNumPages] = useState(0);
+
+  const handleDocumentLoad = (e: any) => {
+    setNumPages(e.doc.numPages);
+  };
+
+  return (
+    <div style={{ height: '750px' }}>
+      <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+        <Viewer
+          fileUrl={url}
+          initialPage={currentPage}
+          onDocumentLoad={handleDocumentLoad}
+        />
+      </Worker>
+
+      <div style={{ marginTop: '1rem', textAlign: 'center' }}>
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+          disabled={currentPage === 0}
+        >
+          Previous
+        </button>
+        <span style={{ margin: '0 1rem' }}>
+          Page {currentPage + 1} of {numPages}
+        </span>
+        <button
+          onClick={() => setCurrentPage((prev) => Math.min(prev + 1, numPages - 1))}
+          disabled={currentPage === numPages - 1}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  );
+};
+
+export default PdfViewer;
+---------
+return (
+  <div className="bg-white p-4 rounded shadow w-full">
+    <Document
+      file={`/api/learning/document/${documentfile}`}
+      onLoadSuccess={({ numPages }) => setNumPages(numPages)}
+      onLoadError={(error) => console.error("❌ Error loading PDF:", error)}
+    >
+      <Page pageNumber={currentPage + 1} />
+    </Document>
+
+    <div className="flex justify-between items-center mt-4">
+      <button
+        onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
+        disabled={currentPage <= 0}
+        className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+      >
+        ◀️ Previous
+      </button>
+      <p className="text-sm text-gray-600">
+        Page {currentPage + 1} of {numPages}
+      </p>
+      <button
+        onClick={() => setCurrentPage((prev) => Math.min(prev + 1, numPages - 1))}
+        disabled={currentPage >= numPages - 1}
+        className="px-4 py-2 bg-gray-200 rounded disabled:opacity-50"
+      >
+        Next ▶️
+      </button>
+    </div>
+  </div>
+);
+
+import { pdfjs } from 'react-pdf';
+import { Document, Page } from 'react-pdf';
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+
+import { Document, Page, pdfjs } from 'react-pdf';
+
+

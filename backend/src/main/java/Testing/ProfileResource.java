@@ -28,7 +28,7 @@ public class ProfileResource {
     @Inject JsonWebToken jwt;
 
     @GET
-    @RolesAllowed({ "user", "employee", "admin" })
+    @RolesAllowed({ "user", "employee", "admin","supervisor" })
     public ProfileDto getMe() {
         String email = jwt.getClaim("email");
         User user = em.createQuery(
@@ -42,7 +42,7 @@ public class ProfileResource {
     @PUT
     @Transactional
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @RolesAllowed({ "user", "employee", "admin" })
+    @RolesAllowed({ "user", "employee", "admin","supervisor"})
     public ProfileDto updateMe(UpdateDto dto) {
         String email = jwt.getClaim("email");
         User user = em.createQuery(
@@ -98,7 +98,7 @@ public class ProfileResource {
 
     @GET
     @Path("/users")
-    @RolesAllowed({"admin"})
+    @RolesAllowed({"admin","supervisor"})
     public List<ProfileDto> getAllUsers() {
         return em.createQuery("SELECT u FROM User u", User.class)
                 .getResultList()
