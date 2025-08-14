@@ -55,7 +55,7 @@ const QuizPageStyled = () => {
 
   const fetchProgress = async () => {
     try {
-      const res = await axios.get<Progress[]>("http://localhost:8080/user/progress", {
+      const res = await axios.get<Progress[]>("/api/user/progress", {
         headers: { Authorization: `Bearer ${token}` },
       });
       const progress = res.data.find((p) => p.lessonId === learningContentId);
@@ -77,7 +77,7 @@ const QuizPageStyled = () => {
 
   useEffect(() => {
     if (!learningContentId) return;
-    axios.get<Question[]>(`http://localhost:8080/questions/by-learning/${learningContentId}`)
+    axios.get<Question[]>(`/api/questions/by-learning/${learningContentId}`)
       .then((res) => setQuestions(res.data))
       .catch((error) => console.error("❌ Failed to fetch questions:", error))
       .finally(() => setLoading(false));
@@ -97,7 +97,7 @@ const QuizPageStyled = () => {
 
   const submitScore = async (finalScore: number) => {
     try {
-      await axios.put(`http://localhost:8080/user/progress/${learningContentId}/submit-score`, { score: finalScore }, {
+      await axios.put(`/api/user/progress/${learningContentId}/submit-score`, { score: finalScore }, {
         headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       });
       console.log(`✅ Score submitted: ${finalScore}`);
@@ -188,7 +188,6 @@ const QuizPageStyled = () => {
       </div>
 
       <div className="w-64 hidden lg:block">
-        {/* <CalendarWidget /> */}
       </div>
     </div>
   );

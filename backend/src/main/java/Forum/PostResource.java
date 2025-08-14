@@ -142,6 +142,36 @@ public class PostResource {
                 throw new InternalServerErrorException("Failed to save photo.");
             }
         }
+
+        if (req.document != null) {
+            try {
+                String originalDoc = (req.documentFileName != null && !req.documentFileName.isBlank())
+                        ? req.documentFileName : "document.bin";
+                String docExt = "";
+                int dot = originalDoc.lastIndexOf('.');
+
+                if (dot >= 0 && dot < originalDoc.length() - 1) {
+                    String extCandidate = originalDoc.substring(dot).toLowerCase();
+                    if (extCandidate.matches("\\.[a-z0-9]{1,10}")) {
+                        docExt = extCandidate;
+                    }
+                }
+
+
+                String docFileName = "document_" + post.getId() + docExt;
+
+                java.nio.file.Path dir = java.nio.file.Paths.get("uploads/postDocuments");
+                java.nio.file.Files.createDirectories(dir);
+                java.nio.file.Path docPath = dir.resolve(docFileName);
+                java.nio.file.Files.copy(req.document, docPath, StandardCopyOption.REPLACE_EXISTING);
+                System.out.println("Document path : " + docPath.toString());
+                System.out.println("Original file name: " + originalDoc);
+
+                post.setDocument(docFileName);
+            }catch (Exception e) {
+                throw new InternalServerErrorException("Failed to save document.");
+            }
+        }
         return Response.created(URI.create("/posts/" + post.getId()))
                 .entity(post)
                 .build();
@@ -158,6 +188,29 @@ public class PostResource {
             return Response.ok().entity(picturePath.toFile()).build();
         }catch(Exception e){
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+    @GET
+    @Path("/postDocument/{filename}")
+    public Response getPostDocument(@PathParam("filename") String filename){
+        try {
+            java.nio.file.Path file = Paths.get("uploads/postDocuments", filename);
+            if (!Files.exists(file)) {
+                throw new NotFoundException("File not found: " + filename);
+            }
+
+            String mimeType = Files.probeContentType(file);
+            if (mimeType == null) {
+                mimeType = "application/octet-stream";
+            }
+
+            return Response.ok(Files.newInputStream(file))
+                    .type(mimeType)
+                    .header("Content-Disposition", "inline; filename=\"" + filename + "\"")
+                    .build();
+
+        } catch (IOException e) {
+            throw new InternalServerErrorException("Failed to load document: " + filename, e);
         }
     }
 }

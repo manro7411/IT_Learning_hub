@@ -8,6 +8,7 @@ interface TopLesson {
     thumbnailUrl?: string;
     viewers?: number;
 }
+
 const API = "/api/learning";
 
 const TopViewedLessonsWidget = () => {

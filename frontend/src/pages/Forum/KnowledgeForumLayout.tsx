@@ -26,6 +26,8 @@ export type Post = {
   likedBy: string[]
   comments: Comment[];
   forumCategory:string;
+  pictureUrl:string
+  documentUrl:string;
 };
 const formatAvatarUrl = (rawUrl?: string): string | undefined => {
   if (!rawUrl) return undefined;
@@ -76,6 +78,7 @@ const KnowledgeForumLayout = () => {
           comments: await fetchComments(p.id),
         }))
       );
+      console.log(enrichedPosts)
       setPosts(enrichedPosts);
     } catch (err) {
       console.error("❌ Error fetching posts:", err);
@@ -117,7 +120,7 @@ const KnowledgeForumLayout = () => {
               {["พูดคุยทั่วไป","ข่าวสาร IT","IT & งานระบบ"].map((type) =>(
                 <button key={type} onClick={() => setselectedAssignType(type)} className={`px-3 py-1 rounded-md text-sm ${
                     selectedAssignType === type
-                      ? "bg-purple-500 text-white"
+                      ? "bg-blue-500 text-white"
                       : "bg-gray-200 hover:bg-gray-300"
                   }`}>
                       {type.charAt(0).toUpperCase() + type.slice(1)}

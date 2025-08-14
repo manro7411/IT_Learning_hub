@@ -14,6 +14,9 @@ public class UserLessonProgress {
     @Column(name = "lesson_id", nullable = false, length = 30)
     private String lessonId;
 
+    @Column(name = "thumbnail_url")
+    private String thumbnailUrl;
+
     @Column(name = "user_email", nullable = false)
     private String userEmail;
 
@@ -92,5 +95,12 @@ public class UserLessonProgress {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
     }
 }

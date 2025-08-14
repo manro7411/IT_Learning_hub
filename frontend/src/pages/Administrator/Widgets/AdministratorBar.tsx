@@ -1,4 +1,4 @@
-import { BookIcon, Home, icons, User ,LogOut,Settings} from "lucide-react";
+import { BookIcon, Home, User ,LogOut,Settings} from "lucide-react";
 import Logo from "../../../assets/logo.png"
 import { Link,useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";

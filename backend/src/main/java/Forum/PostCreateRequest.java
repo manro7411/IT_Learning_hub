@@ -1,32 +1,36 @@
 package Forum;
 import jakarta.ws.rs.FormParam;
 import org.jboss.resteasy.reactive.PartType;
+import org.jboss.resteasy.reactive.RestForm;
 
 import java.io.InputStream;
 
 public class PostCreateRequest {
 
-    @FormParam("title")
-
+    @RestForm
     public String title;
 
-    @FormParam("message")
-
+    @RestForm
     public String message;
 
-    @FormParam("authorName")
-
+    @RestForm
     public String authorName;
 
-    @FormParam("forumCategory")
-
+    @RestForm
     public String forumCategory;
 
-    @FormParam("picture")
+    @RestForm
     @PartType("application/octet-stream")
 
     public InputStream picture;
 
-    @FormParam("pictureFileName")
+    @RestForm
     public String pictureFileName;
+
+    @RestForm
+    @PartType("application/octet-stream")
+    public InputStream document;
+
+    @RestForm
+    public String documentFileName;
 }

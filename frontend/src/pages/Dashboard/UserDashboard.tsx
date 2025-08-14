@@ -79,25 +79,32 @@ const pastDueLessons: Reminder[] = useMemo(() => {
 }, [calendarEvents]);
 
 const upcomingReminders: Reminder[] = useMemo(() => {
-  return calendarEvents
-    .filter((e) => {
-      const now = new Date();
-      const duedate = new Date(e.date);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
 
-      now.setHours(0, 0, 0, 0);
-      duedate.setHours(0, 0, 0, 0);
-      return duedate > now;
-    })
-    .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
-    .map((e) => ({ id:e.id,title: e.title, dueDate: e.date }))
-    .slice(0, 5);
+  const filteredEvents = calendarEvents.filter((event) => {
+    const dueDate = new Date(event.date);
+    dueDate.setHours(0, 0, 0, 0);
+    return dueDate > today;
+  });
+
+  const sortedEvents = filteredEvents.sort(
+    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime()
+  );
+
+  const reminders = sortedEvents.map((event) => ({
+    id: event.id,
+    title: event.title,
+    dueDate: event.date,
+  }));
+
+  return reminders.slice(0, 5);
 }, [calendarEvents]);
+
 
 const handleReminderClick = (id:string) =>{
   navigate(`/lesson/${id}`)
 }
-
-
 
   if (!token) return <Navigate to="/" replace />;
 
@@ -115,7 +122,6 @@ const handleReminderClick = (id:string) =>{
             <NotificationWidget />
             <Userwidget/>
             </div>
-          
           </div>
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
             <div className="xl:col-span-3 space-y-6">

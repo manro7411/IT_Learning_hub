@@ -6,9 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 interface FormState {
   fullName: string;
-  // username: string;
   email: string;
-  // password: string;
 }
 
 const AccountSettingsPage = () => {
@@ -71,9 +69,7 @@ const AccountSettingsPage = () => {
 
     const formData = new FormData();
     formData.append("name", form.fullName);
-    // formData.append("username", form.username);
     formData.append("email", form.email);
-    // formData.append("password", form.password);
 
     if (profilePicture) {
       formData.append("profilePicture", profilePicture);

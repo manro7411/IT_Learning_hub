@@ -3,10 +3,12 @@ import AdminSidebarWidget from "../Widgets/AdminSideBar";
 import { Plus } from "lucide-react";
 import CreateTeamModal from "./CreateTeamModal";
 import TeamCardWidget from "./TeamCardWidget";
+import TeamMembersModal from "./TeamMembersModal";
+
 import axios from "axios";
 
 interface Team {
-  id: string;
+  id: string | number;
   name: string;
   description: string;
   createBy: string;
@@ -23,13 +25,13 @@ const TeamManagement = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [error, setError] = useState("");
   const [userEmail, setUserEmail] = useState<string>("");
+  const [selectedTeamId, setSelectedTeamId] = useState<string | null>(null); 
 
   const token = localStorage.getItem("token") || sessionStorage.getItem("token");
 
-  // Load logged-in user's profile
   const fetchUserProfile = async () => {
     try {
-      const res = await axios.get<UserProfile>("http://localhost:8080/profile", {
+      const res = await axios.get<UserProfile>("/api/profile", {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUserEmail(res.data.email);
@@ -38,12 +40,12 @@ const TeamManagement = () => {
     }
   };
 
-  // Load all teams
   const fetchTeams = async () => {
     try {
-      const res = await axios.get<Team[]>("http://localhost:8080/teams", {
+      const res = await axios.get<Team[]>("/api/teams", {
         headers: { Authorization: `Bearer ${token}` },
       });
+      console.log("✅ Received teams payload:", res.data)
       setTeams(res.data);
     } catch (error) {
       console.error("❌ Failed to load teams:", error);
@@ -57,7 +59,6 @@ const TeamManagement = () => {
     fetchTeams();
   }, [token]);
 
-  // Filter only teams created by the logged-in user
   const myTeams = teams.filter((team) => team.createBy === userEmail);
 
   return (
@@ -73,14 +74,18 @@ const TeamManagement = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {myTeams.map((team) => (
-            <TeamCardWidget
-              key={team.id}
-              name={team.name}
-              description={team.description}
-              createBy={team.createBy}
-              joinCode={team.joinCode}
-            />
-          ))}
+          <TeamCardWidget
+            key={team.id}
+            name={team.name}
+            description={team.description}
+            createBy={team.createBy}
+            joinCode={team.joinCode}
+            onClick={() => {
+              console.log("🟢 Clicked team ID:", team.id);
+              setSelectedTeamId(String(team.id));
+            }}
+          />
+        ))}
           {myTeams.length === 0 && (
             <p className="text-gray-400 col-span-full">No teams found.</p>
           )}
@@ -94,6 +99,14 @@ const TeamManagement = () => {
         </button>
 
         <CreateTeamModal open={showCreateModal} onClose={() => setShowCreateModal(false)} />
+
+        {selectedTeamId !== null && (
+          <TeamMembersModal
+            teamId={selectedTeamId}
+            open={true}
+            onClose={() => setSelectedTeamId(null)}
+          />
+        )}
       </main>
     </div>
   );

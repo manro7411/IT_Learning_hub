@@ -54,6 +54,19 @@ const tabs = [
   { label: "Video_Content", value: "video" },
   { label: "Document_Content", value: "document" },
 ];
+const mapAssignTypeToTarget = (assignType: string): "ALL" | "TEAM" | "USER" => {
+  switch (assignType) {
+    case "all":
+      return "ALL";
+    case "team":
+      return "TEAM";
+    case "specific":
+      return "USER";
+    default:
+      throw new Error(`Invalid assignType: ${assignType}`);
+  }
+};
+
 
 const AdminAddLessonPage = () => {
   const { token} = useContext(AuthContext);
@@ -97,7 +110,7 @@ const AdminAddLessonPage = () => {
       .then(res => setUsers(res.data))
       .catch(() => console.error("❌ Failed to load users"));
 
-    axios.get<Team[]>("/api/localhost:8080/teams", { headers: { Authorization: `Bearer ${token}` } })
+    axios.get<Team[]>("/api/teams", { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setTeams(res.data))
       .catch(() => console.error("❌ Failed to load teams"));
   }, [token]);
@@ -198,8 +211,8 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
 
     await sendLessonNotification({
       token:token as string,
-      message:`A new Video "${form.title}: Lesson has been added`,
-      target:form.assignType.toLocaleUpperCase() as "ALL" | "TEAM" | "USER",
+      message:`A new Video 📢 "${form.title} Lesson has been added`,
+     target: mapAssignTypeToTarget(form.assignType),
       userIds: form.assignType === "specific" ? selectedUsers:[],
       teamIds: form.assignType === "team" && form.assignTeamId ? [form.assignTeamId]:[]
 
@@ -217,32 +230,53 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
 };
 
 
-  const handleDocumentSubmit = async () => {
-    setLoading(true);
-    const formData = new FormData;
+        const handleDocumentSubmit = async () => {
+          setLoading(true);
+          const formData = new FormData;
 
-    formData.append("contentType","document")
-    formData.append("title",form.title)
-    formData.append("description",form.description)
-    formData.append("avatarUrl",authorAvatarUrl?.userPicture ?? "")
-    
-    if (form.thumbnailFile) {
-      console.log("Document file", form.thumbnailFile); 
-      formData.append("document",form.thumbnailFile)
-    }
-    try {
-     for (const [key, value] of formData.entries()) {
-  if (value instanceof File) {
-    console.log(`${key}:`, value.name, value.type, value.size);
-  } else {
-    console.log(`${key}:`, value);
-  }
-}
+          formData.append("contentType","document")
+          formData.append("title",form.title)
+          formData.append("description",form.description)
+          formData.append("avatarUrl",authorAvatarUrl?.userPicture ?? "")
+          formData.append("category",form.category)
+          formData.append("assignType", form.assignType ?? "");
+
+          if (form.assignType === "team" && form.assignTeamId) {
+            formData.append("assignTeamId", form.assignTeamId);
+          }
+
+          if (form.thumbnailUrl) {
+            formData.append("thumbnailUrl", form.thumbnailUrl);
+          }
+
+          
+          if (form.thumbnailFile) {
+            console.log("Document file", form.thumbnailFile); 
+            formData.append("document",form.thumbnailFile)
+          }
+          try {
+          for (const [key, value] of formData.entries()) {
+        if (value instanceof File) {
+          console.log(`${key}:`, value.name, value.type, value.size);
+        } else {
+          console.log(`${key}:`, value);
+        }
+      }
 
       console.log("Payload Result : ",formData.entries())
       await axios.post("/api/learning/documents", formData, {
         headers: { Authorization: `Bearer ${token}` },  
       });
+      
+      await sendLessonNotification({
+      token:token as string,
+      message:`A new Document 📢 "${form.title} Lesson has been added`,
+      target:form.assignType.toLocaleUpperCase() as "ALL" | "TEAM" | "USER",
+      userIds: form.assignType === "specific" ? selectedUsers:[],
+      teamIds: form.assignType === "team" && form.assignTeamId ? [form.assignTeamId]:[]
+      })
+
+
       alert("✅ Document uploaded!");
       resetForm();
       navigate("/admin/lesson/management");
@@ -362,7 +396,7 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
 
         {activeTab === "document" && (
           <div className="bg-white p-8 rounded-xl shadow space-y-6">
-            {/* <h2 className="text-lg font-semibold text-blue-800">📄 Upload Document</h2> */}
+            <Field label="Lesson Thumbnail URL" name="thumbnailUrl" value={form.thumbnailUrl} onChange={handleChange} />
             <Field label="Lesson Title" name="title" value={form.title} onChange={handleChange} required />
             <Field label="Lesson Description" name="description" value={form.description} onChange={handleChange} />
             <Field label="Category" name="category" value={form.category} onChange={handleChange}></Field>
@@ -374,12 +408,15 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
                 <option value="specific">Specific User</option>                
               </select>
               {form.assignType === "team" && (
-                <select name="assignTeamId" value={form.assignTeamId || ""} onChange={(e)=> setForm({...form,assignTeamId : e.target.value})}
-                className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50 "
+                <select
+                  name="assignTeamId"
+                  value={form.assignTeamId || ""}
+                  onChange={(e) => setForm({ ...form, assignTeamId: e.target.value })}
+                  className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
                 >
-                  <option value="">--- Select a team ---</option>
+                  <option value="">-- Select a team --</option>
                   {teams.map((team) => (
-                    <option key={team.id} value={team.id}>{team.id}</option>
+                    <option key={team.id} value={team.id}>{team.name}</option>
                   ))}
                 </select>
               )}

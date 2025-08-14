@@ -6,7 +6,7 @@ interface Props {
     thumbnailUrl: string;
     author: string;
     role: string;
-    progress?: number; // 0–100, default = 0
+    progress?: number;
     onStart?: () => void;
     onComplete?: () => void;
 }
@@ -29,7 +29,6 @@ export default function LessonCard({
                 flex flex-col overflow-hidden
             "
         >
-            {/* ─── Thumbnail ─── */}
             <div className="relative h-32 w-full">
                 <img
                     src={thumbnailUrl || "/placeholder.png"}
@@ -48,8 +47,6 @@ export default function LessonCard({
                     <Heart size={14} className="text-blue-600" />
                 </button>
             </div>
-
-            {/* ─── Content ─── */}
             <div className="p-3 flex flex-col flex-1">
                 <span className="text-[10px] font-semibold text-purple-600 uppercase">
                     {category}
@@ -58,6 +55,7 @@ export default function LessonCard({
                 <h3 className="text-sm font-semibold leading-tight mt-[2px] line-clamp-2">
                     {title}
                 </h3>
+                
 
                 <div className="h-1 bg-gray-200 rounded-full mt-3 mb-2">
                     <div
@@ -73,8 +71,6 @@ export default function LessonCard({
                         <div className="text-[10px] text-gray-500">{role}</div>
                     </div>
                 </div>
-
-                {/* ─── Buttons ─── */}
                 <div className="flex justify-between mt-3">
                     <button
                         onClick={onStart}

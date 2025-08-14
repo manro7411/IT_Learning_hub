@@ -390,6 +390,8 @@ public class LearningContentResource {
             lc.setAuthorRole("admin");
             lc.setContentType("document");
             lc.setAuthorAvatarUrl(form.avatarUrl);
+            lc.setCategory(form.category);
+            lc.setAssignType(form.assignType);
             lc.setDocumentUrl(destination.toString().replace("\\", "/"));
 
             em.persist(lc);

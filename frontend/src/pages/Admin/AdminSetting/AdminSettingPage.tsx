@@ -33,7 +33,7 @@ const AccountSettingsPage = () => {
     }
 
     axios
-      .get("http://localhost:8080/profile", {
+      .get("/api/profile", {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
@@ -47,7 +47,7 @@ const AccountSettingsPage = () => {
         const avatarPath = res.data.avatarUrl || res.data.avatar;
         if (avatarPath) {
           const filename = avatarPath.split("/").pop();
-          setPreviewUrl(`http://localhost:8080/profile/avatars/${filename}`);
+          setPreviewUrl(`/api/profile/avatars/${filename}`);
         }
       })
       .catch((err) => {
@@ -111,7 +111,6 @@ const AccountSettingsPage = () => {
           onSubmit={submit}
           className="bg-white rounded-xl shadow p-8 space-y-8"
         >
-          {/* Avatar Upload */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
               Your Profile Picture
@@ -159,13 +158,6 @@ const AccountSettingsPage = () => {
               onChange={handleChange}
               required
             />
-            {/* <Input
-              label="Username"
-              name="username"
-              value={form.username}
-              onChange={handleChange}
-              required
-            /> */}
             <Input
               label="Password"
               name="password"

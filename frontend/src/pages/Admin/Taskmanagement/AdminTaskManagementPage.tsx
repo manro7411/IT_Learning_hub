@@ -3,6 +3,7 @@ import axios from "axios";
 import { AuthContext } from "../../../Authentication/AuthContext";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
 import { useNavigate } from "react-router-dom";
+import { Pencil } from "lucide-react";
 
 interface Lesson {
     id: number;
@@ -101,7 +102,6 @@ const AdminTaskManagementPage = () => {
                 </h1>
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Lesson List */}
                     <section className="col-span-1 space-y-4">
                         {loading ? (
                             <p className="text-gray-500">Loading lessons...</p>
@@ -124,6 +124,11 @@ const AdminTaskManagementPage = () => {
                                             {lesson.category}
                                         </p>
                                     </div>
+                                    <button onClick={(e)=>{
+                                        e.stopPropagation();
+                                    }}>
+                                        <Pencil/>
+                                    </button>
                                     <button
                                         onClick={() => handleDeleteLesson(lesson.id)}
                                         className="absolute top-2 right-2 text-red-500 hover:text-red-700"
@@ -136,7 +141,6 @@ const AdminTaskManagementPage = () => {
                         )}
                     </section>
 
-                    {/* User Progress List */}
                     <section className="col-span-1 space-y-4">
                         {progressList.length === 0 && selectedLesson && (
                             <p className="text-gray-400">No progress yet…</p>

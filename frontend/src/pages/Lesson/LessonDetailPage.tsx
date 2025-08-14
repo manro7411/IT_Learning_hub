@@ -34,6 +34,7 @@ interface Progress {
   attempts: number;
   maxAttempts: number;
   lastTimestamp: number;
+  thumbnailUrl:string;
 }
 
 const LessonDetailPage = () => {
@@ -135,6 +136,7 @@ const LessonDetailPage = () => {
       currentTime > 0
       ) {
         lastSent.current = current;
+        console.log("thumbnailUrl: ",lesson.thumbnailUrl)
 
         axios
           .put(
@@ -142,6 +144,7 @@ const LessonDetailPage = () => {
             {
               percent: current,
               lastTimestamp: Math.floor(video.currentTime),
+              thumbnailUrl: lesson.thumbnailUrl || "",               
             },
             {
               headers: {

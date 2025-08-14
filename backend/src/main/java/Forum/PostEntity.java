@@ -10,7 +10,6 @@ import model.CommentEntity;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
-
 @Entity
 @Table(name = "posts")
 public class PostEntity extends PanacheEntityBase {
@@ -50,7 +49,7 @@ public class PostEntity extends PanacheEntityBase {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    @Column(length = 512,name = "avatarurl")
+    @Column(length = 512, name = "avatarurl")
     private String avatarUrl;
 
     @Transient
@@ -64,6 +63,8 @@ public class PostEntity extends PanacheEntityBase {
     @Column(name = "pictureUrl")
     private String pictureUrl;
 
+    @Column(name = "documentUrl")
+    private String document;
 
     @PrePersist
     void prePersist() {
@@ -73,8 +74,7 @@ public class PostEntity extends PanacheEntityBase {
     }
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private java.util.List<CommentEntity> comments = new java.util.ArrayList<>();
-
+    private java.util.List<model.CommentEntity> comments = new java.util.ArrayList<>();
 
     @PreUpdate
     void preUpdate() { updatedAt = LocalDateTime.now(); }
@@ -88,7 +88,7 @@ public class PostEntity extends PanacheEntityBase {
     public long   getViews()         { return views; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
-    public Set<String> getLikedBy() { return likedBy; }
+    public Set<String> getLikedBy()  { return likedBy; }
 
     public void setAuthorName(String n)     { this.authorName = n; }
     public void setAuthorEmail(String e)    { this.authorEmail = e; }
@@ -97,13 +97,9 @@ public class PostEntity extends PanacheEntityBase {
     public void setLikes(long l)            { this.likes = l; }
     public void setViews(long v)            { this.views = v; }
 
-    public String getAvatarUrl() {
-        return avatarUrl;
-    }
+    public String getAvatarUrl() { return avatarUrl; }
+    public void setAvatarUrl(String avatarUrl) { this.avatarUrl = avatarUrl; }
 
-    public void setAvatarUrl(String avatarUrl) {
-        this.avatarUrl = avatarUrl;
-    }
     public void addLike(String email) {
         likedBy.add(email);
         this.likes = likedBy.size();
@@ -114,25 +110,15 @@ public class PostEntity extends PanacheEntityBase {
         this.likes = likedBy.size();
     }
 
-    public boolean isLikedByUser() {
-        return likedByUser;
-    }
+    public boolean isLikedByUser() { return likedByUser; }
+    public void setLikedByUser(boolean likedByUser) { this.likedByUser = likedByUser; }
 
-    public void setLikedByUser(boolean likedByUser) {
-        this.likedByUser = likedByUser;
-    }
+    public String getForumCategory() { return forumCategory; }
+    public void setForumCategory(String forumCategory) { this.forumCategory = forumCategory; }
 
-    public String getForumCategory() {
-        return forumCategory;
-    }
+    public String getPictureUrl() { return pictureUrl; }
+    public void setPictureUrl(String pictureUrl) { this.pictureUrl = pictureUrl; }
+    public void setDocument(String document) { this.document = document; }
+    public String getDocument() { return document; }
 
-    public void setForumCategory(String forumCategory) {
-        this.forumCategory = forumCategory;
-    }
-    public String getPictureUrl() {
-        return pictureUrl;
-    }
-    public void setPictureUrl(String pictureUrl) {
-        this.pictureUrl = pictureUrl;
-    }
 }

@@ -5,60 +5,37 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/IT_Learning_hub.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/IT_Learning_hub.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/AttachmentMeta.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/Forum/PostCreateRequest.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/PostCreateRequest.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/Forum/PostEntity.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/PostEntity.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/Forum/PostResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Forum/PostResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/QuizService/ExtendedLearningContentDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/QuizService/ExtendedLearningContentDto.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/LearningContentResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/LearningContentResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/LoginResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/LoginResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/NotificationResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/NotificationResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/ProfileResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/ProfileResource.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/PdfUploadForm.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/PdfUploadForm.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/TeamMemberResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/TeamMemberResource.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/UserProgressResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/UserProgressResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/dto/LearningContentDto.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/dto/LearningContentDto.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/resources/application.properties" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/resources/application.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/backend/src/main/java/model/UserLessonProgress.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/model/UserLessonProgress.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/package.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/App.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/App.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/OnlineCourseBanner.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/OnlineCourseBanner.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/components/StatisticsChart.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/components/StatisticsChart.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/index.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/main.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/main.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminNotification/AdminCreateNotificationPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminNotification/AdminCreateNotificationPage.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminSetting/AdminSettingPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/AdminSetting/AdminSettingPage.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Coursemanagement/AdminAddLessonPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Coursemanagement/AdminAddLessonPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Dashboard/AdminDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Dashboard/AdminDashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Dashboard/AdminDashboard_overall.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Dashboard/AdminDashboard_overall.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Systemlog/Systemlogging.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Systemlog/Systemlogging.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Taskmanagement/AdminTaskManagementPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Taskmanagement/AdminTaskManagementPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Widgets/AdminAvatarWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Widgets/AdminAvatarWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/CreateTeamModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/CreateTeamModal.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/TeamCardWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/TeamCardWidget.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/Teammanagement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Teammanagement/Teammanagement.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Administrator/Widgets/AdministratorBar.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Administrator/Widgets/AdministratorBar.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Administrator/administrator_requirement.txt" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Administrator/administrator_requirement.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Administrator/testing.txt" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Administrator/testing.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Dashboard/TopViewedLessonsWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Dashboard/TopViewedLessonsWidget.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Dashboard/UserDashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Dashboard/UserDashboard.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Forum/AddPostWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Forum/AddPostWidget.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Forum/KnowledgeForumLayout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Forum/KnowledgeForumLayout.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Forum/PostCardWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Forum/PostCardWidget.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Game/Answer_false.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Game/Answer_false.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Game/Answer_true.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Game/Answer_true.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Game/Question.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Game/Question.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Game/Scenario.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Game/Scenario.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Game/Select_role.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Game/Select_role.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/LessonCard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/LessonCard.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/LessonDetailPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/LessonDetailPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Login/LoginPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Login/LoginPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Login/Register.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Login/Register.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Supervisor/Supervisordashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Supervisor/Supervisordashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Supervisor/Widgets/UserListWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Supervisor/Widgets/UserListWidget.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/quiz/QuizPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/quiz/previousversion.txt" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/quiz/previousversion.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/frontend/src/pages/setting/AccountSettingsPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/setting/AccountSettingsPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/ChatBubbleWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/ChatBubbleWidget.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/JointeamWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/JointeamWidget.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/NotificationWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/NotificationWidget.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/ReminderBoxWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/ReminderBoxWidget.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/SidebarWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/SidebarWidget.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/widgets/UserAvatarWidget.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/widgets/UserAvatarWidget.tsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,6 +51,9 @@
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/backend/src/main/java/Forum/PostResource.java" root0="FORCE_HIGHLIGHTING" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 7
@@ -97,7 +77,7 @@
     &quot;RunOnceActivity.go.migrated.go.modules.settings&quot;: &quot;true&quot;,
     &quot;dart.analysis.tool.window.visible&quot;: &quot;false&quot;,
     &quot;extract.method.default.visibility&quot;: &quot;private&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;feature/authen&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;local-pc&quot;,
     &quot;go.import.settings.migrated&quot;: &quot;true&quot;,
     &quot;last_opened_file_path&quot;: &quot;/Users/sleanz/Desktop/CSC302/untitled folder/IT_Learning_hub/backend/src/main/resources&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
@@ -219,6 +199,8 @@
       <workItem from="1754364616290" duration="8243000" />
       <workItem from="1754445587550" duration="11323000" />
       <workItem from="1754531837568" duration="13655000" />
+      <workItem from="1755051476207" duration="16122000" />
+      <workItem from="1755136343181" duration="14629000" />
     </task>
     <servers />
   </component>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Plus, Trash2, X } from "lucide-react";
+import { sendLessonNotification } from "../Widgets/notificationServices";
 
 interface User {
   id: string;
@@ -26,14 +27,14 @@ const CreateTeamModal = ({ open, onClose }: CreateTeamModalProps) => {
 
   useEffect(() => {
     if (!token) return;
-    axios.get<User>("http://localhost:8080/profile", { headers: { Authorization: `Bearer ${token}` } })
+    axios.get<User>("/api/profile", { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setUsername(res.data.email))
       .catch(err => console.error("❌ Failed to fetch profile:", err));
   }, [token]);
 
   useEffect(() => {
     if (!token) return;
-    axios.get<User[]>("http://localhost:8080/profile/users", { headers: { Authorization: `Bearer ${token}` } })
+    axios.get<User[]>("/api/profile/users", { headers: { Authorization: `Bearer ${token}` } })
       .then(res => setUsers(res.data))
       .catch(err => {
         console.error("❌ Failed to load users:", err);
@@ -54,33 +55,48 @@ const CreateTeamModal = ({ open, onClose }: CreateTeamModalProps) => {
     setTeamMembers(teamMembers.filter(m => m.id !== userId));
   };
 
-  const handleCreateTeam = async () => {
-    if (!teamName.trim()) return setError("Please enter a team name.");
-    if (teamMembers.length === 0) return setError("Add at least one team member.");
+ const handleCreateTeam = async () => {
+  if (!teamName.trim()) return setError("Please enter a team name.");
+  if (teamMembers.length === 0) return setError("Add at least one team member.");
 
-    const newTeam = {
-      name: teamName.trim(),
-      description: description.trim(),
-      createBy: username,
-      members: teamMembers.map((m) => ({
-        userId: m.id,
-        userName: m.name,
-      })),
-    };
-
-    try {
-      await axios.post("http://localhost:8080/teams", newTeam, { headers: { Authorization: `Bearer ${token}` } });
-      alert(`✅ Team "${teamName}" created!`);
-      setTeamName("");
-      setDescription("");
-      setTeamMembers([]);
-      setError("");
-      onClose(); // Close modal
-    } catch (err) {
-      console.error("❌ Failed to create team:", err);
-      setError("Failed to create team.");
-    }
+  const newTeam = {
+    name: teamName.trim(),
+    description: description.trim(),
+    createBy: username,
+    members: teamMembers.map((m) => ({
+      userId: m.id,
+      userName: m.name,
+    })),
   };
+
+  try {
+    await axios.post("/api/teams", newTeam, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    // ✅ Notify each user individually
+    for (const member of teamMembers) {
+      await sendLessonNotification({
+        token: token as string,
+        message: `📢 You have been added to the team "${teamName}"`,
+        target: "USER",
+        userIds: [member.id],
+        teamIds: [],
+      });
+    }
+
+    alert(`✅ Team "${teamName}" created and members notified!`);
+    setTeamName("");
+    setDescription("");
+    setTeamMembers([]);
+    setError("");
+    onClose();
+  } catch (err) {
+    console.error("❌ Failed to create team:", err);
+    setError("Failed to create team.");
+  }
+};
+
 
   if (!open) return null;
 

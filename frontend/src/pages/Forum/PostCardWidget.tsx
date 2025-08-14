@@ -2,10 +2,13 @@ import { useContext, useEffect, useState } from "react";
 import type { Post, Comment } from "./KnowledgeForumLayout.tsx";
 import { AuthContext } from "../../Authentication/AuthContext.tsx";
 import {
-  // FaEye,
   FaCommentDots,
+  FaEye,
   FaHeart,
   FaRegHeart,
+  FaFilePdf,
+  FaDownload,
+  FaExternalLinkAlt,
 } from "react-icons/fa";
 
 type Props = {
@@ -40,7 +43,6 @@ const PostCardWidget = ({ post }: Props) => {
         if (!res.ok) throw new Error("Failed to fetch user profile");
         const data = await res.json();
         setUserProfile(data);
-        // console.log("✅ User profile data:", data);
       } catch (err) {
         console.error("❌ Failed to fetch user profile:", err);
       }
@@ -73,7 +75,6 @@ const PostCardWidget = ({ post }: Props) => {
         avatarUrl: userProfile?.avatarUrl || "",
       };
 
-      console.log(payload)
       const res = await fetch(`/api/forum/posts/${post.id}/comments`, {
         method: "POST",
         headers: {
@@ -121,27 +122,25 @@ const PostCardWidget = ({ post }: Props) => {
 
       const data = await res.json();
       if (typeof data.likes === "number") setLikes(data.likes);
-       if (typeof data.likedByUser === "boolean") setLiked(data.likedByUser ?? false);
-      console.log("data :",data)
+      if (typeof data.likedByUser === "boolean") setLiked(data.likedByUser ?? false);
     } catch (err) {
       console.error("❌ Failed to toggle like:", err);
       setLiked(!nextLiked);
       setLikes(likes);
-
-      
     } finally {
       setLiking(false);
     }
   };
 
- const linkify = (text: string): string => {
-  const urlRegex = /(\bhttps?:\/\/[^\s]+)/g;
-  return text.replace(urlRegex, (url) => {
-    const safeUrl = url.replace(/"/g, "&quot;");
-    return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">${url}</a>`;
-  });
-};
-  const renderAvatar = () => {
+  const linkify = (text: string): string => {
+    const urlRegex = /(\bhttps?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, (url) => {
+      const safeUrl = url.replace(/"/g, "&quot;");
+      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-blue-600 underline">${url}</a>`;
+    });
+  };
+
+   const renderAvatar = () => {
     if (post.avatarUrl) {
       const isFullUrl = post.avatarUrl.startsWith("http") ;
       const filename = post.avatarUrl.split("/").pop();
@@ -164,8 +163,15 @@ const PostCardWidget = ({ post }: Props) => {
       </div>
     );
   };
+  const fileNameFromBackend: string | undefined = (post as any).document || undefined;
+  const documentUrl = fileNameFromBackend
+  ? `/api/posts/postDocument/${encodeURIComponent(fileNameFromBackend)}`
+  : undefined;
 
-  
+  const docFileName = fileNameFromBackend || "";
+  const docExt = docFileName.includes(".") ? docFileName.split(".").pop()!.toLowerCase() : "";
+  const isPdf = docExt === "pdf";
+  console.log("DocumentUrl : ",documentUrl)
 
   return (
     <article className="bg-white rounded-lg shadow p-4">
@@ -173,19 +179,19 @@ const PostCardWidget = ({ post }: Props) => {
       <header className="flex items-center gap-3 mb-3">
         {renderAvatar()}
         <div>
-          <p className="text-sm font-semibold text-gray-800">
-            {post.authorName}
-          </p>
+          <p className="text-sm font-semibold text-gray-800">{post.authorName}</p>
           <p className="text-xs text-gray-500">{post.authorEmail}</p>
-          <p className="text-xs text-gray-400">
-            {new Date(post.createdAt).toLocaleString()}
-          </p>
+          <p className="text-xs text-gray-400">{new Date(post.createdAt).toLocaleString()}</p>
         </div>
       </header>
 
       <h2 className="text-base font-semibold text-gray-800">{post.title}</h2>
-      <p className="text-sm text-gray-700 mt-1 whitespace-pre-line" dangerouslySetInnerHTML={{__html:linkify(post.message)}} />
-     {post.pictureUrl && (
+      <p
+        className="text-sm text-gray-700 mt-1 whitespace-pre-line"
+        dangerouslySetInnerHTML={{ __html: linkify(post.message) }}
+      />
+
+      {post.pictureUrl && (
         <div className="mt-3">
           {(() => {
             const filename = post.pictureUrl.split("/").pop();
@@ -199,10 +205,64 @@ const PostCardWidget = ({ post }: Props) => {
           })()}
         </div>
       )}
+      {documentUrl && (
+        <div className="mt-3">
+          <div className="relative w-[200px] rounded-xl border bg-white shadow-sm overflow-hidden group hover:shadow-md transition-shadow">
+            <div
+              className={`absolute top-0 left-0 px-2 py-1 text-[10px] font-semibold text-white rounded-br-lg ${
+                isPdf ? "bg-red-600" : "bg-gray-600"
+              }`}
+            >
+              {isPdf ? "PDF" : (docExt || "FILE").toUpperCase()}
+            </div>
+            <div className="h-24 w-full bg-gray-50 flex items-center justify-center">
+              {isPdf ? (
+                <FaFilePdf className="text-xl opacity-20" />
+              ) : (
+                <div className="text-xs text-gray-500">Preview</div>
+              )}
+            </div>
+
+            <div className="flex items-center gap-2 px-3 py-2 bg-gray-100 border-t">
+              <span
+                className={`px-1.5 py-0.5 text-[10px] leading-none rounded-sm font-bold text-white ${
+                  isPdf ? "bg-red-600" : "bg-gray-600"
+                }`}
+              >
+                {isPdf ? "PDF" : (docExt || "FILE").toUpperCase()}
+              </span>
+              <span className="text-sm font-semibold truncate" title={docFileName}>
+                {docFileName}
+              </span>
+            </div>
+            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors pointer-events-none" />
+            <div className="absolute inset-x-0 bottom-2 flex justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+              <a
+                href={documentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="pointer-events-auto inline-flex items-center gap-1 text-xs px-3 py-1 rounded bg-white border hover:bg-gray-50"
+                title="เปิดดู"
+              >
+                <FaExternalLinkAlt /> เปิดดู
+              </a>
+              <a
+                href={documentUrl}
+                download={docFileName || true}
+                className="pointer-events-auto inline-flex items-center gap-1 text-xs px-3 py-1 rounded bg-blue-600 text-white hover:bg-blue-700"
+                title="ดาวน์โหลด"
+              >
+                <FaDownload /> ดาวน์โหลด
+              </a>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-4 text-xs text-gray-500 mt-3 items-center">
-        {/* <span className="flex items-center gap-1">
+        <span className="flex items-center gap-1">
           <FaEye /> {post.views}
-        </span> */}
+        </span>
 
         <button
           type="button"
@@ -230,8 +290,6 @@ const PostCardWidget = ({ post }: Props) => {
             <p className="text-xs text-gray-400">No comments yet.</p>
           ) : (
             comments.map((c) => (
-
-                          
               <div key={c.id} className="flex items-start gap-2 text-xs">
                 {c.avatarUrl ? (
                   <img
@@ -239,7 +297,6 @@ const PostCardWidget = ({ post }: Props) => {
                     alt="User avatar"
                     className="w-6 h-6 rounded-full object-cover border"
                   />
-
                 ) : (
                   <div className="w-6 h-6 bg-gray-400 text-white rounded-full flex items-center justify-center text-[10px] font-bold">
                     {c.authorName?.charAt(0)?.toUpperCase() || "?"}
@@ -253,9 +310,7 @@ const PostCardWidget = ({ post }: Props) => {
                   </p>
                 </div>
               </div>
-            )
-          
-          )
+            ))
           )}
 
           <div className="mt-3">
