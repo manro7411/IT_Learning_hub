@@ -124,26 +124,31 @@ const LessonPage = () => {
 
  
 
-  const filteredLessons = lessons.filter((lesson) => {
-    
-    const matchesAssignType =
-      selectedAssignType === "all"
-        ? lesson.assignType === "all"
-        : selectedAssignType === "specific"
-        ? lesson.assignType === "specific" && userId && lesson.assignedUserIds?.includes(userId)
-        : selectedAssignType === "team"
-        ? lesson.assignType === "team" && lesson.assignedTeamIds?.some((id) => myTeamIds.includes(id))
-        : false;
+ const filteredLessons = lessons.filter((lesson) => {
+  const key = lesson.id.toLowerCase();
+  const progress = progressMap[key]?.percent ?? 0;
 
-    const matchesSearch = [lesson.title, lesson.category, lesson.description ?? ""].some((v) =>
-      v.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+  const isIncomplete = progress < 100;
 
-    const matchesCategory =
-      selectedCategories.length === 0 || selectedCategories.includes(lesson.category);
+  const matchesAssignType =
+    selectedAssignType === "all"
+      ? lesson.assignType === "all"
+      : selectedAssignType === "specific"
+      ? lesson.assignType === "specific" && userId && lesson.assignedUserIds?.includes(userId)
+      : selectedAssignType === "team"
+      ? lesson.assignType === "team" && lesson.assignedTeamIds?.some((id) => myTeamIds.includes(id))
+      : false;
 
-    return matchesAssignType && matchesSearch && matchesCategory;
-  });
+  const matchesSearch = [lesson.title, lesson.category, lesson.description ?? ""].some((v) =>
+    v.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const matchesCategory =
+    selectedCategories.length === 0 || selectedCategories.includes(lesson.category);
+
+  return isIncomplete && matchesAssignType && matchesSearch && matchesCategory;
+});
+
   const handleLessonClick = async (id: string) => {
     const key = id.toLowerCase();
     const lastTimestamp = progressMap[key]?.lastTimestamp || 0;
@@ -243,11 +248,12 @@ const LessonPage = () => {
             ) : (
               filteredLessons.map((lesson) => {
                 const key = lesson.id.toLowerCase();
-                const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };    
-                 const avatarFilename = lesson.authorAvatarUrl?.split("/").pop();
-                 const avatarUrl = avatarFilename
-                 ? `/api/profile/avatars/${avatarFilename}`
-                 : defaultUserAvatar;
+                const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };
+
+                const avatarFilename = lesson.authorAvatarUrl?.split("/").pop();
+                const avatarUrl = avatarFilename && avatarFilename !== "null"
+                  ? `/api/profile/avatars/${avatarFilename}`
+                  : defaultUserAvatar;
                 return (
                   <button
                     key={lesson.id}

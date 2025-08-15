@@ -22,6 +22,16 @@ interface Task {
   lastTimestamp: number;
 }
 
+interface LessonFromAPI {
+  id: string;
+  title: string;
+  assignType?: string;
+  assignedUserIds?: string[];
+  thumbnailUrl?: string;
+  authorName?: string;
+  authorRole?: string;
+}
+
 const TaskManagement = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
   const { token: ctxToken } = useContext(AuthContext);
@@ -36,13 +46,40 @@ const TaskManagement = () => {
 
     const fetchProgress = async () => {
       try {
-        const res = await fetch("/api/user/progress", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Failed to fetch progress");
-        const data = await res.json();
+        const [progessRes, learningRes, profileRes] = await Promise.all([
+          fetch("/api/user/progress", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch("/api/learning", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch("/api/profile", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
 
-        const mappedTasks: Task[] = data.map((item: any) => {
+        if (!progessRes.ok || !learningRes.ok || !profileRes.ok) {
+          throw new Error("Failed to fetch data");
+        }
+
+        const progressData = await progessRes.json();
+        const lessons: LessonFromAPI[] = await learningRes.json();
+        const profile = await profileRes.json();
+
+        // Filter specific lessons assigned to this user
+        const specificLessons = lessons
+          .filter(lesson =>
+            lesson.assignType === "specific" &&
+            Array.isArray(lesson.assignedUserIds) &&
+            lesson.assignedUserIds
+              .map(id => id.trim().toLowerCase())
+              .includes(profile.id.trim().toLowerCase())
+          );
+
+        console.log("🎯 Filtered Specific Lessons:", specificLessons);
+
+        // Map progress data to tasks
+        const mappedTasks: Task[] = progressData.map((item: any) => {
           let status: Task['status'] = 'todo';
           if (item.percent >= 100) status = 'done';
           else if (item.percent > 0) status = 'inprogress';
@@ -64,9 +101,30 @@ const TaskManagement = () => {
           };
         });
 
-        console.log("mappedTask : ",mappedTasks)
+        // Add specific lessons that are not already in progressData
+        const existingLessonIds = new Set(mappedTasks.map(task => task.lessonId));
+        const additionalTasks: Task[] = specificLessons
+          .filter(lesson => !existingLessonIds.has(lesson.id))
+          .map(lesson => ({
+            id: lesson.id,
+            title: lesson.title,
+            status: 'todo',
+            type: 'learning',
+            lessonId: lesson.id,
+            thumbnailUrl: lesson.thumbnailUrl,
+            author: lesson.authorName || "Unknown",
+            role: lesson.authorRole || "Instructor",
+            progress: 0,
+            score: 0,
+            attempts: 0,
+            maxAttempts: 1,
+            lastTimestamp: 0,
+          }));
 
-        setTasks(mappedTasks);
+        const allTasks = [...mappedTasks, ...additionalTasks];
+        console.log("🧩 Final Combined Tasks:", allTasks);
+
+        setTasks(allTasks);
       } catch (err) {
         console.error("❌ Error loading learner history:", err);
       }
@@ -91,30 +149,29 @@ const TaskManagement = () => {
     );
   };
 
- const renderColumn = (status: Task['status'], title: string) => (
-  <div className="bg-gray-100 rounded-xl p-4 w-full min-h-[400px] space-y-4">
-    <h3 className="text-lg font-semibold mb-4">{title}</h3>
-    <div className="flex flex-wrap gap-5">
-      {tasks
-        .filter((task) => task.status === status)
-        .map((task) => (
-          <TaskCard
-            key={task.id}
-            title={task.title}
-            lessonId={task.lessonId}
-            category="Learning"
-            thumbnailUrl={task.thumbnailUrl || "/placeholder.png"}
-            assignee={task.author || ""}
-            role={task.role || ""}
-            progress={task.progress}
-            onStart={() => updateLessonProgress(task.lessonId, task.progress + 10)}
-            onComplete={() => updateLessonProgress(task.lessonId, 100)}
-          />
-        ))}
+  const renderColumn = (status: Task['status'], title: string) => (
+    <div className="bg-gray-100 rounded-xl p-4 w-full min-h-[400px] space-y-4">
+      <h3 className="text-lg font-semibold mb-4">{title}</h3>
+      <div className="flex flex-wrap gap-5">
+        {tasks
+          .filter((task) => task.status === status)
+          .map((task) => (
+            <TaskCard
+              key={task.id}
+              title={task.title}
+              lessonId={task.lessonId}
+              category="Learning"
+              thumbnailUrl={task.thumbnailUrl || "/placeholder.png"}
+              assignee={task.author || ""}
+              role={task.role || ""}
+              progress={task.progress}
+              onStart={() => updateLessonProgress(task.lessonId, task.progress + 10)}
+              onComplete={() => updateLessonProgress(task.lessonId, 100)}
+            />
+          ))}
+      </div>
     </div>
-  </div>
-);
-
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

@@ -1,6 +1,5 @@
 package Testing;
 
-import io.smallrye.common.annotation.RunOnVirtualThread;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -10,7 +9,7 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import model.User;
 import util.JwtUtil;
-import org.mindrot.jbcrypt.BCrypt;  // ✅ เพิ่ม import
+import org.mindrot.jbcrypt.BCrypt;
 
 @Path("/login")
 //@RunOnVirtualThread
