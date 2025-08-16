@@ -1,7 +1,6 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import SidebarWidget from "../../widgets/SidebarWidget";
-import { AuthContext } from "../../Authentication/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 interface FormState {
@@ -10,54 +9,45 @@ interface FormState {
 }
 
 const AccountSettingsPage = () => {
-  const { token } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  const [form, setForm] = useState<FormState>({
-    fullName: "",
-    // username: "",
-    email: "",
-    // password: "",
-  });
-
+  const [form, setForm] = useState<FormState>({ fullName: "", email: "" });
   const [loading, setLoading] = useState(true);
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) {
-      navigate("/");
-    }
-  }, [token, navigate]);
-
-  useEffect(() => {
-    if (!token) return;
-
+    // ✅ withCredentials must be top-level (not inside headers)
     axios
-      .get("/api/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get("/api/profile", { withCredentials: true })
       .then((res) => {
         setForm({
           fullName: res.data.name ?? "",
-          email: res.data.email ?? "",    
+          email: res.data.email ?? "",
         });
 
-         if (res.data.avatarUrl) {
-        const filename = res.data.avatarUrl.split("/").pop();
-        setPreviewUrl(`/api/profile/avatars/${filename}`);
-      }
-        console.log("Profile data fetched:", res.data);
+        const avatarUrl: string | undefined = res.data.avatarUrl;
+        if (avatarUrl) {
+          const filename = avatarUrl.split("/").pop();
+          if (filename) setPreviewUrl(`/api/profile/avatars/${filename}`);
+        }
       })
-      .catch(() => alert("Unauthorized or token expired"))
+      .catch((err) => {
+        // Only send user to login on an actual 401
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          alert("Session expired. Please log in again.");
+          navigate("/", { replace: true });
+        } else {
+          alert("Failed to load profile.");
+          console.error(err);
+        }
+      })
       .finally(() => setLoading(false));
-  }, [token]);
+  }, [navigate]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => setForm({ ...form, [e.target.name]: e.target.value });
-//  username: ""
-//  , password: ""
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
+
   const reset = () => {
     setForm({ fullName: "", email: "" });
     setProfilePicture(null);
@@ -70,22 +60,24 @@ const AccountSettingsPage = () => {
     const formData = new FormData();
     formData.append("name", form.fullName);
     formData.append("email", form.email);
-
-    if (profilePicture) {
-      formData.append("profilePicture", profilePicture);
-    }
+    if (profilePicture) formData.append("profilePicture", profilePicture);
 
     try {
+      // ✅ withCredentials is top-level; headers only for content-type
       await axios.put("/api/profile", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
       });
       alert("✅ Profile updated!");
       navigate("/dashboard");
-    } catch {
-      alert("Update failed");
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        alert("Session expired. Please log in again.");
+        navigate("/", { replace: true });
+      } else {
+        alert("Update failed");
+        console.error(err);
+      }
     }
   };
 
@@ -113,6 +105,7 @@ const AccountSettingsPage = () => {
                   src={previewUrl}
                   alt="Preview"
                   className="w-32 h-32 rounded-full object-cover border"
+                  onError={() => setPreviewUrl(null)}
                 />
               ) : (
                 <div className="w-32 h-32 border-2 border-dashed border-gray-300 rounded-full flex items-center justify-center text-sm text-gray-400">
@@ -137,7 +130,7 @@ const AccountSettingsPage = () => {
           {/* Form Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <Input label="Full name" name="fullName" value={form.fullName} onChange={handleChange} />
-            <Input label="Email" name="email" value={form.email} onChange={handleChange} disabled/>
+            <Input label="Email" name="email" value={form.email} onChange={handleChange} disabled />
           </div>
 
           <div className="flex space-x-4">
@@ -155,8 +148,7 @@ const AccountSettingsPage = () => {
 };
 
 function Input(
-  { label, ...rest }:
-    { label: string } & React.InputHTMLAttributes<HTMLInputElement>
+  { label, ...rest }: { label: string } & React.InputHTMLAttributes<HTMLInputElement>
 ) {
   return (
     <div>

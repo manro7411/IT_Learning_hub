@@ -1,7 +1,7 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { useCallback,useEffect, useRef, useState } from "react";
 import { BellIcon, TrashIcon } from "lucide-react";
 import axios from "axios";
-import { AuthContext } from "../Authentication/AuthContext";
+
 
 type Notification = {
   id: string;
@@ -13,10 +13,6 @@ type Notification = {
 };
 
 const NotificationWidget = () => {
-  const { token: ctxToken } = useContext(AuthContext);
-  const token =
-    ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
-
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Notification[]>([]);
   const [unread, setUnread] = useState(0);
@@ -25,12 +21,11 @@ const NotificationWidget = () => {
   const [assignTypeFilter, setAssignTypeFilter] = useState<string>("ALL");
 
   const fetchNotifications = useCallback(async () => {
-    if (!token) return;
     try {
       setError(null);
       const { data } = await axios.get<Notification[]>(
         "/api/notifications",
-        { headers: { Authorization: `Bearer ${token}` } }
+        {withCredentials: true},
       );
       setItems(data);
     //   console.log("📬 Notifications fetched:", data);
@@ -39,7 +34,7 @@ const NotificationWidget = () => {
       console.error("❌ fetch notifications:", err);
       setError("Server error");
     }
-  }, [token]);
+  }, []);
 
   useEffect(() => {
     fetchNotifications();
@@ -73,8 +68,7 @@ const NotificationWidget = () => {
     try {
       await axios.put(
         "/api/notifications/read-all",
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        {withCredentials: true},
       );
       setItems((prev) => prev.map((n) => ({ ...n, read: true })));
       setUnread(0);
@@ -87,7 +81,7 @@ const NotificationWidget = () => {
     if (!confirm("Delete ALL notifications?")) return;
     try {
       await axios.delete("/api/notifications", {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
       setItems([]);
       setUnread(0);
@@ -100,8 +94,8 @@ const NotificationWidget = () => {
     try {
       await axios.put(
         `/api/notifications/${id}/read`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
+        {withCredentials: true},
+       
       );
       setItems((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read: true } : n))
@@ -115,7 +109,7 @@ const NotificationWidget = () => {
   const deleteSingle = async (id: string, wasUnread: boolean) => {
     try {
       await axios.delete(`/api/notifications/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
       setItems((prev) => prev.filter((n) => n.id !== id));
       if (wasUnread) setUnread((prev) => Math.max(0, prev - 1));
@@ -123,8 +117,6 @@ const NotificationWidget = () => {
       console.error("❌ delete notification:", err);
     }
   };
-
-  if (!token) return null;
 
   return (
     <div ref={dropdownRef} className="relative">

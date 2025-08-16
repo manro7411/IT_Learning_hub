@@ -1,6 +1,6 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Sidebar from '../../widgets/SidebarWidget';
-import { AuthContext } from "../../Authentication/AuthContext.tsx";
+
 import { useNavigate } from "react-router-dom";
 import ChatBubbleWidget from '../../widgets/ChatBubbleWidget.tsx';
 import NotificationWidget from '../../widgets/NotificationWidget.tsx';
@@ -34,28 +34,27 @@ interface LessonFromAPI {
 
 const TaskManagement = () => {
   const [tasks, setTasks] = useState<Task[]>([]);
-  const { token: ctxToken } = useContext(AuthContext);
-  const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
   const navigate = useNavigate();
-
   useEffect(() => {
-    if (!token) {
-      navigate("/");
-      return;
-    }
 
     const fetchProgress = async () => {
       try {
         const [progessRes, learningRes, profileRes] = await Promise.all([
-          fetch("/api/user/progress", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch("/api/learning", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          fetch("/api/profile", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+          fetch("/api/user/progress",  {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Accept': 'application/json' },
+        }),
+          fetch("/api/learning",  {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Accept': 'application/json' },
+        }),
+          fetch("/api/profile",  {
+          method: 'GET',
+          credentials: 'include',
+          headers: { 'Accept': 'application/json' },
+        }),
         ]);
 
         if (!progessRes.ok || !learningRes.ok || !profileRes.ok) {
@@ -131,7 +130,7 @@ const TaskManagement = () => {
     };
 
     fetchProgress();
-  }, [token, navigate]);
+  }, [navigate]);
 
   const updateLessonProgress = (lessonId: string, progress: number) => {
     setTasks((prevTasks) =>

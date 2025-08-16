@@ -2,14 +2,6 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import InstructionModal from "../../components/InstructionModal";
 import axios from "axios";
-import { jwtDecode } from "jwt-decode";
-
-interface JwtPayload {
-  email: string;
-  role?: string;
-  groups?: string[];
-  [key: string]: unknown;
-}
 
 const LoginPage = () => {
   const navigate = useNavigate();
@@ -21,13 +13,9 @@ const LoginPage = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post("/api/login", { email, password });
-      const token = res.data.token;
-      localStorage.setItem("token", token);
-
-      const decoded: JwtPayload = jwtDecode(token);
-      const role = (decoded.role ?? decoded.groups?.[0] ?? "user").toLowerCase();
-
+      const res = await axios.post("/api/login", { email, password }, { withCredentials: true });
+     const role = res.data.role || ""
+     console.log("Login successful, role:", role);
       if (role === "admin") {
         navigate("/admin");
       } else if (role === "supervisor") {

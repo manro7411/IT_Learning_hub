@@ -1,18 +1,15 @@
-import { useEffect, useState, useContext } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
-import { AuthContext } from "../Authentication/AuthContext";
 import { useNavigate } from "react-router-dom";
 
 
 const UserWidget = () => {
-  const { token } = useContext(AuthContext);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const navigate = useNavigate();
   useEffect(() => {
-    if (!token) return;
     axios
       .get("/api/profile", {
-        headers: { Authorization: `Bearer ${token}` },
+       withCredentials: true,
       })
       .then((res) => {
         const avatarPath: string | undefined = res.data.avatarUrl || res.data.avatar;
@@ -27,7 +24,7 @@ const UserWidget = () => {
       .catch(() => {
         console.warn("Could not fetch avatar.");
       });
-  }, [token]);
+  }, []);
 
 
   const handleClick = () => {

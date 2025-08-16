@@ -16,7 +16,7 @@ const TopViewedLessonsWidget = () => {
     const navigate = useNavigate();
     useEffect(() => {
         axios
-            .get(`${API}/top-viewed?limit=3`)
+            .get(`${API}/top-viewed?limit=3`,{withCredentials: true})
             .then((res) => setTopLessons(res.data))
             .catch(console.error);
     }, []);

@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/Testing/LoginResource.java" beforeDir="false" afterPath="$PROJECT_DIR$/backend/src/main/java/Testing/LoginResource.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/backend/src/main/java/util/PasswordUtil.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Taskmanagement/AdminTaskManagementPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Taskmanagement/AdminTaskManagementPage.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Admin/Taskmanagement/EditLessonModal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Admin/Taskmanagement/EditLessonModal.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Lesson/Lessondashboard.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/frontend/src/pages/Taskmanagement/Taskmanagement.tsx" afterDir="false" />
-    </list>
+    <list default="true" id="5acfc0ed-c2e3-4c3d-bfea-13a7231a1b80" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -143,8 +135,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26927.53" />
-        <option value="bundled-js-predefined-d6986cc7102b-09060db00ec0-JavaScript-IU-251.26927.53" />
+        <option value="bundled-jdk-9823dce3aa75-fbdcb00ec9e3-intellij.indexing.shared.core-IU-251.26094.121" />
+        <option value="bundled-js-predefined-d6986cc7102b-b26f3e71634d-JavaScript-IU-251.26094.121" />
       </set>
     </attachedChunks>
   </component>
@@ -178,6 +170,7 @@
       <workItem from="1755051476207" duration="16122000" />
       <workItem from="1755136343181" duration="15507000" />
       <workItem from="1755221653463" duration="6584000" />
+      <workItem from="1755329026538" duration="7052000" />
     </task>
     <servers />
   </component>

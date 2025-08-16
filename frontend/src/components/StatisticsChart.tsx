@@ -31,35 +31,58 @@ const StatisticsChart = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    let didCancel = false;
 
-    fetch('/api/user/progress', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    })
-      .then(async res => {
+    const fetchProgress = async (retry = true) => {
+      try {
+        const res = await fetch('/api/user/progress', {
+          method: 'GET',
+          credentials: 'include', // ✅ send cookies
+          headers: { 'Accept': 'application/json' },
+        });
+
+        if (res.status === 401 && retry) {
+          // try to refresh then retry once
+          const refreshRes = await fetch('/api/token/refresh', {
+            method: 'POST',
+            credentials: 'include',
+          });
+          if (refreshRes.ok) {
+            return fetchProgress(false); // retry once after refresh
+          }
+        }
+
         if (!res.ok) {
-          const text = await res.text();
+          const text = await res.text().catch(() => '');
           throw new Error(`Fetch failed (${res.status}): ${text}`);
         }
-        return res.json();
-      })
-      .then((result: UserCourseProgress[]) => {
+
+        const result: UserCourseProgress[] = await res.json();
+
+        if (didCancel) return;
+
         const transformed: ChartData[] = result.map(item => ({
           name: item.lessonTitle || 'Untitled',
           percent: item.percent,
-          score: item.score
-          
+          score: item.score,
         }));
+
         setData(transformed);
         setLoading(false);
-      })
-      .catch(err => {
+        setError(null);
+      } catch (err) {
+        if (didCancel) return;
         console.error(err);
-        setError("Failed to load progress data.");
+        setError('Failed to load progress data.');
         setLoading(false);
-      });
+      }
+    };
+
+    fetchProgress();
+
+    return () => {
+      didCancel = true;
+    };
   }, []);
 
   if (loading) return <div>Loading chart...</div>;
@@ -69,15 +92,9 @@ const StatisticsChart = () => {
     <div className="bg-white rounded-xl p-4 shadow-md w-full">
       <h2 className="font-semibold text-gray-700 mb-4">Progress per Lesson</h2>
 
-      {loading && <p className='text-gray-500'>loading...</p>}
-      {error && <p className='text-red-500'>{error}</p>}
-
-      {!loading &&!error && data.length > 0 &&(
-         <ResponsiveContainer width="100%" height={300}>
-          <AreaChart
-            data={data}
-            margin={{ top: 20, right: 40, left: 20, bottom: 20 }}
-          >
+      {!loading && !error && data.length > 0 && (
+        <ResponsiveContainer width="100%" height={300}>
+          <AreaChart data={data} margin={{ top: 20, right: 40, left: 20, bottom: 20 }}>
             <XAxis dataKey="name" minTickGap={20} />
             <YAxis yAxisId="left" domain={[0, 100]} />
             <YAxis yAxisId="right" orientation="right" domain={[0, 10]} />
@@ -94,7 +111,6 @@ const StatisticsChart = () => {
               animationDuration={800}
               name="Progress (%)"
             />
-
             <Area
               yAxisId="right"
               type="monotone"
@@ -107,6 +123,10 @@ const StatisticsChart = () => {
             />
           </AreaChart>
         </ResponsiveContainer>
+      )}
+
+      {!loading && !error && data.length === 0 && (
+        <div className="text-gray-500">No data yet.</div>
       )}
     </div>
   );

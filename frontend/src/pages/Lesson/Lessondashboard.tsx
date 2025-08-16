@@ -1,7 +1,6 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { AuthContext } from "../../Authentication/AuthContext";
 import Sidebar from "../../widgets/SidebarWidget";
 import defaultUserAvatar from "../../assets/user.png";
 import ChatBubbleWidget from "../../widgets/ChatBubbleWidget";
@@ -27,9 +26,6 @@ interface Progress {
 }
 
 const LessonPage = () => {
-  const { token: ctxToken } = useContext(AuthContext);
-  const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
-
   const navigate = useNavigate();
   const location = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -47,22 +43,22 @@ const LessonPage = () => {
   useEffect(() => {
     const fetchTeams = async () => {
       try {
-        const res = await axios.get("/api/teams", {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await axios.get("http://localhost:8080/teams", {
+          withCredentials: true,
         });
         setMyTeamIds(res.data.map((team: { id: string }) => team.id));
       } catch (error) {
         console.error("❌ Failed to fetch user teams:", error);
       }
     };
-    if (token) fetchTeams();
-  }, [token]);
+    fetchTeams();
+  }, []);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
-        const res = await axios.get("/api/profile", {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await axios.get("http://localhost:8080/profile", {
+          withCredentials: true,
         });
         setUserId(res.data.id);
         setMyTeamIds(res.data.teams || []);
@@ -70,27 +66,24 @@ const LessonPage = () => {
         console.error("❌ Failed to fetch user profile:", error);
       }
     };
-    if (token) fetchUserProfile();
-  }, [token]);
+   fetchUserProfile();
+  }, []);
 
   useEffect(() => {
-    if (!token) {
-      navigate("/");
-      return;
-    }
 
     const fetchData = async () => {
       try {
         const [lessonsRes, progressRes] = await Promise.all([
-          axios.get("/api/learning", {
-            headers: { Authorization: `Bearer ${token}` },
+          axios.get("http://localhost:8080/learning", {
+            withCredentials: true,
           }),
-          axios.get("/api/user/progress", {
-            headers: { Authorization: `Bearer ${token}` },
+          axios.get("http://localhost:8080/user/progress", {
+            withCredentials: true,
           }),
         ]);
         setLessons(lessonsRes.data);
-        
+
+
         const map: Record<string, Progress> = {};
         progressRes.data.forEach((item: { lessonId: string; percent: number; lastTimestamp?: number }) => {
           const key = item.lessonId.toLowerCase();
@@ -108,7 +101,7 @@ const LessonPage = () => {
     };
 
     fetchData();
-  }, [token, location.pathname, navigate]);
+  }, [location.pathname, navigate]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -121,41 +114,33 @@ const LessonPage = () => {
   }, []);
 
   const categories = Array.from(new Set(lessons.map((l) => l.category).filter(Boolean)));
+  const filteredLessons = lessons.filter((lesson) => {
+    
+    const matchesAssignType =
+      selectedAssignType === "all"
+        ? lesson.assignType === "all"
+        : selectedAssignType === "specific"
+        ? lesson.assignType === "specific" && userId && lesson.assignedUserIds?.includes(userId)
+        : selectedAssignType === "team"
+        ? lesson.assignType === "team" && lesson.assignedTeamIds?.some((id) => myTeamIds.includes(id))
+        : false;
 
- 
+    const matchesSearch = [lesson.title, lesson.category, lesson.description ?? ""].some((v) =>
+      v.toLowerCase().includes(searchQuery.toLowerCase())
+    );
 
- const filteredLessons = lessons.filter((lesson) => {
-  const key = lesson.id.toLowerCase();
-  const progress = progressMap[key]?.percent ?? 0;
+    const matchesCategory =
+      selectedCategories.length === 0 || selectedCategories.includes(lesson.category);
 
-  const isIncomplete = progress < 100;
-
-  const matchesAssignType =
-    selectedAssignType === "all"
-      ? lesson.assignType === "all"
-      : selectedAssignType === "specific"
-      ? lesson.assignType === "specific" && userId && lesson.assignedUserIds?.includes(userId)
-      : selectedAssignType === "team"
-      ? lesson.assignType === "team" && lesson.assignedTeamIds?.some((id) => myTeamIds.includes(id))
-      : false;
-
-  const matchesSearch = [lesson.title, lesson.category, lesson.description ?? ""].some((v) =>
-    v.toLowerCase().includes(searchQuery.toLowerCase())
-  );
-
-  const matchesCategory =
-    selectedCategories.length === 0 || selectedCategories.includes(lesson.category);
-
-  return isIncomplete && matchesAssignType && matchesSearch && matchesCategory;
-});
-
+    return matchesAssignType && matchesSearch && matchesCategory;
+  });
   const handleLessonClick = async (id: string) => {
     const key = id.toLowerCase();
     const lastTimestamp = progressMap[key]?.lastTimestamp || 0;
 
     try {
-      await axios.post(`/api/learning/${id}/click`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
+      await axios.post(`http://localhost:8080/learning/${id}/click`, {}, {
+        withCredentials: true,
       });
     } catch (err) {
       console.error("Failed to log click:", err);
@@ -239,6 +224,8 @@ const LessonPage = () => {
             <NotificationWidget />
           </div>
         </div>
+
+        {/* Lessons List */}
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           <div className="xl:col-span-3 grid gap-6 grid-cols-[repeat(auto-fill,minmax(256px,1fr))]">
             {loading ? (
@@ -248,12 +235,11 @@ const LessonPage = () => {
             ) : (
               filteredLessons.map((lesson) => {
                 const key = lesson.id.toLowerCase();
-                const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };
-
-                const avatarFilename = lesson.authorAvatarUrl?.split("/").pop();
-                const avatarUrl = avatarFilename && avatarFilename !== "null"
-                  ? `/api/profile/avatars/${avatarFilename}`
-                  : defaultUserAvatar;
+                const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };    
+                 const avatarFilename = lesson.authorAvatarUrl?.split("/").pop();
+                 const avatarUrl = avatarFilename
+                 ? `http://localhost:8080/profile/avatars/${avatarFilename}`
+                 : defaultUserAvatar;
                 return (
                   <button
                     key={lesson.id}
@@ -322,5 +308,4 @@ const LessonPage = () => {
     </div>
   );
 };
-
 export default LessonPage;
