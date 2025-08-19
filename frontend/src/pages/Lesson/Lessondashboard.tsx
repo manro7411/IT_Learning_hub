@@ -1,11 +1,11 @@
-import { useContext, useEffect, useRef, useState } from "react";
+// src/pages/lesson/LessonPage.tsx
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import axios from "axios";
-import { AuthContext } from "../../Authentication/AuthContext";
 import Sidebar from "../../widgets/SidebarWidget";
 import defaultUserAvatar from "../../assets/user.png";
 import ChatBubbleWidget from "../../widgets/ChatBubbleWidget";
 import NotificationWidget from "../../widgets/NotificationWidget";
+import { http } from "../../Authentication/http";
 
 interface Lesson {
   id: string;
@@ -15,21 +15,24 @@ interface Lesson {
   thumbnailUrl?: string;
   authorName?: string;
   authorAvatarUrl?: string;
-  assignType: string;
+  assignType: "all" | "team" | "specific";
   assignedUserIds?: string[];
   assignedTeamIds?: string[];
   contentType: "video" | "document";
 }
+interface Progress { percent: number; lastTimestamp: number; }
+type ProgressItem = { lessonId: string; percent: number; lastTimestamp?: number; };
+type ProfileResp = { id: string; teams?: string[]; name?: string; email?: string; };
+type Team = { id: string };
 
-interface Progress {
-  percent: number;
-  lastTimestamp: number;
-}
+const normalizeAvatarUrl = (p?: string | null): string => {
+  if (!p) return defaultUserAvatar;
+  if (/^https?:\/\//i.test(p) || p.startsWith("data:")) return p;
+  const filename = p.split("/").pop();
+  return filename && filename !== "null" ? `/api/profile/avatars/${filename}` : defaultUserAvatar;
+};
 
 const LessonPage = () => {
-  const { token: ctxToken } = useContext(AuthContext);
-  const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
-
   const navigate = useNavigate();
   const location = useLocation();
   const menuRef = useRef<HTMLDivElement>(null);
@@ -37,78 +40,72 @@ const LessonPage = () => {
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [progressMap, setProgressMap] = useState<Record<string, Progress>>({});
   const [loading, setLoading] = useState(true);
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedAssignType, setSelectedAssignType] = useState<string>("all");
+  const [selectedAssignType, setSelectedAssignType] = useState<"all" | "team" | "specific">("all");
+
   const [userId, setUserId] = useState<string | null>(null);
   const [myTeamIds, setMyTeamIds] = useState<string[]>([]);
 
   useEffect(() => {
-    const fetchTeams = async () => {
-      try {
-        const res = await axios.get("/api/teams", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setMyTeamIds(res.data.map((team: { id: string }) => team.id));
-      } catch (error) {
-        console.error("❌ Failed to fetch user teams:", error);
-      }
-    };
-    if (token) fetchTeams();
-  }, [token]);
+    let alive = true;
+    setLoading(true);
+    setErrMsg(null);
 
-  useEffect(() => {
-    const fetchUserProfile = async () => {
+    (async () => {
       try {
-        const res = await axios.get("/api/profile", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setUserId(res.data.id);
-        setMyTeamIds(res.data.teams || []);
-      } catch (error) {
-        console.error("❌ Failed to fetch user profile:", error);
-      }
-    };
-    if (token) fetchUserProfile();
-  }, [token]);
+        // ✅ วอร์มเซสชันก่อนเสมอ: ถ้า jwt หาย  → interceptor จะ refresh ให้
+        try {
+          await http.get<ProfileResp>("/profile");
+        } catch {
+          // สำรอง: ถ้าครั้งแรกพลาดเพราะหมดอายุ กด /login/refresh แล้วลองอีกที
+          await http.post("/login/refresh");
+          await http.get<ProfileResp>("/profile");
+        }
+        if (!alive) return;
 
-  useEffect(() => {
-    if (!token) {
-      navigate("/");
-      return;
-    }
-
-    const fetchData = async () => {
-      try {
-        const [lessonsRes, progressRes] = await Promise.all([
-          axios.get("/api/learning", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
-          axios.get("/api/user/progress", {
-            headers: { Authorization: `Bearer ${token}` },
-          }),
+        // ดึงข้อมูลหลักพร้อมกันทีหลัง (ตอนนี้ jwt สดแล้ว)
+        const [profileRes, teamsRes, lessonsRes, progressRes] = await Promise.all([
+          http.get<ProfileResp>("/profile"),
+          http.get<Team[]>("/teams"),
+          http.get<Lesson[]>("/learning"),
+          http.get<ProgressItem[]>("/user/progress"),
         ]);
-        setLessons(lessonsRes.data);
-        
+
+        if (!alive) return;
+
+        const profile = profileRes.data;
+        setUserId(profile?.id ?? null);
+
+        const teamIds = new Set<string>([
+          ...(profile?.teams ?? []),
+          ...((teamsRes.data ?? []).map((t) => t.id)),
+        ]);
+        setMyTeamIds([...teamIds]);
+
+        setLessons(lessonsRes.data ?? []);
+
         const map: Record<string, Progress> = {};
-        progressRes.data.forEach((item: { lessonId: string; percent: number; lastTimestamp?: number }) => {
-          const key = item.lessonId.toLowerCase();
-          map[key] = {
-            percent: item.percent,
-            lastTimestamp: item.lastTimestamp || 0,
+        (progressRes.data ?? []).forEach((item) => {
+          map[item.lessonId] = {
+            percent: item.percent ?? 0,
+            lastTimestamp: item.lastTimestamp ?? 0,
           };
         });
         setProgressMap(map);
-      } catch (err) {
-        console.error("❌ Failed to fetch lessons or progress:", err);
+      } catch (e) {
+        console.error("❌ Failed to load lessons/progress/profile:", e);
+        if (alive) setErrMsg("Failed to load lessons");
       } finally {
-        setLoading(false);
+        if (alive) setLoading(false);
       }
-    };
+    })();
 
-    fetchData();
-  }, [token, location.pathname, navigate]);
+    return () => { alive = false; };
+  }, [location.key]); // ใช้ key ให้ re-run เมื่อเข้าหน้านี้ใหม่
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -120,43 +117,43 @@ const LessonPage = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const categories = Array.from(new Set(lessons.map((l) => l.category).filter(Boolean)));
-
- 
-
- const filteredLessons = lessons.filter((lesson) => {
-  const key = lesson.id.toLowerCase();
-  const progress = progressMap[key]?.percent ?? 0;
-
-  const isIncomplete = progress < 100;
-
-  const matchesAssignType =
-    selectedAssignType === "all"
-      ? lesson.assignType === "all"
-      : selectedAssignType === "specific"
-      ? lesson.assignType === "specific" && userId && lesson.assignedUserIds?.includes(userId)
-      : selectedAssignType === "team"
-      ? lesson.assignType === "team" && lesson.assignedTeamIds?.some((id) => myTeamIds.includes(id))
-      : false;
-
-  const matchesSearch = [lesson.title, lesson.category, lesson.description ?? ""].some((v) =>
-    v.toLowerCase().includes(searchQuery.toLowerCase())
+  const categories = useMemo(
+    () => Array.from(new Set(lessons.map((l) => l.category).filter(Boolean))),
+    [lessons]
   );
 
-  const matchesCategory =
-    selectedCategories.length === 0 || selectedCategories.includes(lesson.category);
+  const filteredLessons = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    return lessons.filter((lesson) => {
+      const progress = progressMap[lesson.id]?.percent ?? 0;
+      const isIncomplete = progress < 100;
 
-  return isIncomplete && matchesAssignType && matchesSearch && matchesCategory;
-});
+      const matchesAssignType =
+        selectedAssignType === "all"
+          ? true
+          : selectedAssignType === "specific"
+          ? !!userId &&
+            lesson.assignType === "specific" &&
+            (lesson.assignedUserIds ?? []).some((id) => id === userId)
+          : selectedAssignType === "team"
+          ? lesson.assignType === "team" &&
+            (lesson.assignedTeamIds ?? []).some((id) => myTeamIds.includes(id))
+          : false;
+
+      const haystack = (lesson.title + " " + lesson.category + " " + (lesson.description ?? "")).toLowerCase();
+      const matchesSearch = q === "" || haystack.includes(q);
+
+      const matchesCategory =
+        selectedCategories.length === 0 || selectedCategories.includes(lesson.category);
+
+      return isIncomplete && matchesAssignType && matchesSearch && matchesCategory;
+    });
+  }, [lessons, progressMap, selectedAssignType, userId, myTeamIds, searchQuery, selectedCategories]);
 
   const handleLessonClick = async (id: string) => {
-    const key = id.toLowerCase();
-    const lastTimestamp = progressMap[key]?.lastTimestamp || 0;
-
+    const lastTimestamp = progressMap[id]?.lastTimestamp || 0;
     try {
-      await axios.post(`/api/learning/${id}/click`, {}, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await http.post(`/learning/${id}/click`, {}); // interceptor จัดการคุกกี้
     } catch (err) {
       console.error("Failed to log click:", err);
     } finally {
@@ -177,20 +174,16 @@ const LessonPage = () => {
             className="w-full xl:w-1/3 p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
           <div className="flex items-center space-x-4">
-            {/* Category Filter */}
             <div className="relative" ref={menuRef}>
               <button
-                onClick={() => setCategoryMenuOpen(!categoryMenuOpen)}
+                onClick={() => setCategoryMenuOpen((v) => !v)}
                 className="px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-white hover:bg-gray-100 text-sm"
               >
-                {selectedCategories.length > 0
-                  ? `Category (${selectedCategories.length})`
-                  : "Filter by Category"}
+                {selectedCategories.length > 0 ? `Category (${selectedCategories.length})` : "Filter by Category"}
               </button>
-
               {categoryMenuOpen && (
-                <div className="absolute z-10 mt-2 w-48 bg-white border border-gray-200 rounded-md shadow-lg">
-                  <div className="p-2 space-y-1">
+                <div className="absolute z-10 mt-2 w-56 bg-white border border-gray-200 rounded-md shadow-lg">
+                  <div className="p-2 space-y-1 max-h-64 overflow-auto">
                     {categories.map((category) => (
                       <label key={category} className="flex items-center space-x-2 text-sm cursor-pointer">
                         <input
@@ -198,9 +191,7 @@ const LessonPage = () => {
                           checked={selectedCategories.includes(category)}
                           onChange={() =>
                             setSelectedCategories((prev) =>
-                              prev.includes(category)
-                                ? prev.filter((c) => c !== category)
-                                : [...prev, category]
+                              prev.includes(category) ? prev.filter((c) => c !== category) : [...prev, category]
                             )
                           }
                           className="accent-purple-500"
@@ -208,10 +199,7 @@ const LessonPage = () => {
                         <span>{category}</span>
                       </label>
                     ))}
-                    <button
-                      className="mt-2 text-xs text-blue-500 hover:underline"
-                      onClick={() => setSelectedCategories([])}
-                    >
+                    <button className="mt-2 text-xs text-blue-500 hover:underline" onClick={() => setSelectedCategories([])}>
                       Clear All
                     </button>
                   </div>
@@ -219,16 +207,13 @@ const LessonPage = () => {
               )}
             </div>
 
-            {/* Assign Type Filter */}
             <div className="flex space-x-2">
-              {["all", "team", "specific"].map((type) => (
+              {(["all", "team", "specific"] as const).map((type) => (
                 <button
                   key={type}
                   onClick={() => setSelectedAssignType(type)}
                   className={`px-3 py-1 rounded-md text-sm ${
-                    selectedAssignType === type
-                      ? "bg-purple-500 text-white"
-                      : "bg-gray-200 hover:bg-gray-300"
+                    selectedAssignType === type ? "bg-purple-500 text-white" : "bg-gray-200 hover:bg-gray-300"
                   }`}
                 >
                   {type.charAt(0).toUpperCase() + type.slice(1)}
@@ -239,21 +224,20 @@ const LessonPage = () => {
             <NotificationWidget />
           </div>
         </div>
+
         <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
           <div className="xl:col-span-3 grid gap-6 grid-cols-[repeat(auto-fill,minmax(256px,1fr))]">
             {loading ? (
               <div className="text-gray-500">Loading lessons…</div>
+            ) : errMsg ? (
+              <div className="text-red-600">{errMsg}</div>
             ) : filteredLessons.length === 0 ? (
               <div className="text-gray-500">No lessons found</div>
             ) : (
               filteredLessons.map((lesson) => {
-                const key = lesson.id.toLowerCase();
-                const progress = progressMap[key] ?? { percent: 0, lastTimestamp: 0 };
+                const progress = progressMap[lesson.id] ?? { percent: 0, lastTimestamp: 0 };
+                const avatarUrl = normalizeAvatarUrl(lesson.authorAvatarUrl);
 
-                const avatarFilename = lesson.authorAvatarUrl?.split("/").pop();
-                const avatarUrl = avatarFilename && avatarFilename !== "null"
-                  ? `/api/profile/avatars/${avatarFilename}`
-                  : defaultUserAvatar;
                 return (
                   <button
                     key={lesson.id}
@@ -265,47 +249,32 @@ const LessonPage = () => {
                         <img
                           src={lesson.thumbnailUrl || "/placeholder.png"}
                           alt={lesson.title}
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src = "/placeholder.png";
-                          }}
+                          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = "/placeholder.png"; }}
                           className="h-full w-full object-cover"
                         />
                       </div>
 
                       <div className="flex flex-1 flex-col p-4">
-                        <span className="text-[10px] font-semibold uppercase text-purple-600">
-                          {lesson.category}
-                        </span>
+                        <span className="text-[10px] font-semibold uppercase text-purple-600">{lesson.category}</span>
                         <h3 className="mt-1 line-clamp-2 text-sm font-semibold">{lesson.title}</h3>
 
                         <div className="mb-2 mt-3 h-1 rounded-full bg-gray-200">
                           <div
                             className="h-full transition-all duration-300 rounded-full bg-blue-500"
-                            style={{
-                              width: `${Math.max(progress.percent, 1)}%`,
-                              minWidth: progress.percent > 0 ? 4 : 0,
-                            }}
+                            style={{ width: `${Math.max(progress.percent, 1)}%`, minWidth: progress.percent > 0 ? 4 : 0 }}
                           />
                         </div>
-                        <div className="text-[10px] text-gray-500 mb-1">
-                          Progress: {progress.percent}%
-                        </div>
+                        <div className="text-[10px] text-gray-500 mb-1">Progress: {progress.percent}%</div>
 
                         <div className="mt-auto flex items-center space-x-2">
                           <img
                             src={avatarUrl}
                             alt="Author"
-                            onError={(e) => {
-                              e.currentTarget.onerror = null;
-                              e.currentTarget.src = defaultUserAvatar;
-                            }}
+                            onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = defaultUserAvatar; }}
                             className="h-7 w-7 rounded-full object-cover"
                           />
                           <div>
-                            <div className="text-xs font-medium">
-                              {lesson.authorName || "Unknown Author"}
-                            </div>
+                            <div className="text-xs font-medium">{lesson.authorName || "Unknown Author"}</div>
                             <div className="text-[10px] text-gray-500">Learning Content</div>
                           </div>
                         </div>
@@ -318,6 +287,7 @@ const LessonPage = () => {
           </div>
         </div>
       </main>
+
       <ChatBubbleWidget />
     </div>
   );

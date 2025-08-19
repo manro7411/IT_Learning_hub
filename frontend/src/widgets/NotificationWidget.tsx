@@ -1,50 +1,49 @@
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+// src/widgets/NotificationWidget.tsx
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BellIcon, TrashIcon } from "lucide-react";
-import axios from "axios";
-import { AuthContext } from "../Authentication/AuthContext";
+import { useNavigate } from "react-router-dom";
+import { http } from "../Authentication/http";
 
 type Notification = {
   id: string;
   message: string;
   createdAt: string;
   read: boolean;
-  targetName: string;
-  link?: string;
+  targetName: "ALL" | "TEAM" | "USER";
+  link?: string; // e.g. "/lesson/123" หรือ URL ภายนอก
 };
 
 const NotificationWidget = () => {
-  const { token: ctxToken } = useContext(AuthContext);
-  const token =
-    ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
-
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Notification[]>([]);
-  const [unread, setUnread] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const [assignTypeFilter, setAssignTypeFilter] = useState<string>("ALL");
+  const [assignTypeFilter, setAssignTypeFilter] = useState<"ALL" | "TEAM" | "USER">("ALL");
+
+  const unread = useMemo(() => items.filter((n) => !n.read).length, [items]);
 
   const fetchNotifications = useCallback(async () => {
-    if (!token) return;
+    setLoading(true);
+    setError(null);
     try {
-      setError(null);
-      const { data } = await axios.get<Notification[]>(
-        "/api/notifications",
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setItems(data);
-    //   console.log("📬 Notifications fetched:", data);
-      setUnread(data.filter((n) => !n.read).length);
+      const { data } = await http.get<Notification[]>("/notifications");
+      setItems(data ?? []);
     } catch (err) {
       console.error("❌ fetch notifications:", err);
       setError("Server error");
+    } finally {
+      setLoading(false);
     }
-  }, [token]);
+  }, []);
 
+  // โหลดรอบแรก
   useEffect(() => {
     fetchNotifications();
   }, [fetchNotifications]);
 
+  // ปิด dropdown เมื่อคลิกนอกกล่อง
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -55,84 +54,73 @@ const NotificationWidget = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const filteredItems = items.filter((n) => {
-    switch (assignTypeFilter) {
-      case "ALL":
-        return n.targetName === "ALL";
-      case "TEAM":
-        return n.targetName === "TEAM";
-      case "USER":
-        return n.targetName === "USER" ;
-      default:
-        return false;
-    }
-});
-
+  // ฟิลเตอร์ (แก้ ALL ให้คืน true = แสดงทั้งหมด)
+  const filteredItems = useMemo(() => {
+    if (assignTypeFilter === "ALL") return items;
+    return items.filter((n) => n.targetName === assignTypeFilter);
+  }, [items, assignTypeFilter]);
 
   const markAllRead = async () => {
     try {
-      await axios.put(
-        "/api/notifications/read-all",
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // optimistic update
       setItems((prev) => prev.map((n) => ({ ...n, read: true })));
-      setUnread(0);
+      await http.put("/notifications/read-all", {});
     } catch (err) {
       console.error("❌ mark all read:", err);
+      // ถ้าล้มเหลว ลองรีโหลดรายการกลับมาให้ตรงเซิร์ฟเวอร์
+      fetchNotifications();
     }
   };
 
   const clearAll = async () => {
     if (!confirm("Delete ALL notifications?")) return;
     try {
-      await axios.delete("/api/notifications", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setItems([]);
-      setUnread(0);
+      setItems([]); // optimistic
+      await http.delete("/notifications");
     } catch (err) {
       console.error("❌ clear all:", err);
+      fetchNotifications();
     }
   };
 
   const markSingleRead = async (id: string) => {
     try {
-      await axios.put(
-        `/api/notifications/${id}/read`,
-        {},
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setItems((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n))
-      );
-      setUnread((prev) => Math.max(0, prev - 1));
+      setItems((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+      await http.put(`/notifications/${id}/read`, {});
     } catch (err) {
       console.error("❌ mark single read:", err);
+      fetchNotifications();
     }
   };
 
-  const deleteSingle = async (id: string, wasUnread: boolean) => {
+  const deleteSingle = async (id: string) => {
     try {
-      await axios.delete(`/api/notifications/${id}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setItems((prev) => prev.filter((n) => n.id !== id));
-      if (wasUnread) setUnread((prev) => Math.max(0, prev - 1));
+      setItems((prev) => prev.filter((n) => n.id !== id)); // optimistic
+      await http.delete(`/notifications/${id}`);
     } catch (err) {
       console.error("❌ delete notification:", err);
+      fetchNotifications();
     }
   };
 
-  if (!token) return null;
+  const handleOpen = async () => {
+    if (!open) await fetchNotifications();
+    setOpen((prev) => !prev);
+  };
+
+  const go = (link?: string) => {
+    if (!link) return;
+    if (link.startsWith("/")) {
+      navigate(link);
+    } else {
+      window.open(link, "_blank", "noopener,noreferrer");
+    }
+  };
 
   return (
     <div ref={dropdownRef} className="relative">
       <button
-        onClick={() => {
-          if (!open) fetchNotifications();
-          setOpen((prev) => !prev);
-        }}
+        onClick={handleOpen}
         title="Notifications"
         className="relative rounded-full p-2 text-gray-600 hover:bg-gray-100"
       >
@@ -169,15 +157,16 @@ const NotificationWidget = () => {
             </div>
           </div>
 
+          {/* ฟิลเตอร์ */}
           <div className="p-4 text-sm text-gray-500 space-x-2">
-            {["ALL", "TEAM", "USER"].map((type) => (
+            {(["ALL", "TEAM", "USER"] as const).map((type) => (
               <button
                 key={type}
                 onClick={() => setAssignTypeFilter(type)}
-                className={`px-3 py-1 rounded-md text-sm capitalize ${
+                className={`px-3 py-1 rounded-md text-sm ${
                   assignTypeFilter === type
                     ? "bg-blue-500 text-white"
-                    : "bg-gray-200 hover:bg-gray-300"
+                    : "bg-gray-200 hover:bg-gray-300 text-gray-700"
                 }`}
               >
                 {type}
@@ -185,17 +174,17 @@ const NotificationWidget = () => {
             ))}
           </div>
 
-          {error && (
+          {/* สถานะโหลด/เออร์เรอร์/ว่าง */}
+          {loading && <p className="p-4 text-center text-sm text-gray-500">Loading...</p>}
+          {!loading && error && (
             <p className="p-4 text-center text-sm text-red-500">{error}</p>
           )}
-
-          {!error && filteredItems.length === 0 && (
-            <p className="p-4 text-center text-sm text-gray-500">
-              No notifications
-            </p>
+          {!loading && !error && filteredItems.length === 0 && (
+            <p className="p-4 text-center text-sm text-gray-500">No notifications</p>
           )}
 
-          {filteredItems.map((n) => (
+          {/* รายการแจ้งเตือน */}
+          {!loading && !error && filteredItems.map((n) => (
             <div
               key={n.id}
               className={`flex items-start justify-between border-b px-4 py-3 text-sm last:border-none ${
@@ -205,15 +194,11 @@ const NotificationWidget = () => {
               <div
                 className="cursor-pointer flex-1"
                 onClick={() => {
-                  markSingleRead(n.id);
-                  if (n.link) window.location.href = n.link;
+                  if (!n.read) markSingleRead(n.id);
+                  go(n.link);
                 }}
               >
-                <p
-                  className={`${
-                    n.read ? "text-gray-800" : "font-semibold text-gray-800"
-                  }`}
-                >
+                <p className={`${n.read ? "text-gray-800" : "font-semibold text-gray-800"}`}>
                   {n.message}
                 </p>
                 <p className="text-[11px] text-gray-400">
@@ -222,7 +207,7 @@ const NotificationWidget = () => {
               </div>
 
               <button
-                onClick={() => deleteSingle(n.id, !n.read)}
+                onClick={() => deleteSingle(n.id)}
                 title="Delete"
                 className="ml-2 mt-1 text-red-400 hover:text-red-600"
               >
@@ -235,4 +220,5 @@ const NotificationWidget = () => {
     </div>
   );
 };
+
 export default NotificationWidget;

@@ -1,91 +1,117 @@
-import { useEffect, useState, useContext } from "react";
-import axios from "axios";
+// src/pages/settings/AccountSettingsPage.tsx
+import { useEffect, useState } from "react";
 import SidebarWidget from "../../widgets/SidebarWidget";
-import { AuthContext } from "../../Authentication/AuthContext";
 import { useNavigate } from "react-router-dom";
+import { http } from "../../Authentication/http";
 
 interface FormState {
   fullName: string;
   email: string;
 }
 
+type ProfileResp = {
+  id: string;
+  name?: string;
+  email?: string;
+  avatar?: string;
+  avatarUrl?: string;
+};
+
+const normalizeAvatarUrl = (p?: string | null): string | null => {
+  if (!p) return null;
+  // ถ้าเป็น absolute URL หรือ data: ให้ใช้ตามนั้น
+  if (/^https?:\/\//i.test(p) || p.startsWith("data:")) return p;
+  // ถ้าเป็น path จาก backend → แยก filename แล้วเสิร์ฟจาก /api/profile/avatars/:filename
+  const filename = p.split("/").pop();
+  return filename && filename !== "null" ? `/api/profile/avatars/${filename}` : null;
+};
+
 const AccountSettingsPage = () => {
-  const { token } = useContext(AuthContext);
   const navigate = useNavigate();
 
   const [form, setForm] = useState<FormState>({
     fullName: "",
-    // username: "",
     email: "",
-    // password: "",
   });
 
   const [loading, setLoading] = useState(true);
   const [profilePicture, setProfilePicture] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
+  // โหลดโปรไฟล์ (ผ่านคุกกี้ + interceptor)
   useEffect(() => {
-    if (!token) {
-      navigate("/");
-    }
-  }, [token, navigate]);
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
 
-  useEffect(() => {
-    if (!token) return;
+    (async () => {
+      try {
+        const res = await http.get<ProfileResp>("/profile");
+        if (cancelled) return;
 
-    axios
-      .get("/api/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      })
-      .then((res) => {
         setForm({
           fullName: res.data.name ?? "",
-          email: res.data.email ?? "",    
+          email: res.data.email ?? "",
         });
 
-         if (res.data.avatarUrl) {
-        const filename = res.data.avatarUrl.split("/").pop();
-        setPreviewUrl(`/api/profile/avatars/${filename}`);
+        const avatar = normalizeAvatarUrl(res.data.avatarUrl || res.data.avatar);
+        setPreviewUrl(avatar);
+      } catch (e) {
+        // ถ้า 401 → interceptor จะเรียก /login/refresh ให้เอง
+        // ถ้า refresh ไม่ผ่าน http.ts จะ redirect → "/" ให้อยู่แล้ว
+        setError("Failed to load profile");
+        console.error("❌ Load profile error:", e);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
-        console.log("Profile data fetched:", res.data);
-      })
-      .catch(() => alert("Unauthorized or token expired"))
-      .finally(() => setLoading(false));
-  }, [token]);
+    })();
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => setForm({ ...form, [e.target.name]: e.target.value });
-//  username: ""
-//  , password: ""
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // เคลียร์ object URL ตอน unmount กัน memory leak
+  useEffect(() => {
+    return () => {
+      if (previewUrl?.startsWith("blob:")) {
+        URL.revokeObjectURL(previewUrl);
+      }
+    };
+  }, [previewUrl]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+
   const reset = () => {
     setForm({ fullName: "", email: "" });
     setProfilePicture(null);
+    // เคลียร์ preview เฉพาะกรณีเป็น blob
+    if (previewUrl?.startsWith("blob:")) {
+      URL.revokeObjectURL(previewUrl);
+    }
     setPreviewUrl(null);
   };
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
 
     const formData = new FormData();
     formData.append("name", form.fullName);
     formData.append("email", form.email);
-
-    if (profilePicture) {
-      formData.append("profilePicture", profilePicture);
-    }
+    if (profilePicture) formData.append("profilePicture", profilePicture);
 
     try {
-      await axios.put("/api/profile", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      // ไม่ต้องใส่ Authorization header เพราะใช้คุกกี้ HttpOnly
+      // ปล่อยให้ axios ตั้ง Content-Type multipart เองจาก FormData (ไม่ต้องกำหนด boundary)
+      await http.put("/profile", formData);
       alert("✅ Profile updated!");
       navigate("/dashboard");
-    } catch {
-      alert("Update failed");
+    } catch (e) {
+      console.error("❌ Update profile error:", e);
+      setError("Update failed");
     }
   };
 
@@ -126,6 +152,10 @@ const AccountSettingsPage = () => {
                   const file = e.target.files?.[0];
                   if (file) {
                     setProfilePicture(file);
+                    // ล้าง blob เดิมก่อนสร้างใหม่
+                    if (previewUrl?.startsWith("blob:")) {
+                      URL.revokeObjectURL(previewUrl);
+                    }
                     setPreviewUrl(URL.createObjectURL(file));
                   }
                 }}
@@ -136,15 +166,37 @@ const AccountSettingsPage = () => {
 
           {/* Form Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Input label="Full name" name="fullName" value={form.fullName} onChange={handleChange} />
-            <Input label="Email" name="email" value={form.email} onChange={handleChange} disabled/>
+            <Input
+              label="Full name"
+              name="fullName"
+              value={form.fullName}
+              onChange={handleChange}
+            />
+            <Input
+              label="Email"
+              name="email"
+              value={form.email}
+              onChange={handleChange}
+              disabled
+            />
           </div>
 
+          {error && (
+            <div className="text-red-600 text-sm">{error}</div>
+          )}
+
           <div className="flex space-x-4">
-            <button type="submit" className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700">
+            <button
+              type="submit"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            >
               Update Profile
             </button>
-            <button type="button" onClick={reset} className="px-6 py-2 text-gray-600 hover:underline">
+            <button
+              type="button"
+              onClick={reset}
+              className="px-6 py-2 text-gray-600 hover:underline"
+            >
               Reset
             </button>
           </div>

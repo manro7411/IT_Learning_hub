@@ -1,3 +1,4 @@
+// src/widgets/SidebarWidget.tsx
 import {
   Home, BookOpen, ClipboardList, Users, Star, Gamepad2,
   Settings, LogOut
@@ -6,42 +7,63 @@ import Logo from "../assets/logo.png";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../Authentication/AuthContext";
+import { http } from "../Authentication/http";
 
 const menuItems = [
   { name: "Dashboard", icon: <Home size={20} />, path: "/dashboard" },
-  { name: "Lesson",    icon: <BookOpen size={20} />, path: "/lesson"   },
+  { name: "Lesson",    icon: <BookOpen size={20} />, path: "/lesson" },
   { name: "Task",      icon: <ClipboardList size={20} />, path: "/task" },
-  { name: "Community",     icon: <Users size={20} />, path: "/forum" },
+  { name: "Community", icon: <Users size={20} />, path: "/forum" },
   { name: "Point",     icon: <Star size={20} />, path: "/point" },
   { name: "Game",      icon: <Gamepad2 size={20} />, path: "/minigame" },
-  { name: "Profile",  icon: <Settings size={20} />, path: "/settings" },
+  { name: "Profile",   icon: <Settings size={20} />, path: "/settings" },
 ];
 
 export default function SidebarWidget() {
-  const location           = useLocation();
-  const navigate           = useNavigate();
-  const { logout }         = useContext(AuthContext);
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { logout: ctxLogout } = useContext(AuthContext);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [pending, setPending] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    navigate("/");
+  const handleLogout = async () => {
+    setPending(true);
+    try {
+      // เรียก backend เพื่อลบคุกกี้ jwt/refresh
+      await http.post("/login/logout");
+    } catch {
+      // เงียบไว้ก็ได้—กรณีเน็ตหลุด/เซิร์ฟเวอร์ล้ม แต่เราจะเคลียร์ฝั่ง client ต่อไป
+    } finally {
+      // เคลียร์ state ฝั่ง client (ถ้า AuthContext มี logout ที่เรียก /logout อยู่แล้ว ก็ยังปลอดภัย)
+      try { await ctxLogout?.(); } catch { /* ignore */ }
+
+      setPending(false);
+      setShowConfirm(false);
+      navigate("/"); // กลับหน้า Login
+      // (ทางเลือก) กัน cache UI ค้าง: window.location.reload();
+    }
   };
 
   return (
     <aside className="w-64 bg-white shadow-md p-6 m-4 rounded-xl flex flex-col justify-between">
-
       <div>
-        <img src={Logo} alt="Bangkok Bank Logo" className="h-12 mb-8" onClick={() => navigate("/dashboard")} />
+        <img
+          src={Logo}
+          alt="Bangkok Bank Logo"
+          className="h-12 mb-8 cursor-pointer"
+          onClick={() => navigate("/dashboard")}
+        />
+
         <nav className="space-y-4 text-sm">
           {menuItems.map(({ name, icon, path }) => (
             <Link
               key={path}
               to={path}
-              className={`flex items-center space-x-3 transition
-                ${location.pathname === path
+              className={`flex items-center space-x-3 transition ${
+                location.pathname === path
                   ? "text-blue-600 font-semibold"
-                  : "text-black hover:text-blue-600"}`}
+                  : "text-black hover:text-blue-600"
+              }`}
             >
               {icon}
               <span>{name}</span>
@@ -53,12 +75,14 @@ export default function SidebarWidget() {
       <div className="text-sm space-y-2">
         <button
           onClick={() => setShowConfirm(true)}
-          className="flex items-center space-x-2 text-red-500 hover:underline"
+          className="flex items-center space-x-2 text-red-500 hover:underline disabled:opacity-60"
+          disabled={pending}
         >
           <LogOut size={18} />
-          <span>Logout</span>
+          <span>{pending ? "Logging out..." : "Logout"}</span>
         </button>
       </div>
+
       {showConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
           <div className="bg-white p-6 rounded-xl shadow-lg max-w-sm w-full text-center space-y-4">
@@ -68,14 +92,16 @@ export default function SidebarWidget() {
               <button
                 onClick={() => setShowConfirm(false)}
                 className="px-4 py-2 bg-gray-200 rounded-full hover:bg-gray-300"
+                disabled={pending}
               >
                 Cancel
               </button>
               <button
                 onClick={handleLogout}
-                className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600"
+                className="px-4 py-2 bg-red-500 text-white rounded-full hover:bg-red-600 disabled:opacity-60"
+                disabled={pending}
               >
-                Logout
+                {pending ? "Processing..." : "Logout"}
               </button>
             </div>
           </div>
