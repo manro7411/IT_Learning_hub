@@ -32,6 +32,9 @@ public class UserLessonProgress {
     @Column(name = "last_timestamp", nullable = false)
     private Integer lastTimestamp = 0;
 
+    @Column(name = "total_questions")
+    private Integer totalQuestions = 0;
+
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
@@ -102,5 +105,12 @@ public class UserLessonProgress {
     }
     public void setThumbnailUrl(String thumbnailUrl) {
         this.thumbnailUrl = thumbnailUrl;
+    }
+
+    public Integer getTotalQuestions() {
+        return totalQuestions;
+    }
+    public void setTotalQuestions(Integer totalQuestions) {
+        this.totalQuestions = totalQuestions;
     }
 }

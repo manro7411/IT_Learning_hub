@@ -49,7 +49,6 @@ const AdminTaskManagementPage = () => {
       return;
     }
     fetchLessons();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, navigate]);
 
   const handleSelectLesson = async (lesson: Lesson) => {
@@ -107,7 +106,6 @@ const AdminTaskManagementPage = () => {
 
       setLessons((prev) => prev.map((l) => (l.id === selectedLesson.id ? { ...l, ...payload } : l)));
 
-      // keep selectedLesson updated
       setSelectedLesson((prev) => (prev ? { ...prev, ...payload } : prev));
 
       setShowEditModal(false);

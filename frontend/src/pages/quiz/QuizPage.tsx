@@ -1,5 +1,3 @@
-// Full file version with summary screen and delayed redirect
-
 import { useState, useEffect, useContext } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -33,6 +31,7 @@ interface Progress {
   score: number;
   attempts: number;
   maxAttempts: number;
+  totalQuestion?: number;
 }
 
 const QuizPageStyled = () => {
@@ -77,7 +76,8 @@ const QuizPageStyled = () => {
 
   useEffect(() => {
     if (!learningContentId) return;
-    axios.get<Question[]>(`/api/questions/by-learning/${learningContentId}`)
+    axios
+      .get<Question[]>(`/api/questions/by-learning/${learningContentId}`)
       .then((res) => setQuestions(res.data))
       .catch((error) => console.error("❌ Failed to fetch questions:", error))
       .finally(() => setLoading(false));
@@ -97,10 +97,18 @@ const QuizPageStyled = () => {
 
   const submitScore = async (finalScore: number) => {
     try {
-      await axios.put(`/api/user/progress/${learningContentId}/submit-score`, { score: finalScore }, {
-        headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
-      });
+      await axios.put(
+        `/api/user/progress/${learningContentId}/submit-score`,
+        { score: finalScore , totalQuestions : questions.length},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
       console.log(`✅ Score submitted: ${finalScore}`);
+      console.log("Total Question",questions.length)
     } catch (error) {
       console.error("❌ Error submitting score:", error);
     }
@@ -110,15 +118,22 @@ const QuizPageStyled = () => {
 
   const handleContinue = async () => {
     const current = questions[currentQuestionIndex];
-    const isCorrect = current.choices?.some(c => c.choiceText === selectedOption && c.isCorrect);
-    if (isCorrect) setScore((prev) => prev + current.points);
+    const isCorrect = current.choices?.some(
+      (c) => c.choiceText === selectedOption && c.isCorrect
+    );
+    let updatedScore = score;
+
+    if (isCorrect) {
+      updatedScore += current.points;
+      setScore(updatedScore);
+    }
 
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex((prev) => prev + 1);
       setSelectedOption(null);
       setTimeLeft(20);
     } else {
-      await submitScore(score);
+      await submitScore(updatedScore);
       setShowSummary(true);
     }
   };
@@ -131,8 +146,13 @@ const QuizPageStyled = () => {
       <div className="flex min-h-screen items-center justify-center bg-white text-center p-10">
         <div>
           <h2 className="text-2xl font-bold text-red-600 mb-4">⚠️ Quiz Unavailable</h2>
-          <p className="text-gray-600 mb-4">You have used {attempts} / {maxAttempts} attempts.</p>
-          <button onClick={() => navigate("/lesson")} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+          <p className="text-gray-600 mb-4">
+            You have used {attempts} / {maxAttempts} attempts.
+          </p>
+          <button
+            onClick={() => navigate("/lesson")}
+            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
             Back to Lessons
           </button>
         </div>
@@ -155,13 +175,17 @@ const QuizPageStyled = () => {
         {showSummary ? (
           <div className="text-center mt-20">
             <h2 className="text-2xl font-bold text-green-600 mb-4">🎉 Quiz Completed!</h2>
-            <p className="text-gray-600 mb-2">You scored: <strong>{score}</strong> point(s)</p>
+            <p className="text-gray-600 mb-2">
+              You scored: <strong>{score}</strong> point(s)
+            </p>
             <p className="text-gray-500">Redirecting to lessons...</p>
           </div>
         ) : (
           <>
             <h2 className="text-xl font-bold mb-6">{currentQuestion.questionText}</h2>
-            <p className="text-sm text-gray-500 mb-4">ประเภท: {currentQuestion.type} | คะแนน: {currentQuestion.points}</p>
+            <p className="text-sm text-gray-500 mb-4">
+              ประเภท: {currentQuestion.type} | คะแนน: {currentQuestion.points}
+            </p>
             <QuestionWidget
               type={currentQuestion.type}
               choices={currentQuestion.choices}
@@ -187,8 +211,7 @@ const QuizPageStyled = () => {
         )}
       </div>
 
-      <div className="w-64 hidden lg:block">
-      </div>
+      <div className="w-64 hidden lg:block"></div>
     </div>
   );
 };

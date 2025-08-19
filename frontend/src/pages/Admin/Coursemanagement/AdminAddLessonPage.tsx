@@ -4,6 +4,8 @@ import axios from "axios";
 import AdminSidebarWidget from "../Widgets/AdminSideBar";
 import { AuthContext } from "../../../Authentication/AuthContext";
 import { sendLessonNotification } from "../Widgets/notificationServices";
+import { CATEGORY_GROUP } from "../../Lesson/Category";
+
 
 interface LessonFormState {
   title: string;
@@ -78,8 +80,13 @@ const AdminAddLessonPage = () => {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [showUserModal, setShowUserModal] = useState(false);
   const [activeTab, setActiveTab] = useState("video");
-   const [authorAvatarUrl, setAuthorAvatarUrl] = useState<User | null>(null);
-   const [videoUrl, setvideoUrl] = useState<File | null>(null);
+  const [authorAvatarUrl, setAuthorAvatarUrl] = useState<User | null>(null);
+  const [videoUrl, setvideoUrl] = useState<File | null>(null);
+  const [categoryGroup,setCategoryGroup] = useState<string>("");
+  const [categorySub,setCategorySub] = useState<string>(); 
+
+  const categoryValue = categorySub ? `${categoryGroup} > ${categorySub}` : categoryGroup;
+ 
   useEffect(() => {
     if (!token) navigate("/");
   }, [token, navigate]);
@@ -170,7 +177,7 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
   formData.append("contentType", "video");
   formData.append("title", form.title);
   formData.append("description", form.description);
-  formData.append("category", form.category);
+  formData.append("category", categoryValue);
   formData.append("thumbnailUrl", form.thumbnailUrl);
   formData.append("maxAttempts", form.quizAttemptLimit.toString());
   formData.append("assignType", form.assignType);
@@ -181,8 +188,6 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
   if (videoUrl) {
     formData.append("video", videoUrl); 
   }
-
-
 
   if (form.assignType === "specific") {
     selectedUsers.forEach((id) => formData.append("assignedUserIds", id));
@@ -238,7 +243,7 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
           formData.append("title",form.title)
           formData.append("description",form.description)
           formData.append("avatarUrl",authorAvatarUrl?.userPicture ?? "")
-          formData.append("category",form.category)
+          formData.append("category",categoryValue)
           formData.append("assignType", form.assignType ?? "");
 
           if (form.assignType === "team" && form.assignTeamId) {
@@ -317,7 +322,33 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
             </div>
             <Field label="Lesson Title" name="title" value={form.title} onChange={handleChange} required />
             <Field label="Description" name="description" value={form.description} onChange={handleChange} />
-            <Field label="Category" name="category" value={form.category} onChange={handleChange} />
+            {/* ------------------------------------------------ */}
+           <label className="text-sm font-medium text-gray-700">Category : </label>
+            <select
+              value={categoryGroup}
+              onChange={e => { setCategoryGroup(e.target.value); setCategorySub(""); }}
+            >
+              <option value="">---Select group---</option>
+              {Object.keys(CATEGORY_GROUP).map((g) => (
+                <option key={g} value={g}>{g}</option>
+              ))}
+            </select>
+
+            {(CATEGORY_GROUP[categoryGroup] ?? []).length > 0 && (
+              <>
+                <label className="text-sm font-medium text-gray-700 mt-2">Subcategory : </label>
+                <select
+                  value={categorySub}
+                  onChange={e => setCategorySub(e.target.value)}
+                >
+                  <option value="">---Select subcategory---</option>
+                  {CATEGORY_GROUP[categoryGroup].map((g) => (
+                    <option key={g} value={g}>{g}</option>
+                  ))}
+                </select>
+              </>
+            )}
+            {/* ------------------------------------------------ */}
             <div>
               <label className="text-sm font-medium text-gray-700">Assign To</label>
               <select name="assignType" value={form.assignType} onChange={handleAssignTypeChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50">

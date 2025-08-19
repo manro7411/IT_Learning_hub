@@ -3,15 +3,11 @@ import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
 import Sidebar from "../../widgets/SidebarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
-
-
 import {Document,Page,pdfjs} from 'react-pdf'
 import pdfWorker from 'pdfjs-dist/build/pdf.worker.min.js?url';
 import 'react-pdf/dist/Page/TextLayer.css';
 import 'react-pdf/dist/Page/AnnotationLayer.css'; 
-
 pdfjs.GlobalWorkerOptions.workerSrc = pdfWorker;
-
 interface Lesson {
   id: string;
   title: string;
@@ -26,7 +22,6 @@ interface Lesson {
   authorAvatarUrl?: string;
   quizAttemptLimit?: number;
 }
-
 interface Progress {
   lessonId: string;
   percent: number;
@@ -36,16 +31,13 @@ interface Progress {
   lastTimestamp: number;
   thumbnailUrl:string;
 }
-
 const LessonDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { token } = useContext(AuthContext);
   const navigate = useNavigate();
-
   const videoRef = useRef<HTMLVideoElement>(null);
   const lastTimestamp = useRef<number>(0);
   const lastSent = useRef<number>(0);
-
   const [lesson, setLesson] = useState<Lesson | null>(null);
   const [progressPercent, setProgressPercent] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -55,7 +47,6 @@ const LessonDetailPage = () => {
   const [maxAttempts, setMaxAttempts] = useState(1);
   const [quizPassed, setQuizPassed] = useState(false);
   const [lastTimestampFromServer, setLastTimestampFromServer] = useState<number | null>(null);
-
   const [currentPage, setCurrentPage] = useState(0);
   const [ numPages, setNumPages] = useState(0);
   useEffect(() => {
@@ -125,24 +116,26 @@ const LessonDetailPage = () => {
 
     const timer = setInterval(() => {
       const video = videoRef.current;
-      const current = Math.floor(progressPercent);
+      const currentPercent = Math.floor(progressPercent);
+      console.log("Current Timing: ",currentPercent)
       const currentTime = Math.floor(video?.currentTime || 0);
 
       if (
         video &&
         progressPercent > 0 &&
-        progressPercent < 100 &&
-        Math.floor(progressPercent) !== lastSent.current &&
+        progressPercent <= 100 &&
+        currentPercent !== lastSent.current &&
       currentTime > 0
+
       ) {
-        lastSent.current = current;
+        lastSent.current = currentPercent;
         console.log("thumbnailUrl: ",lesson.thumbnailUrl)
 
         axios
           .put(
             `/api/user/progress/${lesson.id}`,
             {
-              percent: current,
+              percent: currentPercent,
               lastTimestamp: Math.floor(video.currentTime),
               thumbnailUrl: lesson.thumbnailUrl || "",               
             },
@@ -155,7 +148,7 @@ const LessonDetailPage = () => {
           )
           .catch((err) => console.error("❌ PUT failed:", err));
       }
-    }, 5000);
+    }, 2000);
 
     return () => clearInterval(timer);
   }, [lesson, token, progressPercent]);
@@ -299,13 +292,6 @@ else if (lesson.contentType === "document") {
                   <p className="text-xs text-gray-500">{lesson.authorEmail || ""}</p>
                 </div>
               </div>
-
-              {/* <div className="h-1 bg-gray-300">
-                <div
-                  className="h-full bg-blue-600 transition-all"
-                  style={{ width: `${progressPercent}%` }}
-                />
-              </div> */}
               {filteringProgress()}
 
             
@@ -371,5 +357,4 @@ else if (lesson.contentType === "document") {
     </div>
   );
 };
-
 export default LessonDetailPage;

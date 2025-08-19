@@ -15,16 +15,18 @@ import AnswerFalse from "../pages/Game/Answer_false.tsx";
 import Rule from "../pages/Game/Rule";
 import { Route } from "react-router-dom";
 import QuizPageStyled from "../pages/quiz/QuizPage.tsx";
+import PointHistoryPage from "../pages/Point/PointHistoryPage.tsx";
 
 export const UserRoutes = () => (
     <>
         <Route path="/dashboard" element={<UserDashboard />} />
         <Route path="/lesson" element={<Lessondashboard />} />
         <Route path="/lesson/:id" element={<LessonDetailPage />} />
-            <Route path="/quiz/:id" element={<QuizPageStyled/>} />
+        <Route path="/quiz/:id" element={<QuizPageStyled/>} />
         <Route path="/task" element={<TaskManagement />} />
         <Route path="/forum" element={<KnowledgeForumLayout />} />
         <Route path="/point" element={<PointDashboard />} />
+        <Route path="/point/history" element={<PointHistoryPage/>}/>
         <Route path="/game" element={<Gamedashboard />} />
         <Route path="/settings" element={<AccountSettingsPage />} />
         <Route path="/lesson/:id/video" element={<LessonVideoPage />} />
