@@ -1,7 +1,6 @@
 import { useState, useEffect, useContext } from "react";
 import { useParams, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
-import SidebarWidget from "../../widgets/SidebarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
 import QuestionWidget from "./QuestionWidget";
 
@@ -164,9 +163,9 @@ const QuizPageStyled = () => {
 
   return (
     <div className="flex min-h-screen bg-white">
-      <div className={`w-64 hidden lg:block ${showSummary ? "" : "pointer-events-none opacity-50"}`}>
+      {/* <div className={`w-64 hidden lg:block ${showSummary ? "" : "pointer-events-none opacity-50"}`}>
         <SidebarWidget />
-      </div>
+      </div> */}
 
       <div className="flex-1 px-16 py-10 relative">
         <h1 className="text-2xl font-bold text-gray-800 mb-2">Welcome, {displayName}</h1>

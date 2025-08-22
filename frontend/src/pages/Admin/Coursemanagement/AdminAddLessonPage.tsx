@@ -426,66 +426,97 @@ const handleVideoSubmit = async (e: React.FormEvent) => {
         )}
 
         {activeTab === "document" && (
-          <div className="bg-white p-8 rounded-xl shadow space-y-6">
-            <Field label="Lesson Thumbnail URL" name="thumbnailUrl" value={form.thumbnailUrl} onChange={handleChange} />
-            <Field label="Lesson Title" name="title" value={form.title} onChange={handleChange} required />
-            <Field label="Lesson Description" name="description" value={form.description} onChange={handleChange} />
-            <Field label="Category" name="category" value={form.category} onChange={handleChange}></Field>
-            <div>
-              <label className="text-sm font-medium text-gray-700">Assgin To</label>
-              <select name="assignType" value={form.assignType} onChange={handleAssignTypeChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50">
-                <option value="all">All Users</option>
-                <option value="team">Specific Team</option>
-                <option value="specific">Specific User</option>                
-              </select>
-              {form.assignType === "team" && (
-                <select
-                  name="assignTeamId"
-                  value={form.assignTeamId || ""}
-                  onChange={(e) => setForm({ ...form, assignTeamId: e.target.value })}
-                  className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
-                >
-                  <option value="">-- Select a team --</option>
-                  {teams.map((team) => (
-                    <option key={team.id} value={team.id}>{team.name}</option>
-                  ))}
-                </select>
-              )}
-              {form.assignType === "specific" && selectedUsers.length > 0 &&(
-               <p className="text-sm text-gray-500 mt-1">
-                  Selected users: {users.filter(u => selectedUsers.includes(u.id)).map(u => u.name).join(", ")}
-                </p>
-              ) 
-              }
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">Upload File (.pdf, .doc, .docx)</label>
-              <input
-                type="file"
-                accept=".pdf,.doc,.docx,.png,.jpeg"
-                className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
-                onChange={(e) => {
-                  const file = e.target.files?.[0];
-                  if (file) {
-                    const reader = new FileReader();
-                    reader.onload = () => {
-                      setForm((prev) => ({
-                        ...prev,
-                        thumbnailFile: file,
-                        thumbnailUrl: URL.createObjectURL(file),
-                      }));
-                    };
-                    reader.readAsDataURL(file);
-                  }
-                }}
-              />
-            </div>
-            <div className="flex gap-4">
-              <button onClick={handleDocumentSubmit} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50">{loading ? "Uploading…" : "Upload Document"}</button>
-              <button onClick={resetForm} className="text-gray-600 hover:underline">Reset</button>
-            </div>
-          </div>
-        )}
+  <div className="bg-white p-8 rounded-xl shadow space-y-6">
+    <Field label="Lesson Thumbnail URL" name="thumbnailUrl" value={form.thumbnailUrl} onChange={handleChange} />
+    <Field label="Lesson Title" name="title" value={form.title} onChange={handleChange} required />
+    <Field label="Lesson Description" name="description" value={form.description} onChange={handleChange} />
+    
+    {/* Category and Subcategory */}
+    <label className="text-sm font-medium text-gray-700">Category : </label>
+    <select
+      value={categoryGroup}
+      onChange={(e) => {
+        setCategoryGroup(e.target.value);
+        setCategorySub(""); // Reset subcategory when category changes
+      }}
+    >
+      <option value="">---Select group---</option>
+      {Object.keys(CATEGORY_GROUP).map((g) => (
+        <option key={g} value={g}>{g}</option>
+      ))}
+    </select>
+
+    {(CATEGORY_GROUP[categoryGroup] ?? []).length > 0 && (
+      <>
+        <label className="text-sm font-medium text-gray-700 mt-2">Subcategory : </label>
+        <select
+          value={categorySub}
+          onChange={(e) => setCategorySub(e.target.value)}
+        >
+          <option value="">---Select subcategory---</option>
+          {CATEGORY_GROUP[categoryGroup].map((sub) => (
+            <option key={sub} value={sub}>{sub}</option>
+          ))}
+        </select>
+      </>
+    )}
+
+    <div>
+      <label className="text-sm font-medium text-gray-700">Assign To</label>
+      <select name="assignType" value={form.assignType} onChange={handleAssignTypeChange} className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50">
+        <option value="all">All Users</option>
+        <option value="team">Specific Team</option>
+        <option value="specific">Specific User</option>
+      </select>
+      {form.assignType === "team" && (
+        <select
+          name="assignTeamId"
+          value={form.assignTeamId || ""}
+          onChange={(e) => setForm({ ...form, assignTeamId: e.target.value })}
+          className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
+        >
+          <option value="">-- Select a team --</option>
+          {teams.map((team) => (
+            <option key={team.id} value={team.id}>{team.name}</option>
+          ))}
+        </select>
+      )}
+      {form.assignType === "specific" && selectedUsers.length > 0 && (
+        <p className="text-sm text-gray-500 mt-1">
+          Selected users: {users.filter((u) => selectedUsers.includes(u.id)).map((u) => u.name).join(", ")}
+        </p>
+      )}
+    </div>
+    <div>
+      <label className="text-sm font-medium text-gray-700">Upload File (.pdf, .doc, .docx)</label>
+      <input
+        type="file"
+        accept=".pdf,.doc,.docx,.png,.jpeg"
+        className="w-full mt-1 px-4 py-2 border rounded-lg bg-gray-50"
+        onChange={(e) => {
+          const file = e.target.files?.[0];
+          if (file) {
+            const reader = new FileReader();
+            reader.onload = () => {
+              setForm((prev) => ({
+                ...prev,
+                thumbnailFile: file,
+                thumbnailUrl: URL.createObjectURL(file),
+              }));
+            };
+            reader.readAsDataURL(file);
+          }
+        }}
+      />
+    </div>
+    <div className="flex gap-4">
+      <button onClick={handleDocumentSubmit} disabled={loading} className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg disabled:opacity-50">
+        {loading ? "Uploading…" : "Upload Document"}
+      </button>
+      <button onClick={resetForm} className="text-gray-600 hover:underline">Reset</button>
+    </div>
+  </div>
+)}
 
         {showUserModal && (
           <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">

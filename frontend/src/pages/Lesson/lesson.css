@@ -1,0 +1,9 @@
+.noscrub::-webkit-media-controls-timeline,
+.noscrub::-webkit-media-controls-seek-back-button,
+.noscrub::-webkit-media-controls-seek-forward-button {
+  display: none !important;
+}
+.noscrub::-webkit-media-controls-current-time-display,
+.noscrub::-webkit-media-controls-time-remaining-display {
+  display: none !important;
+}

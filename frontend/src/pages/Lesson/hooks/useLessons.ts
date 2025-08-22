@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 interface Lesson {
+  __cat: { group: any; path: any; };
   id: string;
   title: string;
   category: string;
@@ -38,6 +39,7 @@ export function useLesson(token: string | null, pathname: string){
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
+        // console.log(lessonsRes.data)
         setLessons(lessonsRes.data);
         
         const map: Record<string, Progress> = {};

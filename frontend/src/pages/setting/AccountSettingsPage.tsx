@@ -47,7 +47,6 @@ const AccountSettingsPage = () => {
         const filename = res.data.avatarUrl.split("/").pop();
         setPreviewUrl(`/api/profile/avatars/${filename}`);
       }
-        console.log("Profile data fetched:", res.data);
       })
       .catch(() => alert("Unauthorized or token expired"))
       .finally(() => setLoading(false));

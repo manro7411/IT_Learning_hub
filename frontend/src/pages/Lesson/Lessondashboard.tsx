@@ -1,5 +1,5 @@
 import { useContext, useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate, useLocation, Navigate } from "react-router-dom";
 import axios from "axios";
 import { AuthContext } from "../../Authentication/AuthContext";
 import Sidebar from "../../widgets/SidebarWidget";
@@ -46,10 +46,19 @@ export default function LessonDashboard() {
     let total = lessons.length;
     let completed = 0;
     let inProgress = 0;
+    let notStarted = 0;
     for (const l of lessons) {
       const key = l.id.toLowerCase();
       const percent = progressMap[key]?.percent ?? 0;
-      if (percent >= 100) completed += 1; else inProgress += 1;
+      // if (percent >= 100) completed += 1; else inProgress += 1;
+
+      if (percent >= 100) {
+        completed+=1;
+      }else if (percent > 0) {
+        inProgress += 1;
+      }else{
+        notStarted +=1
+      }
     }
     return { total, completed, inProgress };
   }, [lessons, progressMap]);
@@ -120,6 +129,8 @@ export default function LessonDashboard() {
       return [...withoutGroup, group];
     });
   };
+
+   if (!token) return <Navigate to="/" replace />;
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

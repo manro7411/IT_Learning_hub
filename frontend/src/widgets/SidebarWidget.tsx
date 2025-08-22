@@ -2,7 +2,7 @@ import {
   Home, BookOpen, ClipboardList, Users, Star, Gamepad2,
   Settings, LogOut
 } from "lucide-react";
-import Logo from "../assets/logo.png";
+import BBL from "../assets/BBL.BK_BIG-4e142047.png"
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useContext, useState } from "react";
 import { AuthContext } from "../Authentication/AuthContext";
@@ -32,7 +32,7 @@ export default function SidebarWidget() {
     <aside className="w-64 bg-white shadow-md p-6 m-4 rounded-xl flex flex-col justify-between">
 
       <div>
-        <img src={Logo} alt="Bangkok Bank Logo" className="h-12 mb-8" onClick={() => navigate("/dashboard")} />
+        <img src={BBL} alt="Bangkok Bank Logo" className="w-22 mb-10 cursor-pointer max-w-[90%]" onClick={() => navigate("/dashboard")} />
         <nav className="space-y-4 text-sm">
           {menuItems.map(({ name, icon, path }) => (
             <Link

@@ -6,11 +6,14 @@ import Reward from './Reward';
 import { useContext } from 'react';
 import { AuthContext } from '../../Authentication/AuthContext';
 import { useUserScore } from './hooks/useUserScore';
+import { Navigate } from 'react-router-dom';
 
 const PointDashboard = () => {
   const { token: ctxToken } = useContext(AuthContext);
   const token = ctxToken || localStorage.getItem("token") || sessionStorage.getItem("token");
   const { overallScore, userEmail } = useUserScore(token);
+
+   if (!token) return <Navigate to="/" replace />;
 
   return (
     <div className="min-h-screen bg-gray-50 flex">

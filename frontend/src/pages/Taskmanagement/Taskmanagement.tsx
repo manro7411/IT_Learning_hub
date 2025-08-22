@@ -76,9 +76,10 @@ const TaskManagement = () => {
               .includes(profile.id.trim().toLowerCase())
           );
 
-        console.log("🎯 Filtered Specific Lessons:", specificLessons);
+        // console.log("🎯 Filtered Specific Lessons:", specificLessons);
 
         // Map progress data to tasks
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const mappedTasks: Task[] = progressData.map((item: any) => {
           let status: Task['status'] = 'todo';
           if (item.percent >= 100) status = 'done';
@@ -122,7 +123,7 @@ const TaskManagement = () => {
           }));
 
         const allTasks = [...mappedTasks, ...additionalTasks];
-        console.log("🧩 Final Combined Tasks:", allTasks);
+        // console.log("🧩 Final Combined Tasks:", allTasks);
 
         setTasks(allTasks);
       } catch (err) {

@@ -25,6 +25,7 @@ public class ChatLogResource {
 
     @POST
     @Transactional
+    @RolesAllowed("user")
     public Response save(ChatLog log) {
         String email = jwt.getSubject();
 

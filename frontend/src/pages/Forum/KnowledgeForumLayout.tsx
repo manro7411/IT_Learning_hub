@@ -3,6 +3,7 @@ import { AuthContext } from "../../Authentication/AuthContext.tsx";
 import Sidebar from "../../widgets/SidebarWidget";
 import PostCardWidget from "./PostCardWidget.tsx";
 import AddPostWidget from "./AddPostWidget.tsx";
+import { Navigate } from "react-router-dom";
 
 export type Comment = {
   avatarUrl: string;
@@ -78,7 +79,7 @@ const KnowledgeForumLayout = () => {
           comments: await fetchComments(p.id),
         }))
       );
-      console.log(enrichedPosts)
+      // console.log(enrichedPosts)
       setPosts(enrichedPosts);
     } catch (err) {
       console.error("❌ Error fetching posts:", err);
@@ -103,6 +104,7 @@ const KnowledgeForumLayout = () => {
     return acc
   }, {} as Record<string,Post[]>);
 
+  if (!token) return <Navigate to="/" replace />;
 
   return (
     <div className="flex min-h-screen bg-gray-50">

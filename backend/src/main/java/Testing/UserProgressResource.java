@@ -25,6 +25,8 @@ public class UserProgressResource {
 
     @Inject EntityManager em;
     @Inject JsonWebToken jwt;
+    @Inject
+    LearningContentResource learningContentResource;
 
     @GET
     public List<UserCourseProgressDto> getMyProgress() {
@@ -197,15 +199,46 @@ public class UserProgressResource {
                     return newProgress;
                 });
 
+        System.out.println("UserLessonProgress persisted: " + req.contentType);
+        System.out.println("screen time : "+ req.screenTime);
+        System.out.println("Progress from database :"+progress.getScreenTime());
+
+        if ("video".equalsIgnoreCase(req.contentType)){
+            int prevTime = Optional.ofNullable(progress.getScreenTime()).orElse(0);
+            int newTime = Optional.ofNullable(req.screenTime).orElse(0);
+            progress.setScreenTime(prevTime+newTime);
+        }else{
+            progress.setScreenTime(Optional.ofNullable(req.screenTime).orElse(0));
+        }
         progress.setPercent(req.percent);
         progress.setLastTimestamp(Optional.ofNullable(req.lastTimestamp).orElse(0));
         progress.setUpdatedAt(LocalDateTime.now());
         progress.setThumbnailUrl(req.thumbnailUrl);
 
-        if (req.percent == 100){
-            System.out.println("You have reached the maximum number of attempts for this question.");
+        System.out.println("Progress updated: " + progress.getPercent());
+        if (req.percent == 100 ) {
+            boolean scoreExists = em.createQuery("""
+            SELECT COUNT(ls) FROM LearningScoreEntity ls
+            WHERE ls.userEmail = :userEmail AND ls.lessonId = :lessonId
+            """, Long.class)
+                    .setParameter("userEmail", userEmail)
+                    .setParameter("lessonId", lessonId)
+                    .getSingleResult() > 0;
+
+            if (!scoreExists) {
+                LearningScoreEntity learningScore = new LearningScoreEntity();
+                learningScore.setUserEmail(userEmail);
+                learningScore.setLessonId(lessonId);
+                learningScore.setOverallScore(1);
+                learningScore.setUpdatedAt(LocalDateTime.now());
+                em.persist(learningScore);
+                System.out.println("Learning score added for completed lesson.");
+            } else {
+                System.out.println("Learning score already exists. Skipping insert.");
+            }
         }
 
+        System.out.println("Screen TIME : "+progress.getScreenTime());
         return Response.ok().build();
     }
 
@@ -216,6 +249,8 @@ public class UserProgressResource {
         public int percent;
         public int score;
         public int attempts;
+        public int screenTime;
+        public int totalQuestions;
         public int maxAttempts;
         public String userEmail;
         public int lastTimestamp;
@@ -230,5 +265,7 @@ public class UserProgressResource {
         public int percent;
         public String thumbnailUrl;
         public Integer lastTimestamp;
+        public Integer screenTime;
+        public String contentType;
     }
 }

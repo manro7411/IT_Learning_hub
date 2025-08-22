@@ -35,6 +35,9 @@ public class UserLessonProgress {
     @Column(name = "total_questions")
     private Integer totalQuestions = 0;
 
+    @Column(name = "Screen time")
+    private Integer screenTime = 0;
+
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
@@ -112,5 +115,12 @@ public class UserLessonProgress {
     }
     public void setTotalQuestions(Integer totalQuestions) {
         this.totalQuestions = totalQuestions;
+    }
+
+    public void setScreenTime(Integer screenTime) {
+        this.screenTime = screenTime;
+    }
+    public Integer getScreenTime() {
+        return screenTime;
     }
 }

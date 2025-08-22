@@ -23,6 +23,7 @@ public class CommentResource {
     @Inject JsonWebToken jwt;
 
     @GET
+    @RolesAllowed("user")
     public List<CommentDto> list(@PathParam("postId") String postId) {
         return em.createQuery("""
                     SELECT c FROM CommentEntity c
@@ -37,6 +38,7 @@ public class CommentResource {
 
     @POST
     @Transactional
+    @RolesAllowed("user")
     public Response create(@PathParam("postId") String postId,
                            CommentDto dto) {
 

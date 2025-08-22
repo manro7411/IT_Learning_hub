@@ -27,6 +27,7 @@ public class PostResource {
     EntityManager em;
 
     @GET
+    @RolesAllowed("user")
     public List<PostEntity> getAllPosts() {
         List<PostEntity> posts = em.createQuery("SELECT p FROM PostEntity p ORDER BY p.createdAt DESC", PostEntity.class)
                 .getResultList();
@@ -46,6 +47,8 @@ public class PostResource {
     }
     @GET
     @Path("/{id}")
+    @RolesAllowed("user")
+
     public PostEntity getOne(@PathParam("id") String id) {
         PostEntity post = em.find(PostEntity.class, id);
         if (post == null) throw new NotFoundException("Post not found");
@@ -63,6 +66,7 @@ public class PostResource {
     @POST
     @Path("/{id}/like")
     @Transactional
+    @RolesAllowed("user")
     public Response like(@PathParam("id") String id) {
         String userEmail = identity.getPrincipal().getName();
         PostEntity post = em.find(PostEntity.class, id);
@@ -84,6 +88,7 @@ public class PostResource {
     @POST
     @Path("/{id}/unlike")
     @Transactional
+    @RolesAllowed("user")
     public Response unlike(@PathParam("id") String id) {
         String userEmail = identity.getPrincipal().getName();
         PostEntity post = em.find(PostEntity.class, id);

@@ -14,7 +14,9 @@ import jakarta.inject.Inject;
 import jakarta.persistence.EntityManager;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Request;
 import jakarta.ws.rs.core.Response;
 import model.LearningContent;
 import model.UserLessonProgress;
@@ -22,6 +24,7 @@ import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.jboss.resteasy.reactive.PartType;
 import org.jboss.resteasy.reactive.RestForm;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -39,7 +42,10 @@ public class LearningContentResource {
     @Inject EntityManager em;
     @Inject JsonWebToken jwt;
 
+    private static final int DEFAULT_BUFFER_SIZE = 4096;
+
     @GET
+    @RolesAllowed({"user","admin"})
     public List<LearningContentDto> list(@QueryParam("mine") @DefaultValue("false") boolean mine) {
         if (mine) {
             String email = jwt.getSubject();
@@ -66,6 +72,7 @@ public class LearningContentResource {
     @Path("/video/{filename}")
     @Produces("video/mp4")
     public Response getVideo(@PathParam("filename") String filename) {
+
         try {
             java.nio.file.Path videoPath = java.nio.file.Paths.get("uploads/video", filename);
             if (!Files.exists(videoPath)) {
@@ -73,12 +80,64 @@ public class LearningContentResource {
             }
 
             return Response.ok(Files.newInputStream(videoPath))
+                    .header("Accept-Ranges", "bytes")
                     .header("Content-Disposition", "inline; filename=\"" + filename + "\"")
                     .build();
         } catch (Exception e) {
             throw new InternalServerErrorException("Failed to load video.");
         }
     }
+    @GET
+    @Path("/video/v2/{filename}")
+    @Produces("video/mp4")
+    public Response getVideoV2(@PathParam("filename") String filename, @HeaderParam("Range") String rangeHeader) {
+        try {
+            java.nio.file.Path videoPath = java.nio.file.Paths.get("uploads/video", filename);
+            if (!Files.exists(videoPath)) {
+                throw new NotFoundException("Video not found.");
+            }
+
+            long fileLength = Files.size(videoPath);
+            InputStream inputStream;
+            long start = 0;
+            long end = fileLength - 1;
+
+            if (rangeHeader != null && rangeHeader.startsWith("bytes=")) {
+                String[] ranges = rangeHeader.substring(6).split("-");
+                start = Long.parseLong(ranges[0]);
+                if (ranges.length > 1 && !ranges[1].isEmpty()) {
+                    end = Long.parseLong(ranges[1]);
+                }
+
+                if (end >= fileLength) {
+                    end = fileLength - 1;
+                }
+
+                long contentLength = end - start + 1;
+                inputStream = Files.newInputStream(videoPath);
+                inputStream.skip(start);
+
+                return Response.status(Response.Status.PARTIAL_CONTENT)
+                        .entity(inputStream)
+                        .header("Content-Type", "video/mp4")
+                        .header("Accept-Ranges", "bytes")
+                        .header("Content-Range", "bytes " + start + "-" + end + "/" + fileLength)
+                        .header("Content-Length", contentLength)
+                        .header("Content-Disposition", "inline; filename=\"" + filename + "\"")
+                        .build();
+            } else {
+                inputStream = Files.newInputStream(videoPath);
+                return Response.ok(inputStream)
+                        .header("Content-Length", fileLength)
+                        .header("Accept-Ranges", "bytes")
+                        .header("Content-Disposition", "inline; filename=\"" + filename + "\"")
+                        .build();
+            }
+        } catch (Exception e) {
+            throw new InternalServerErrorException("Failed to load video.");
+        }
+    }
+
 
     @POST
     @Transactional
@@ -334,6 +393,7 @@ public class LearningContentResource {
     @Path("/document/{filename}")
     @Produces({"application/pdf", "application/msword", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/jpeg", "image/png"})
     public Response getDocument(@PathParam("filename") String filename) {
+        validateFilename(filename);
         try {
             java.nio.file.Path file = Paths.get("uploads/documents", filename);
             if (!Files.exists(file)) {
@@ -341,6 +401,7 @@ public class LearningContentResource {
             }
 
             String mimeType = Files.probeContentType(file); // Automatically detect MIME type
+            System.out.println(mimeType);
             if (mimeType == null) {
                 mimeType = "application/octet-stream";
             }
@@ -400,6 +461,17 @@ public class LearningContentResource {
         } catch (Exception e) {
             e.printStackTrace();
             throw new InternalServerErrorException("❌ Failed to save document.");
+        }
+    }
+
+    private void validateFilename(String filename) {
+        if (filename == null || filename.isEmpty()) {
+            throw new BadRequestException("Filename is required.");
+        }
+
+        // Reject filenames with illegal characters
+        if (!filename.matches("^[\\w,\\s-]+\\.[A-Za-z]{3,4}$")) {
+            throw new BadRequestException("Invalid filename: " + filename);
         }
     }
 

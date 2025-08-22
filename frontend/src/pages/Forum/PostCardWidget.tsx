@@ -163,6 +163,7 @@ const PostCardWidget = ({ post }: Props) => {
       </div>
     );
   };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const fileNameFromBackend: string | undefined = (post as any).document || undefined;
   const documentUrl = fileNameFromBackend
   ? `/api/posts/postDocument/${encodeURIComponent(fileNameFromBackend)}`
@@ -171,7 +172,7 @@ const PostCardWidget = ({ post }: Props) => {
   const docFileName = fileNameFromBackend || "";
   const docExt = docFileName.includes(".") ? docFileName.split(".").pop()!.toLowerCase() : "";
   const isPdf = docExt === "pdf";
-  console.log("DocumentUrl : ",documentUrl)
+  // console.log("DocumentUrl : ",documentUrl)
 
   return (
     <article className="bg-white rounded-lg shadow p-4">

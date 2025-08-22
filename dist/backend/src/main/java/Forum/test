@@ -1,0 +1,76 @@
+@GET
+@Path("/pictures/{file}")
+@Produces("image/*")
+public Response getPicture(@PathParam("file") String file) throws IOException {
+    java.nio.file.Path path = Paths.get("uploads/picture", file);
+    if (!Files.exists(path)) throw new NotFoundException("Not found");
+    return Response.ok(path.toFile()).build();
+}
+
+@POST
+@Transactional
+@Consumes(MediaType.MULTIPART_FORM_DATA)
+public Response create(@MultipartForm PostCreateRequest req) {
+    if (identity.isAnonymous()) {
+        return Response.status(Response.Status.UNAUTHORIZED).build();
+    }
+
+    String email = identity.getPrincipal().getName();
+    String displayName = Optional.ofNullable(req.authorName)
+            .filter(s -> !s.isBlank())
+            .orElse(email);
+
+    User user = em.createQuery("SELECT u FROM User u WHERE u.email = :email", User.class)
+            .setParameter("email", email)
+            .getSingleResult();
+
+    PostEntity post = new PostEntity();
+    post.setAuthorName(displayName);
+    post.setAuthorEmail(email);
+    post.setTitle(req.title);
+    post.setMessage(req.message);
+    post.setForumCategory(req.forumCategory);
+
+    if (user.getAvatar() != null) {
+        post.setAvatarUrl(user.getAvatar());
+    }
+
+    post.persist(); // ต้อง persist ก่อนเพื่อให้มี ID
+
+    // ⬇️ อัปโหลดรูป (ถ้ามี)
+    if (req.pictureStream != null && req.pictureName != null && !req.pictureName.isBlank()) {
+        try {
+            String ext = req.pictureName.contains(".")
+                ? req.pictureName.substring(req.pictureName.lastIndexOf('.'))
+                : ".jpg";
+            String filename = post.getId() + ext;
+
+            java.nio.file.Path dir = java.nio.file.Paths.get("uploads/picture");
+            java.nio.file.Files.createDirectories(dir);
+            java.nio.file.Path picturePath = dir.resolve(filename);
+
+            java.nio.file.Files.copy(req.pictureStream, picturePath, StandardCopyOption.REPLACE_EXISTING);
+
+            System.out.println("✅ Uploaded picture: " + picturePath.toString());
+
+            post.setPictureUrl("uploads/picture/" + filename);
+        } catch (Exception e) {
+            throw new InternalServerErrorException("❌ Failed to save picture.");
+        }
+    }
+
+    return Response.created(URI.create("/posts/" + post.getId()))
+            .entity(post)
+            .build();
+}
+
+public class PostCreateRequest {
+    @FormParam("title") @NotBlank public String title;
+    @FormParam("message") @NotBlank public String message;
+    @FormParam("forumCategory") public String forumCategory;
+    @FormParam("authorName") public String authorName;
+    @FormParam("picture") public java.io.InputStream pictureStream; // รูปที่อัปโหลด
+    @FormParam("pictureName") public String pictureName; // ชื่อไฟล์ที่อัปโหลด
+}
+
+java.nio.file.Files.copy(req.picture, picturePath, StandardCopyOption.REPLACE_EXISTING);
