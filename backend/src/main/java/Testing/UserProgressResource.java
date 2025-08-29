@@ -68,6 +68,7 @@ public class UserProgressResource {
             var dto = new UserCourseProgressDto();
             dto.lessonId = lesson.getId();
             dto.lessonTitle = Optional.ofNullable(lesson.getTitle()).orElse("Untitled");
+            dto.dueDate = lesson.getDueDate();
             dto.percent = Optional.ofNullable(p.getPercent()).orElse(0);
             dto.score = Optional.ofNullable(p.getScore()).orElse(0);
             dto.attempts = Optional.ofNullable(p.getAttempts()).orElse(0);
@@ -75,6 +76,7 @@ public class UserProgressResource {
             dto.userEmail = p.getUserEmail();
             dto.lastTimestamp = p.getLastTimestamp();
             dto.thumbnailUrl = p.getThumbnailUrl();
+            dto.updatedAt = p.getUpdatedAt();
 
             result.add(dto);
         }
@@ -254,6 +256,9 @@ public class UserProgressResource {
         public int maxAttempts;
         public String userEmail;
         public int lastTimestamp;
+        public LocalDateTime updatedAt;
+        public LocalDateTime dueDate;
+
     }
 
     public static class SubmitScoreRequest {

@@ -3,25 +3,17 @@ import { useEffect, useRef, useState, useContext } from "react";
 import axios from "axios";
 import Sidebar from "../../widgets/SidebarWidget";
 import { AuthContext } from "../../Authentication/AuthContext";
-
 import { Document, Page, pdfjs } from "react-pdf";
 import "react-pdf/dist/Page/AnnotationLayer.css";
 import "react-pdf/dist/Page/TextLayer.css";
-
-
-
-// pdfjs.GlobalWorkerOptions.workerSrc = new URL(
-//   "pdfjs-dist/build/pdf.worker.min.mjs",
-//   import.meta.url
-// ).toString();
-
-import workerSrc from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-pdfjs.GlobalWorkerOptions.workerSrc = workerSrc;
-// pdfjs.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.mjs';
-
-
+import LessonFeedbackWidget from "../../widgets/LearningFeedbackFormWidget";
 import "./lesson.css";
+import FeedbackWidget from "../../widgets/Feedback";
+// Set pdfjs workerSrc for react-pdf
 
+// Set the workerSrc for pdfjs (react-pdf requirement)
+// pdfjs.GlobalWorkerOptions.workerSrc = `//cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.js`;
+pdfjs.GlobalWorkerOptions.workerSrc = '/pdf-worker/pdf.worker.min.mjs';
 interface Lesson {
   id: string;
   title: string;
@@ -35,6 +27,7 @@ interface Lesson {
   authorEmail?: string;
   authorAvatarUrl?: string;
   quizAttemptLimit?: number;
+  quizAvailable?: boolean;
 }
 
 interface Progress {
@@ -101,9 +94,9 @@ const LessonDetailPage = () => {
           return;
         }
 
-        console.log(found.percent)
-        console.log(found.screenTime || 0)
-        console.log("found:", found)
+        // console.log(found.percent)
+        // console.log(found.screenTime || 0)
+        // console.log("found:", found)
 
         setAttempts(found.attempts);
         setMaxAttempts(found.maxAttempts);
@@ -160,13 +153,15 @@ const LessonDetailPage = () => {
     }
 
     const percent = (currentTime / video.duration) * 100;
-    if (percent > progressPercent) {
-      setProgressPercent(percent);
+    const newTime = Math.floor(percent);
+    // console.log("New Time Updated",newTime)
+    if (newTime > progressPercent) {
+      setProgressPercent(newTime);
     }
   
     setVideoScreenTime((prev) => {
       const newTime = prev + 1;
-      console.log(`🎥 Video screen time: ${newTime} seconds`);
+      // console.log(`🎥 Video screen time: ${newTime} seconds`);
       return newTime;
     });
 
@@ -219,9 +214,9 @@ const LessonDetailPage = () => {
         const updatedTime = prev + 1;
         const progressPercent = Math.min((updatedTime / maxScreenTime) * 100, 100);
         setDocProgress(progressPercent);
-        console.log(`📄 Document screen time: ${updatedTime} seconds`);
-        console.log(`📄 Document max screen time: ${maxScreenTime} seconds`);
-        console.log(`📄 Document progress: ${progressPercent}%`);
+        // console.log(`📄 Document screen time: ${updatedTime} seconds`);
+        // console.log(`📄 Document max screen time: ${maxScreenTime} seconds`);
+        // console.log(`📄 Document progress: ${progressPercent}%`);
         return updatedTime;
       });
     }
@@ -275,6 +270,8 @@ useEffect(() => {
     }, 1000);
   }
 
+  // console.log("Printout Quiz availability: ",lesson?.quizAvailable)
+
   return () => {
     if (timer) clearInterval(timer);
   };
@@ -284,8 +281,10 @@ useEffect(() => {
       progressPercent >= 100 &&
       !showQuiz &&
       lesson &&
-      lesson.quizAttemptLimit
+      (lesson.quizAttemptLimit || 1) &&
+      !quizPassed && !hasTakenQuiz && lesson.quizAvailable
     ) {
+      // console.log("Show Quiz: ",showQuiz)
       setShowQuiz(true);
     }
   }, [progressPercent, showQuiz, lesson]);
@@ -297,6 +296,7 @@ useEffect(() => {
   }
 
   const filename = lesson.videoUrl?.split("/").pop() || "";
+  // console.log(filename)
   const documentfile =
     lesson.documentUrl?.split("/").pop() || "Can't find document";
 
@@ -309,7 +309,8 @@ useEffect(() => {
       }
 
       return (
-        <video
+        <div>
+           <video
           ref={videoRef}
           controls
           onLoadedMetadata={handleLoadedMetadata}
@@ -318,8 +319,12 @@ useEffect(() => {
           className="w-full h-auto bg-black noscrub"
           controlsList="noplaybackrate nodownload noremoteplayback"
           disablePictureInPicture
+          muted={false}
           src={`/api/learning/video/v2/${filename}`}
         />
+        </div>
+       
+        
       );
     } else if (lesson.contentType === "document") {
       return (
@@ -444,26 +449,8 @@ useEffect(() => {
           </div>
 
           <aside className="space-y-6 mt-4 xl:mt-0">
-            <div className="bg-white p-4 rounded-xl shadow">
-              <h3 className="text-sm font-semibold mb-4 text-gray-700">
-                Schedule
-              </h3>
-              {["What is Scrum?", "Scrum Events", "Scrum Artifacts", "Agile Estimation"].map(
-                (item, i) => (
-                  <div key={i} className="flex items-start space-x-2 mb-4">
-                    <div className="w-2 h-2 mt-1 bg-blue-600 rounded-full" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-800">
-                        {item}
-                      </div>
-                      <div className="text-xs text-gray-500">
-                        Tika Sarak S.Pd
-                      </div>
-                    </div>
-                  </div>
-                )
-              )}
-            </div>
+             {id && <LessonFeedbackWidget token={token} lessonId={id} />}
+             <FeedbackWidget token={token} lessonId={id ?? ""} />
           </aside>
         </div>
       </main>
@@ -499,15 +486,26 @@ useEffect(() => {
                 <p className="text-gray-700 mb-2">
                   Take a quiz to test your knowledge.
                 </p>
-                <button
-                  onClick={() => {
-                    setShowQuiz(false);
-                    navigate(`/quiz/${lesson.id}`);
-                  }}
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
-                >
-                  Start Quiz
-                </button>
+                 <div className="flex justify-center gap-4 mt-4">
+                    <button
+                      onClick={() => {
+                        setShowQuiz(false);
+                        navigate(`/quiz/${lesson.id}`);
+                      }}
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg"
+                    >
+                      Start Quiz
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowQuiz(false);
+                        navigate("/lesson");
+                      }}
+                      className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-2 rounded-lg"
+                    >
+                      Do Later
+                    </button>
+                  </div>
               </>
             )}
           </div>

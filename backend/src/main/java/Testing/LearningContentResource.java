@@ -199,29 +199,34 @@ public class LearningContentResource {
 
         String quizId = UUID.randomUUID().toString().replace("-", "").substring(0, 21);
         if (dto.questions != null) {
-            for (QuestionDTO q : dto.questions) {
-                QuestionEntity qe = new QuestionEntity();
-                qe.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
-                qe.setLearningContent(lc);
-                qe.setQuiz_id(quizId);
-                qe.setQuestionText(q.questionText);
-                qe.setType(QuestionType.valueOf(q.type.toUpperCase()));
-                qe.setPoints(q.points != null ? q.points : 1);
-                em.persist(qe);
+            lc.setQuizAvailable(Boolean.TRUE);
+            if (dto.questions != null && !dto.questions.isEmpty()) {
+                lc.setQuizAvailable(Boolean.TRUE);
+                for (QuestionDTO q : dto.questions) {
+                    QuestionEntity qe = new QuestionEntity();
+                    qe.setId(UUID.randomUUID().toString().replace("-", "").substring(0, 21));
+                    qe.setLearningContent(lc);
+                    qe.setQuiz_id(quizId);
+                    qe.setQuestionText(q.questionText);
+                    qe.setType(QuestionType.valueOf(q.type.toUpperCase()));
+                    qe.setPoints(q.points != null ? q.points : 1);
+                    em.persist(qe);
 
-                if (q.choices != null) {
-                    for (ChoiceDTO c : q.choices) {
-                        QuestionChoiceEntity ce = new QuestionChoiceEntity();
-                        ce.id = UUID.randomUUID().toString().replace("-", "").substring(0, 21);
-                        ce.question = qe;
-                        ce.choiceText = c.text;
-                        ce.isCorrect = c.isCorrect;
-                        em.persist(ce);
+                    if (q.choices != null) {
+                        for (ChoiceDTO c : q.choices) {
+                            QuestionChoiceEntity ce = new QuestionChoiceEntity();
+                            ce.id = UUID.randomUUID().toString().replace("-", "").substring(0, 21);
+                            ce.question = qe;
+                            ce.choiceText = c.text;
+                            ce.isCorrect = c.isCorrect;
+                            em.persist(ce);
+                        }
                     }
                 }
+            } else {
+                lc.setQuizAvailable(Boolean.FALSE);
             }
         }
-
         System.out.println("📥 Received new lesson creation request:");
         System.out.println("Title: " + dto.title);
         System.out.println("Description: " + dto.description);

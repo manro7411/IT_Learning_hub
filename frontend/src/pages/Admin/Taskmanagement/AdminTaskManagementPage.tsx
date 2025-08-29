@@ -5,25 +5,29 @@ import AdminSidebarWidget from "../Widgets/AdminSideBar";
 import { useNavigate } from "react-router-dom";
 import { Pencil } from "lucide-react";
 import EditLessonModal, { type Lesson } from "./EditLessonModal";
+import { sendLessonNotification } from "../Widgets/notificationServices";
 
 interface UserProgress {
   userEmail: string;
   percent: number;
   lessonId: number;
   score: number;
+  quizAvailable: boolean;
+  feedback?: string;
 }
 
 const AdminTaskManagementPage = () => {
-  const { token } = useContext(AuthContext);
+  const { token ,user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const adminEmail = user?.email;
 
   const [lessons, setLessons] = useState<Lesson[]>([]);
   const [selectedLesson, setSelectedLesson] = useState<Lesson | null>(null);
   const [progressList, setProgressList] = useState<UserProgress[]>([]);
   const [selectedUser, setSelectedUser] = useState<UserProgress | null>(null);
   const [loading, setLoading] = useState(false);
+  const [feedback,setFeedback] = useState<string>("")
 
-  // Edit modal state
   const [showEditModal, setShowEditModal] = useState(false);
 
   const authHeader = token ? { Authorization: `Bearer ${token}` } : undefined;
@@ -34,6 +38,7 @@ const AdminTaskManagementPage = () => {
       const res = await axios.get<Lesson[]>("/api/learning?mine=true", {
         headers: authHeader,
       });
+      console.log("Fetched lessons:", res.data);
       setLessons(res.data);
     } catch (err) {
       console.error("❌ Failed to load lessons:", err);
@@ -210,42 +215,115 @@ const AdminTaskManagementPage = () => {
           </section>
 
           {/* Right pane: selected user overview */}
-          <section className="col-span-1 bg-white p-6 rounded-xl shadow">
-            <h2 className="text-lg font-semibold mb-4 text-gray-700">
-              Quick overview of employee progress
-            </h2>
+         <section className="col-span-1 bg-white p-6 rounded-xl shadow">
+          <h2 className="text-lg font-semibold mb-4 text-gray-700">
+            Quick overview of employee progress
+          </h2>
 
-            {selectedUser ? (
-              <div className="space-y-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full" />
-                  <div>
-                    <p className="font-medium text-gray-800">{selectedUser.userEmail}</p>
-                    <p className="text-sm text-gray-500">Lesson ID: {selectedUser.lessonId}</p>
-                  </div>
-                </div>
-
+          {selectedUser ? (
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-200 rounded-full" />
                 <div>
-                  <p className="text-sm text-gray-500">Progress</p>
-                  <progress value={selectedUser.percent} max={100} className="w-full h-2 mt-1" />
-                  <p className="text-right text-xs text-gray-500">{selectedUser.percent}%</p>
+                  <p className="font-medium text-gray-800">{selectedUser.userEmail}</p>
+                  <p className="text-sm text-gray-500">Lesson ID: {selectedUser.lessonId}</p>
                 </div>
+              </div>
 
-                <p className="text-sm text-gray-500">
-                  Quiz:{" "}
-                  {selectedUser.score > 0 ? (
+              <div>
+                <p className="text-sm text-gray-500">Progress</p>
+                <progress value={selectedUser.percent} max={100} className="w-full h-2 mt-1" />
+                <p className="text-right text-xs text-gray-500">{selectedUser.percent}%</p>
+              </div>
+
+              <p className="text-sm text-gray-500">
+                Quiz:{" "}
+                {selectedLesson?.quizAvailable ? (
+                  selectedUser?.score > 0 ? (
                     <span className="text-green-600 font-semibold">
                       Finished ({selectedUser.score} pts)
                     </span>
                   ) : (
                     <span className="text-red-500">Not yet</span>
-                  )}
-                </p>
+                  )
+                ) : (
+                  <span className="text-gray-400">Quiz not available for this learning content</span>
+                )}
+              </p>
+
+         
+              {/* Feedback Section */}
+             {/* Feedback Section */}
+            {selectedUser?.percent === 100 && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Feedback for {selectedUser.userEmail}
+                </label>
+                {selectedUser.feedback ? (
+                  // Show feedback if already given
+                  <div className="p-4 bg-gray-100 border rounded-lg">
+                    <p className="text-sm text-gray-700">{selectedUser.feedback}</p>
+                  </div>
+                ) : (
+                  // Show feedback input form if feedback is not given
+                  <>
+                    <textarea
+                      value={feedback}
+                      onChange={(e) => setFeedback(e.target.value)}
+                      className="h-48 w-full border rounded-lg px-3 py-2"
+                      placeholder="Write your feedback here..."
+                    />
+                    <button
+                      onClick={async () => {
+                        if (!feedback.trim()) {
+                          alert("❌ Feedback cannot be empty.");
+                          return;
+                        }
+
+                        try {
+                          // Submit feedback
+                          await axios.post(
+                            `/api/user/feedback`,
+                            {
+                              userEmail: selectedUser.userEmail,
+                              lessonId: selectedUser.lessonId,
+                              feedback,
+                              adminEmail,
+                            },
+                            { headers: authHeader }
+                          );
+
+                          // Send notification to the user
+                          await sendLessonNotification({
+                            token,
+                            message: `You have received feedback for lesson ${selectedUser.lessonId}.`,
+                            userIds: [selectedUser.userEmail],
+                            target: "USER",
+                          });
+
+                          alert("✅ Feedback sent successfully!");
+                          setFeedback(""); // Clear feedback input
+                          setSelectedUser((prev) =>
+                            prev ? { ...prev, feedback } : prev
+                          ); // Update feedback in the UI
+                        } catch (err) {
+                          console.error("❌ Failed to send feedback:", err);
+                          alert("Failed to send feedback.");
+                        }
+                      }}
+                      className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                      Send Feedback
+                    </button>
+                  </>
+                )}
               </div>
-            ) : (
-              <p className="text-gray-400">← Select a user to see details</p>
             )}
-          </section>
+            </div>
+          ) : (
+            <p className="text-gray-400">← Select a user to see details</p>
+          )}
+        </section>
         </div>
       </main>
 

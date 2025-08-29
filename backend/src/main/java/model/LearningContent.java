@@ -79,6 +79,13 @@ public class LearningContent {
     @Column(name = "documentUrl")
     private String documentUrl;
 
+    @Column(name = "quizAvailable")
+    private Boolean quizAvailable = false;
+
+    @OneToMany(mappedBy = "learningContent", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserFeedbackEntity> feedbacks = new ArrayList<>();
+
+
 
     @PrePersist
     private void prePersist() {
@@ -149,4 +156,16 @@ public class LearningContent {
     public void setDocumentUrl(String documentUrl) {
         this.documentUrl = documentUrl;
     }
+
+    public void setQuizAvailable(Boolean quizAvailable) { this.quizAvailable = quizAvailable; }
+    public Boolean getQuizAvailable() { return this.quizAvailable; }
+
+    public List<UserFeedbackEntity> getFeedbacks() {
+        return feedbacks;
+    }
+
+    public void setFeedbacks(List<UserFeedbackEntity> feedbacks) {
+        this.feedbacks = feedbacks;
+    }
+
 }

@@ -16,9 +16,11 @@ const LoginPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    // setLoading(true)
 
     try {
       const res = await axios.post("/api/login", { email, password });
@@ -27,6 +29,8 @@ const LoginPage = () => {
 
       const decoded: JwtPayload = jwtDecode(token);
       const role = (decoded.role ?? decoded.groups?.[0] ?? "user").toLowerCase();
+
+      // await new Promise((resolve) => setTimeout(resolve, 1000));
 
       if (role === "admin") {
         navigate("/admin");
@@ -41,11 +45,18 @@ const LoginPage = () => {
     } catch (err) {
       alert("Login failed");
       console.error("❌ Login error:", err);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
       <div className="w-full h-screen flex flex-col md:flex-row">
+        {loading && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-blue-500"></div>
+        </div>
+      )}
         {/* Left Panel */}
         <div className="w-full md:w-1/2 h-1/2 md:h-full bg-gradient-to-b from-blue-500 to-blue-800 text-white flex flex-col justify-center items-center p-8">
           <h1 className="text-5xl font-bold mb-4 text-center">IT Learning Hub</h1>
@@ -82,6 +93,7 @@ const LoginPage = () => {
               />
               <button
                   type="submit"
+                  disabled={loading}
                   className="w-full bg-blue-600 text-white font-semibold py-2 rounded-full hover:bg-blue-700 transition"
               >
                 Login

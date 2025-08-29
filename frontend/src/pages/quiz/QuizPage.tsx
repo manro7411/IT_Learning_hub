@@ -83,7 +83,11 @@ const QuizPageStyled = () => {
   }, [learningContentId]);
 
   useEffect(() => {
-    if (timeLeft <= 0) return;
+    if (timeLeft <= 0) {
+      submitScore(0)
+      setShowSummary(true)
+      navigate("/lesson");
+    };
     const timer = setInterval(() => setTimeLeft((prev) => prev - 1), 1000);
     return () => clearInterval(timer);
   }, [timeLeft]);
@@ -159,6 +163,7 @@ const QuizPageStyled = () => {
     );
 
   const currentQuestion = questions[currentQuestionIndex];
+  console.log(currentQuestion.type)
   if (!currentQuestion) return <div className="p-10 text-red-500">No questions found.</div>;
 
   return (
@@ -208,6 +213,16 @@ const QuizPageStyled = () => {
             </button>
           </div>
         )}
+
+        {showSummary && (
+        <div className="text-center mt-20">
+          <h2 className="text-2xl font-bold text-red-600 mb-4">⏰ Time's Up!</h2>
+          <p className="text-gray-600 mb-2">
+            You missed the quiz for this attempt. Your score: <strong>0</strong>
+          </p>
+          <p className="text-gray-500">Redirecting to lessons...</p>
+        </div>
+      )}
       </div>
 
       <div className="w-64 hidden lg:block"></div>

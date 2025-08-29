@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import ChatBubbleWidget from '../../widgets/ChatBubbleWidget.tsx';
 import NotificationWidget from '../../widgets/NotificationWidget.tsx';
 import TaskCard from './TaskCard.tsx';
+import defaultPicture from './placeholder.png'
 
 interface Task {
   id: string;
@@ -91,7 +92,7 @@ const TaskManagement = () => {
             status,
             type: 'learning',
             lessonId: item.lessonId,
-            thumbnailUrl: item.thumbnailUrl,
+            thumbnailUrl: item.thumbnailUrl || defaultPicture,
             author: item.authorName || "Unknown",
             role: item.authorRole || "Instructor",
             progress: item.percent,

@@ -21,7 +21,8 @@ public record LearningContentDto(
         String assignType,
         List<String> assignedUserIds,
         List<String> assignedTeamIds,
-        LocalDateTime dueDate
+        LocalDateTime dueDate,
+        Boolean  quizAvailable
 ) {
 
     public static LearningContentDto fromEntity(LearningContent e) {
@@ -41,8 +42,8 @@ public record LearningContentDto(
                 e.getAssignType(),
                 e.getAssignedUserIds(),
                 e.getAssignedTeamIds(),
-                e.getDueDate()
-
+                e.getDueDate(),
+                e.getQuizAvailable()
         );
     }
 
@@ -64,6 +65,7 @@ public record LearningContentDto(
         e.setVideoUrl(videoUrl);
         e.setDocumentUrl(documentUrl);
         e.setContentType(contentType);
+        e.setQuizAvailable(quizAvailable);
         return e;
     }
 }

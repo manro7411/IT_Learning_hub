@@ -10,6 +10,7 @@ export interface Lesson {
   description: string;
   contentType: "video" | "document";
   assignType: "all" | "team" | "specific";
+  quizAvailable?: boolean;
 }
 
 interface EditLessonModalProps {
@@ -24,7 +25,7 @@ interface EditLessonModalProps {
     video?: File | null;
     contentType: "video" | "document";
     assignType: "all" | "team" | "specific";
-    
+    quizAvailable: boolean;
   }) => Promise<void> | void;
 }
 
@@ -37,6 +38,7 @@ const EditLessonModal = ({ open, initial, onClose, onSave }: EditLessonModalProp
   const [contentType, setContentType] = useState<"video" | "document">("video");
   const [assignType, setAssignType] = useState<"all" | "specific" | "team">("all");
   const [saving, setSaving] = useState(false);
+  const [quizAvailable, setQuizAvailable] = useState(initial.quizAvailable ?? false);
 
   useEffect(() => {
     if (!open) return;
@@ -54,6 +56,7 @@ const EditLessonModal = ({ open, initial, onClose, onSave }: EditLessonModalProp
         console.log("Content-type: ",data.contentType.toLowerCase())
         setContentType(data.contentType.toLowerCase()); 
         setAssignType(data.assignType);
+        setQuizAvailable(data.quizAvailable ?? false);
         setVideoFile(null);
       } catch (error) {
         console.error("Failed to fetch lesson details:", error);
@@ -78,7 +81,8 @@ const EditLessonModal = ({ open, initial, onClose, onSave }: EditLessonModalProp
         thumbnailUrl: thumbnailUrl.trim() || undefined,
         video: videoFile,
         contentType,
-        assignType
+        assignType,
+        quizAvailable,
       });
     } finally {
       setSaving(false);

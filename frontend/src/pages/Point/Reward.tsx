@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 const rewards = [
-  { name: "Tumbler", points: 200 },
+  { name: "Tumbler", points: 3 },
   { name: "Canvas Bag", points: 150 },
   { name: "Notebook", points: 100 },
 ];
@@ -17,7 +17,6 @@ const Reward = ({ userPoints }: RewardProps) => {
     if (userPoints >= itemPoints && !redeemed.includes(itemName)) {
       setRedeemed((prev) => [...prev, itemName]);
       alert(`คุณได้ Redeem ${itemName} เรียบร้อยแล้ว!`);
-      // TODO: call API to save redemption
     }
   };
 

@@ -2,7 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 interface Lesson {
-  __cat: { group: any; path: any; };
+  __cat: { group: any; path: any };
   id: string;
   title: string;
   category: string;
@@ -16,14 +16,17 @@ interface Lesson {
   contentType: "video" | "document";
 }
 
-interface Progress { percent: number, lastTimestamp: number}
+interface Progress {
+  percent: number;
+  lastTimestamp: number;
+}
 
-export function useLesson(token: string | null, pathname: string){
-    const [lessons,setLessons] = useState<Lesson[]>([]);
-    const [progressMap, setProgressMap] = useState<Record<string, Progress>>({});
-    const [loading, setLoading] = useState(true);
+export function useLesson(token: string | null, pathname: string) {
+  const [lessons, setLessons] = useState<Lesson[]>([]);
+  const [progressMap, setProgressMap] = useState<Record<string, Progress>>({});
+  const [progressRes, setProgressRes] = useState<any[]>([]); // Add state for progressRes
+  const [loading, setLoading] = useState(true);
 
-  
   useEffect(() => {
     if (!token) {
       return;
@@ -31,7 +34,7 @@ export function useLesson(token: string | null, pathname: string){
 
     const fetchData = async () => {
       try {
-        const [lessonsRes, progressRes] = await Promise.all([
+        const [lessonsRes, progressResData] = await Promise.all([
           axios.get("/api/learning", {
             headers: { Authorization: `Bearer ${token}` },
           }),
@@ -39,11 +42,13 @@ export function useLesson(token: string | null, pathname: string){
             headers: { Authorization: `Bearer ${token}` },
           }),
         ]);
-        // console.log(lessonsRes.data)
+
         setLessons(lessonsRes.data);
-        
+        console.log(progressResData.data)
+        setProgressRes(progressResData.data); // Save progressRes data to state
+
         const map: Record<string, Progress> = {};
-        progressRes.data.forEach((item: { lessonId: string; percent: number; lastTimestamp?: number }) => {
+        progressResData.data.forEach((item: { lessonId: string; percent: number; lastTimestamp?: number }) => {
           const key = item.lessonId.toLowerCase();
           map[key] = {
             percent: item.percent,
@@ -59,6 +64,7 @@ export function useLesson(token: string | null, pathname: string){
     };
 
     fetchData();
-  }, [token,pathname]);
-return {lessons,progressMap,loading}
+  }, [token, pathname]);
+
+  return { lessons, progressMap, progressRes, loading};
 }

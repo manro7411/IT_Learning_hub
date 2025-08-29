@@ -11,6 +11,8 @@ import { useUserProfile } from "./hooks/useUserProfile";
 import { useTeam } from "./hooks/useTeam";
 import { CATEGORY_GROUP } from "./Category";
 import { resolveCategoryPath, countByPath } from "./utils/resolveCategory";
+import placeholder from './placeholder.png';
+// import LessonStatsWidget from "../../widgets/LessonStatsWidget";
 
 // ------------------------------------------------------
 // LessonDashboard.tsx (เต็มไฟล์)
@@ -50,7 +52,6 @@ export default function LessonDashboard() {
     for (const l of lessons) {
       const key = l.id.toLowerCase();
       const percent = progressMap[key]?.percent ?? 0;
-      // if (percent >= 100) completed += 1; else inProgress += 1;
 
       if (percent >= 100) {
         completed+=1;
@@ -107,7 +108,7 @@ export default function LessonDashboard() {
   }, [filteredLessons]);
 
   // ------- Handlers -------
-  const handleLessonClick = async (id: string) => {
+  const handleLessonClick = async (id: string, quizAvailable: boolean) => {
     const key = id.toLowerCase();
     const lastTimestamp = progressMap[key]?.lastTimestamp || 0;
     try {
@@ -115,7 +116,7 @@ export default function LessonDashboard() {
     } catch (err) {
       console.error("Failed to log click:", err);
     } finally {
-      navigate(`/lesson/${id}`, { state: { lastTimestamp } });
+      navigate(`/lesson/${id}`, { state: { lastTimestamp ,quizAvailable} });
     }
   };
 
@@ -151,6 +152,7 @@ export default function LessonDashboard() {
           <StatCard label="กำลังเรียน" value={stats.inProgress} subtitle="ยังไม่จบ" />
           <StatCard label="เรียนจบแล้ว" value={stats.completed} subtitle="ครบ 100%" />
         </div>
+        {/* <LessonStatsWidget stats={stats} /> */}
 
         {/* Controls */}
         <div className="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3 mb-4">
@@ -229,7 +231,7 @@ export default function LessonDashboard() {
                                   key={lesson.id}
                                   lesson={lesson}
                                   progressMap={progressMap}
-                                  onClick={() => handleLessonClick(lesson.id)}
+                                  onClick={() => handleLessonClick(lesson.id,lesson.quizAvailable)}
                                 />
                               ))}
                             </div>
@@ -246,7 +248,7 @@ export default function LessonDashboard() {
                                 key={(lesson as any).id}
                                 lesson={lesson}
                                 progressMap={progressMap}
-                                onClick={() => handleLessonClick((lesson as any).id)}
+                                onClick={() => handleLessonClick((lesson as any).id, (lesson as any).quizAvailable)}
                               />
                             ))}
                           </div>
@@ -260,7 +262,7 @@ export default function LessonDashboard() {
                           key={(lesson as any).id}
                           lesson={lesson}
                           progressMap={progressMap}
-                          onClick={() => handleLessonClick((lesson as any).id)}
+                          onClick={() => handleLessonClick((lesson as any).id, (lesson as any).quizAvailable)}
                         />
                       ))}
                     </div>
@@ -402,21 +404,40 @@ function LessonCard({
     ? `/api/profile/avatars/${avatarFilename}`
     : (defaultUserAvatar as unknown as string);
 
+  const buttonLabel = progress.percent >= 100 ? "Completed" : progress.percent > 0 ? "In Progress" : "Start";
+
   return (
     <button onClick={onClick} className="block focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500">
-      <div className="w-64 h-[300px] bg-white rounded-xl shadow-md flex flex-col overflow-hidden">
-        <div className="w-full h-32 bg-gray-100">
+      <div className="w-64 h-[300px] bg-white rounded-xl shadow-md flex flex-col overflow-hidden relative">
+        {/* Image Section */}
+        <div className="w-full h-32 bg-gray-100 relative">
           <img
-            src={lesson.thumbnailUrl || "/placeholder.png"}
+            src={lesson.thumbnailUrl || placeholder}
             alt={lesson.title}
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).onerror = null;
-              (e.currentTarget as HTMLImageElement).src = "/placeholder.png";
+              (e.currentTarget as HTMLImageElement).src = placeholder;
             }}
             className="h-full w-full object-cover"
           />
+          {/* Button Positioned at Top-Right */}
+          <div className="absolute top-2 right-2">
+            <button
+              className={`px-3 py-1 rounded-md text-xs font-medium ${
+                buttonLabel === "Completed"
+                  ? "bg-green-500 text-white"
+                  : buttonLabel === "In Progress"
+                  ? "bg-blue-500 text-white"
+                  : "bg-gray-300 text-gray-700 hover:bg-gray-400"
+              }`}
+              disabled={buttonLabel === "Completed"} // Disable button if lesson is completed
+            >
+              {buttonLabel}
+            </button>
+          </div>
         </div>
 
+        {/* Content Section */}
         <div className="flex flex-1 flex-col p-4">
           <span className="text-[10px] font-semibold uppercase text-blue-600">
             {lesson.__cat?.sub ? `${lesson.__cat.sub}` : lesson.__cat?.group}
@@ -426,10 +447,9 @@ function LessonCard({
           <div className="mb-2 mt-3 h-1 rounded-full bg-gray-200">
             <div
               className="h-full transition-all duration-300 rounded-full bg-blue-500"
-              style={{ width: `${Math.max(progress.percent, 1)}%`, minWidth: progress.percent > 0 ? 4 : 0 }}
+              style={{ width: `${Math.max(progress.percent, 0)}%`, minWidth: progress.percent > 0 ? 4 : 0 }}
             />
           </div>
-          <div className="text-[10px] text-gray-500 mb-1">Progress: {progress.percent}%</div>
 
           <div className="mt-auto flex items-center space-x-2">
             <img
